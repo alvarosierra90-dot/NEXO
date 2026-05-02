@@ -2239,6 +2239,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               amber: 'bg-amber-100 text-amber-800',
               red: 'bg-red-100 text-red-800',
               navy: 'bg-navy-100 text-navy-800',
+              gold: 'bg-gold-100 text-gold-800',
             };
             const Icon = tipo.icon;
             return (
@@ -3328,6 +3329,7 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
       lider: nuevoTallerForm.lider.trim() || '',
       objetivos: [],
       documentos: [],
+      updatedAt: new Date().toISOString(),
     };
     await setTalleres([...talleres, nuevo]);
     setNuevoTallerForm({ nombre: '', descripcion: '', area: '', estado: 'Planificado', lider: '' });
@@ -3355,6 +3357,17 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
 
   const areasDisponibles = [...new Set(talleres.map(t => t.area).filter(Boolean))].sort();
   const estadosDisponibles = [...new Set(talleres.map(t => t.estado).filter(Boolean))].sort();
+
+  const tallerLastTouched = (t) => {
+    const candidates = [];
+    if (t.updatedAt) candidates.push(new Date(t.updatedAt).getTime());
+    historico.forEach(e => { if (e.tallerId === t.id && e.fecha) candidates.push(new Date(e.fecha).getTime()); });
+    (t.objetivos || []).forEach(o => {
+      if (o.fechaCreacion) candidates.push(new Date(o.fechaCreacion).getTime());
+    });
+    return candidates.length > 0 ? Math.max(...candidates) : 0;
+  };
+
   const talleresFiltrados = talleres.filter(t => {
     if (filtroNombre.trim()) {
       const q = filtroNombre.trim().toLowerCase();
@@ -3367,7 +3380,7 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
     if (filtroArea !== 'todas' && t.area !== filtroArea) return false;
     if (filtroEstadoTaller !== 'todos' && t.estado !== filtroEstadoTaller) return false;
     return true;
-  });
+  }).sort((a, b) => tallerLastTouched(b) - tallerLastTouched(a));
 
   return (
     <div className="p-8 w-full">
@@ -3809,10 +3822,12 @@ const TIPOS_EVENTO = {
   riesgo: { label: 'Riesgo', color: 'amber', icon: AlertOctagon },
   bloqueo: { label: 'Bloqueo', color: 'red', icon: AlertTriangle },
   reunion: { label: 'Reunión', color: 'navy', icon: Mic },
+  objetivo: { label: 'Objetivo', color: 'gold', icon: CheckCircle2 },
 };
 
 function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, onBack, usuarioActualId, demoMode }) {
   const [filtroTipo, setFiltroTipo] = useState('todos');
+  const [filtroTiempo, setFiltroTiempo] = useState('historico');
   const [nuevoTipo, setNuevoTipo] = useState('avance');
   const [nuevoTitulo, setNuevoTitulo] = useState('');
   const [nuevaDesc, setNuevaDesc] = useState('');
@@ -3854,6 +3869,7 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
       estado: editTallerForm.estado || t.estado,
       lider: editTallerForm.lider.trim(),
       diaADia: editTallerForm.diaADia.trim(),
+      updatedAt: new Date().toISOString(),
     } : t);
     await setTalleres(actualizados);
     setEditandoTaller(false);
@@ -3902,7 +3918,7 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
         id: `e-obj-${Date.now()}`,
         tallerId: taller.id,
         fecha: new Date().toISOString().slice(0, 10),
-        tipo: 'hito',
+        tipo: 'objetivo',
         titulo: `Objetivo cumplido: ${obj.titulo}`,
         descripcion: `Objetivo "${obj.titulo}" del taller marcado como completado.`,
         autorId: usuarioActualId || null,
@@ -3932,6 +3948,29 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   };
 
   const [objetivoActivoId, setObjetivoActivoId] = useState(null);
+  const [editandoObjetivo, setEditandoObjetivo] = useState(false);
+  const [objetivoEditForm, setObjetivoEditForm] = useState({ titulo: '', fecha: '' });
+
+  useEffect(() => {
+    if (objetivoActivoId) {
+      const obj = objetivos.find(o => o.id === objetivoActivoId);
+      if (obj) setObjetivoEditForm({ titulo: obj.titulo || '', fecha: obj.fecha || '' });
+    }
+    setEditandoObjetivo(false);
+  }, [objetivoActivoId]);
+
+  const guardarEdicionObjetivo = async () => {
+    if (!objetivoEditForm.titulo.trim() || !objetivoEditForm.fecha) return;
+    const obj = objetivos.find(o => o.id === objetivoActivoId);
+    if (!obj) return;
+    await guardarObjetivos(objetivos.map(o => o.id === objetivoActivoId ? { ...o, titulo: objetivoEditForm.titulo.trim(), fecha: objetivoEditForm.fecha } : o));
+    if (obj.eventoCumplimientoId && setHistorico && historico) {
+      const nuevoTitulo = `Objetivo cumplido: ${objetivoEditForm.titulo.trim()}`;
+      const nuevaDesc = `Objetivo "${objetivoEditForm.titulo.trim()}" del taller marcado como completado.`;
+      await setHistorico(historico.map(e => e.id === obj.eventoCumplimientoId ? { ...e, titulo: nuevoTitulo, descripcion: nuevaDesc } : e));
+    }
+    setEditandoObjetivo(false);
+  };
 
   const toggleReunionEnObjetivo = async (objId, reunionId) => {
     await guardarObjetivos(objetivos.map(o => {
@@ -4016,9 +4055,21 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
 
   const personaById = Object.fromEntries(personas.map(p => [p.id, p]));
 
+  const cutoffDiasMap = { mes: 30, '3meses': 90, '6meses': 180, '1ano': 365, '5anos': 365 * 5 };
+  const eventoDentroDelRango = (e) => {
+    if (filtroTiempo === 'historico') return true;
+    const dias = cutoffDiasMap[filtroTiempo];
+    if (!dias || !e.fecha) return true;
+    const fechaE = new Date(e.fecha);
+    if (isNaN(fechaE)) return true;
+    const ahora = new Date();
+    return (ahora - fechaE) / 86400000 <= dias;
+  };
+
   const eventosOrdenados = historico
     .filter(e => e.tallerId === taller.id)
     .filter(e => filtroTipo === 'todos' || e.tipo === filtroTipo)
+    .filter(eventoDentroDelRango)
     .sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   const totalEventos = historico.filter(e => e.tallerId === taller.id).length;
@@ -4139,11 +4190,45 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                     <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${completado ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-700'}`}>
                       {completado ? '✓ Cumplido' : 'Pendiente'}
                     </span>
-                    <span className="text-xs text-stone-500 flex items-center gap-1">
-                      <Calendar size={11} /> {formatFecha(obj.fecha)}
-                    </span>
+                    {!editandoObjetivo && (
+                      <span className="text-xs text-stone-500 flex items-center gap-1">
+                        <Calendar size={11} /> {formatFecha(obj.fecha)}
+                      </span>
+                    )}
                   </div>
-                  <h2 className="font-serif text-2xl text-navy-900">{obj.titulo}</h2>
+                  {editandoObjetivo ? (
+                    <div className="space-y-2">
+                      <input
+                        value={objetivoEditForm.titulo}
+                        onChange={e => setObjetivoEditForm({ ...objetivoEditForm, titulo: e.target.value })}
+                        className="w-full font-serif text-2xl text-navy-900 bg-stone-50 border border-stone-300 rounded-md px-3 py-1.5 outline-none focus:border-navy-700"
+                        placeholder="Título del objetivo"
+                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="date"
+                          value={objetivoEditForm.fecha}
+                          onChange={e => setObjetivoEditForm({ ...objetivoEditForm, fecha: e.target.value })}
+                          className="text-sm bg-stone-50 border border-stone-300 rounded-md px-3 py-1.5 outline-none focus:border-navy-700"
+                        />
+                        <button
+                          onClick={guardarEdicionObjetivo}
+                          disabled={!objetivoEditForm.titulo.trim() || !objetivoEditForm.fecha}
+                          className="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-xs font-semibold transition-colors"
+                        >Guardar</button>
+                        <button onClick={() => { setEditandoObjetivo(false); setObjetivoEditForm({ titulo: obj.titulo, fecha: obj.fecha }); }} className="text-xs text-stone-600 hover:text-stone-900 px-2">Cancelar</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-serif text-2xl text-navy-900">{obj.titulo}</h2>
+                      <button
+                        onClick={() => setEditandoObjetivo(true)}
+                        className="text-[11px] text-stone-500 hover:text-navy-900 underline"
+                        title="Editar título y fecha"
+                      >Editar</button>
+                    </div>
+                  )}
                 </div>
                 <button onClick={() => setObjetivoActivoId(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0">
                   <X size={20} />
@@ -4793,6 +4878,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           amber: { bg: '#FAEEDA', border: '#BA7517', text: '#633806', dot: '#BA7517' },
           red: { bg: '#FCEBEB', border: '#A32D2D', text: '#791F1F', dot: '#A32D2D' },
           navy: { bg: '#E5EAF3', border: '#1E3A6F', text: '#0E1F3D', dot: '#1E3A6F' },
+          gold: { bg: '#FBF3DD', border: '#D4A82C', text: '#5B3F0A', dot: '#D4A82C' },
         };
 
         const grupos = {};
@@ -5007,6 +5093,21 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
             }`}
           >{val.label} {conteoTipos[key] ? `(${conteoTipos[key]})` : ''}</button>
         ))}
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Período:</span>
+          <select
+            value={filtroTiempo}
+            onChange={e => setFiltroTiempo(e.target.value)}
+            className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none"
+          >
+            <option value="mes">Último mes</option>
+            <option value="3meses">Últimos 3 meses</option>
+            <option value="6meses">Últimos 6 meses</option>
+            <option value="1ano">Último año</option>
+            <option value="5anos">Últimos 5 años</option>
+            <option value="historico">Histórico (todo)</option>
+          </select>
+        </div>
       </div>
 
       <div className="relative">
@@ -5027,6 +5128,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
               amber: 'bg-amber-100 text-amber-800',
               red: 'bg-red-100 text-red-800',
               navy: 'bg-navy-100 text-navy-800',
+              gold: 'bg-gold-100 text-gold-800',
             };
             const editando = editandoEventoId === evento.id;
             return (
@@ -9192,7 +9294,7 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
   );
 }
 
-function ReunionesView({ reuniones, setReuniones, talleres, personas, historico, setHistorico, setActive }) {
+function ReunionesView({ reuniones, setReuniones, talleres, setTalleres, personas, historico, setHistorico, setActive }) {
   const [reunionActiva, setReunionActiva] = useState(null);
   const [añadiendo, setAñadiendo] = useState(false);
   const [nuevoTitulo, setNuevoTitulo] = useState('');
@@ -9207,8 +9309,28 @@ function ReunionesView({ reuniones, setReuniones, talleres, personas, historico,
   const [transcripcion, setTranscripcion] = useState('');
   const [resumenIA, setResumenIA] = useState(null);
   const [resumiendo, setResumiendo] = useState(false);
-  const [resumenForm, setResumenForm] = useState({ titulo: '', fecha: '', tallerId: '', asistentes: [], guardarComoReunion: true });
+  const [resumenForm, setResumenForm] = useState({ titulo: '', fecha: '', tallerId: '', objetivoId: '', asistentes: [], guardarComoReunion: true });
   const [resumenGuardado, setResumenGuardado] = useState(null);
+
+  const [nuevoTallerId, setNuevoTallerId] = useState('');
+  const [nuevoObjetivoId, setNuevoObjetivoId] = useState('');
+
+  const vincularReunionAObjetivo = async (tallerId, objetivoId, reunionId) => {
+    if (!setTalleres || !tallerId || !objetivoId || !reunionId) return;
+    const actualizados = talleres.map(t => {
+      if (t.id !== tallerId) return t;
+      return {
+        ...t,
+        objetivos: (t.objetivos || []).map(o => {
+          if (o.id !== objetivoId) return o;
+          const linked = o.reunionIds || [];
+          if (linked.includes(reunionId)) return o;
+          return { ...o, reunionIds: [...linked, reunionId] };
+        }),
+      };
+    });
+    await setTalleres(actualizados);
+  };
 
   const calcularEstadoReunion = (r) => {
     if (!r.fecha) return 'por_programar';
@@ -9302,10 +9424,17 @@ Devuelve SOLO un array JSON, sin explicación ni markdown. Formato:
       notas: nuevasNotas,
       agenda: agendaItems,
       ideas: [],
+      tallerIds: nuevoTallerId ? [nuevoTallerId] : [],
     };
     await setReuniones([...reuniones, nueva]);
+
+    if (nuevoTallerId && nuevoObjetivoId) {
+      await vincularReunionAObjetivo(nuevoTallerId, nuevoObjetivoId, nueva.id);
+    }
+
     setReunionActiva(nueva);
     setNuevoTitulo(''); setNuevasNotas(''); setNuevaAgenda(''); setAsistentesSel([]); setSinFecha(false); setAñadiendo(false);
+    setNuevoTallerId(''); setNuevoObjetivoId('');
 
     if (nuevasNotas.trim()) {
       await procesarReunion(nueva.id, nuevasNotas, asistentesSel);
@@ -9399,6 +9528,9 @@ Devuelve SOLO JSON válido, sin markdown:
       };
       await setReuniones([...reuniones, nueva]);
       creoReunion = true;
+      if (resumenForm.tallerId && resumenForm.objetivoId) {
+        await vincularReunionAObjetivo(resumenForm.tallerId, resumenForm.objetivoId, reunionId);
+      }
     }
 
     if (resumenForm.tallerId && setHistorico && historico) {
@@ -9477,6 +9609,40 @@ Devuelve SOLO JSON válido, sin markdown:
             <input type="checkbox" checked={sinFecha} onChange={e => setSinFecha(e.target.checked)} className="w-4 h-4 accent-navy-900" />
             Sin fecha — guardar como "Por programar"
           </label>
+
+          {(() => {
+            const tallerSel = nuevoTallerId ? talleres.find(t => t.id === nuevoTallerId) : null;
+            const objetivosTaller = tallerSel ? (tallerSel.objetivos || []) : [];
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Vincular a taller <span className="normal-case text-stone-400">(opcional)</span></p>
+                  <select
+                    value={nuevoTallerId}
+                    onChange={e => { setNuevoTallerId(e.target.value); setNuevoObjetivoId(''); }}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+                  >
+                    <option value="">— Sin vincular —</option>
+                    {talleres.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Objetivo concreto <span className="normal-case text-stone-400">{tallerSel ? `· ${objetivosTaller.length} disponibles` : '· elige taller primero'}</span></p>
+                  <select
+                    value={nuevoObjetivoId}
+                    onChange={e => setNuevoObjetivoId(e.target.value)}
+                    disabled={!nuevoTallerId || objetivosTaller.length === 0}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 disabled:opacity-50"
+                  >
+                    <option value="">— Sin objetivo —</option>
+                    {objetivosTaller.map(o => (
+                      <option key={o.id} value={o.id}>{o.estado === 'completado' ? '✓ ' : ''}{o.titulo}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            );
+          })()}
 
           <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Asistentes</p>
           <div className="flex flex-wrap gap-1 mb-3">
@@ -9687,17 +9853,34 @@ Devuelve SOLO JSON válido, sin markdown:
                     </div>
                     <div>
                       <p className="text-sm font-bold text-navy-900 mb-0.5">Vincular a un taller</p>
-                      <p className="text-[11px] text-stone-600">Se añade como evento en la evolución del taller.</p>
+                      <p className="text-[11px] text-stone-600">Se añade como evento en la evolución del taller. Opcionalmente puedes vincularla a un objetivo concreto.</p>
                     </div>
                   </div>
                   <select
                     value={resumenForm.tallerId}
-                    onChange={e => setResumenForm({ ...resumenForm, tallerId: e.target.value })}
-                    className="w-full bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                    onChange={e => setResumenForm({ ...resumenForm, tallerId: e.target.value, objetivoId: '' })}
+                    className="w-full bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700 mb-2"
                   >
                     <option value="">— No vincular —</option>
                     {talleres.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
                   </select>
+                  {resumenForm.tallerId && (() => {
+                    const tallerSel = talleres.find(t => t.id === resumenForm.tallerId);
+                    const objetivosTaller = tallerSel ? (tallerSel.objetivos || []) : [];
+                    return (
+                      <select
+                        value={resumenForm.objetivoId}
+                        onChange={e => setResumenForm({ ...resumenForm, objetivoId: e.target.value })}
+                        disabled={objetivosTaller.length === 0}
+                        className="w-full bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700 disabled:opacity-50"
+                      >
+                        <option value="">{objetivosTaller.length === 0 ? 'Este taller no tiene objetivos' : '— Sin objetivo concreto —'}</option>
+                        {objetivosTaller.map(o => (
+                          <option key={o.id} value={o.id}>{o.estado === 'completado' ? '✓ ' : ''}{o.titulo}</option>
+                        ))}
+                      </select>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -11209,7 +11392,7 @@ export default function Nexo() {
       <main ref={mainRef} className="flex-1 overflow-y-auto bg-stone-50">
         {active === 'dashboard' && <Dashboard talleres={talleres} herramientas={herramientas} setHerramientas={setHerramientas} tareas={tareas} setTareas={setTareas} iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} historico={historico} setHistorico={setHistorico} solapamientos={solapamientos} convocatorias={convocatorias} setConvocatorias={setConvocatorias} peticiones={peticiones} setPeticiones={setPeticiones} reuniones={reuniones} usuarioActualId={usuarioActualId} setActive={setActive} irATaller={irATaller} session={sessionForUI} active={active} />}
         {active === 'mis-tareas' && <MisTareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
-        {active === 'reuniones' && <ReunionesView reuniones={reuniones} setReuniones={setReuniones} talleres={talleres} personas={personas} historico={historico} setHistorico={setHistorico} setActive={setActive} />}
+        {active === 'reuniones' && <ReunionesView reuniones={reuniones} setReuniones={setReuniones} talleres={talleres} setTalleres={setTalleres} personas={personas} historico={historico} setHistorico={setHistorico} setActive={setActive} />}
         {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
