@@ -4983,6 +4983,19 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
           />
 
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={() => sugerirCategorias('alta')}
+              disabled={sugiriendoCategorias || !nuevaHerr.descripcion.trim()}
+              className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
+              title={!nuevaHerr.descripcion.trim() ? 'Escribe primero la descripción' : 'La IA leerá la descripción y propondrá categorías que encajen'}
+            >
+              {sugiriendoCategorias && sugerenciaRazon?.modo !== 'edicion' ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+              {sugiriendoCategorias && sugerenciaRazon?.modo !== 'edicion' ? 'Analizando…' : 'Sugerir categorías con IA'}
+            </button>
+          </div>
+
           <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Origen</label>
           <div className="flex gap-1 mb-3">
             {[
@@ -4993,7 +5006,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                 key={opt.v}
                 type="button"
                 onClick={() => setNuevaHerr({ ...nuevaHerr, origen: opt.v })}
-                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all border ${
+                className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all border ${
                   nuevaHerr.origen === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
                 }`}
                 title={opt.d}
@@ -5002,19 +5015,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           </div>
 
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(una herramienta puede pertenecer a varias)</span></label>
-              <button
-                type="button"
-                onClick={() => sugerirCategorias('alta')}
-                disabled={sugiriendoCategorias || !nuevaHerr.descripcion.trim()}
-                className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
-                title={!nuevaHerr.descripcion.trim() ? 'Escribe primero la descripción' : 'Pide a la IA que sugiera categorías a partir de la descripción'}
-              >
-                {sugiriendoCategorias && sugerenciaRazon?.modo !== 'edicion' ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
-                {sugiriendoCategorias && sugerenciaRazon?.modo !== 'edicion' ? 'Analizando…' : 'Sugerir con IA'}
-              </button>
-            </div>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(una herramienta puede pertenecer a varias)</span></label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {categorias.map(c => {
                 const sel = nuevaHerr.categorias.includes(c);
@@ -5416,6 +5417,19 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                 </div>
 
                 <div>
+                  <button
+                    type="button"
+                    onClick={() => sugerirCategorias('edicion')}
+                    disabled={sugiriendoCategorias || !edicion.descripcion?.trim()}
+                    className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
+                    title={!edicion.descripcion?.trim() ? 'Escribe primero la descripción' : 'La IA leerá la descripción y propondrá categorías que encajen'}
+                  >
+                    {sugiriendoCategorias && sugerenciaRazon?.modo === 'edicion' ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                    {sugiriendoCategorias && sugerenciaRazon?.modo === 'edicion' ? 'Analizando…' : 'Sugerir categorías con IA'}
+                  </button>
+                </div>
+
+                <div>
                   <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Origen</label>
                   <div className="flex gap-1">
                     {[
@@ -5426,7 +5440,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                         key={opt.v}
                         type="button"
                         onClick={() => setEdicion({ ...edicion, origen: opt.v })}
-                        className={`flex-1 py-2 rounded-md text-sm font-medium transition-all border ${
+                        className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all border ${
                           edicion.origen === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
                         }`}
                         title={opt.d}
@@ -5437,19 +5451,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
                 <div>
                   <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                      <label className="text-[10px] uppercase tracking-wider text-stone-500 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(puede pertenecer a varias)</span></label>
-                      <button
-                        type="button"
-                        onClick={() => sugerirCategorias('edicion')}
-                        disabled={sugiriendoCategorias || !edicion.descripcion?.trim()}
-                        className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
-                        title={!edicion.descripcion?.trim() ? 'Escribe primero la descripción' : 'Pide a la IA que sugiera categorías a partir de la descripción'}
-                      >
-                        {sugiriendoCategorias && sugerenciaRazon?.modo === 'edicion' ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
-                        {sugiriendoCategorias && sugerenciaRazon?.modo === 'edicion' ? 'Analizando…' : 'Sugerir con IA'}
-                      </button>
-                    </div>
+                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(puede pertenecer a varias)</span></label>
                     {sugerenciaRazon?.modo === 'edicion' && sugerenciaRazon.razon && (
                       <div className={`mb-2 px-3 py-2 rounded-md text-[11px] flex items-start gap-2 ${sugerenciaRazon.error ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-navy-50 text-navy-900 border border-navy-200'}`}>
                         <Sparkles size={12} className="flex-shrink-0 mt-0.5" />
@@ -6431,6 +6433,52 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
   const personaById = Object.fromEntries(personas.map(p => [p.id, p]));
   const tallerById = Object.fromEntries(talleres.map(t => [t.id, t]));
 
+  const [sugiriendoPeticion, setSugiriendoPeticion] = useState(false);
+  const [sugerenciaPeticion, setSugerenciaPeticion] = useState(null);
+
+  const sugerirPeticionIA = async () => {
+    if (!nuevaDescripcion.trim()) return;
+    setSugiriendoPeticion(true);
+    setSugerenciaPeticion(null);
+    const tiposDescritos = `- herramienta_nueva: Solicitar una herramienta o software nuevo que la compañía no tiene aún.
+- mejora_herramienta: Mejorar una herramienta ya existente (nueva funcionalidad, integración, fix).
+- mejora_proceso: Mejorar o automatizar un proceso de trabajo, sin cambiar de herramienta.
+- contratar_perfil: Solicitar contratar a una persona con un perfil específico.`;
+    const userMessage = `Clasifica esta petición que ha llegado al buzón.
+
+Título: ${nuevaTitulo.trim() || '(sin título)'}
+Descripción: ${nuevaDescripcion.trim()}
+Equipo solicitante: ${nuevaEquipo.trim() || '(sin especificar)'}
+
+Tipos de petición disponibles:
+${tiposDescritos}
+
+Devuelve SOLO JSON válido, sin markdown:
+{"tipoSolicitud":"...","prioridad":"alta|media|baja","razon":"1-2 frases explicando la elección"}
+
+Reglas: usa exactamente uno de los 4 tipos listados. La prioridad debe ser alta, media o baja según el impacto y urgencia que se desprenda de la descripción.`;
+    const respuesta = await callClaude(
+      'Eres analista del Plan Estratégico. Clasificas peticiones que llegan al buzón. Respondes solo JSON válido sin texto extra ni markdown.',
+      userMessage,
+    );
+    try {
+      const jsonMatch = respuesta && respuesta.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[0]);
+        const tiposValidos = ['herramienta_nueva', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'];
+        const prioridadesValidas = ['alta', 'media', 'baja'];
+        if (tiposValidos.includes(data.tipoSolicitud)) setNuevaTipo(data.tipoSolicitud);
+        if (prioridadesValidas.includes(data.prioridad)) setNuevaPrioridad(data.prioridad);
+        setSugerenciaPeticion({ tipoSolicitud: data.tipoSolicitud, prioridad: data.prioridad, razon: data.razon || '' });
+      } else {
+        setSugerenciaPeticion({ razon: 'No se pudo interpretar la respuesta de la IA.', error: true });
+      }
+    } catch (e) {
+      setSugerenciaPeticion({ razon: 'No se pudo interpretar la respuesta de la IA.', error: true });
+    }
+    setSugiriendoPeticion(false);
+  };
+
   const crearPeticion = async () => {
     if (!nuevaTitulo.trim() || !nuevaDescripcion.trim()) return;
     const nombreLimpio = nuevaSolicitanteNombre.trim();
@@ -6456,6 +6504,7 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
     };
     await setPeticiones([...peticiones, nueva]);
     setNuevaTitulo(''); setNuevaDescripcion(''); setNuevaEquipo(''); setNuevaSolicitanteNombre(''); setNuevaTipo('herramienta_nueva'); setNuevaPrioridad('media');
+    setSugerenciaPeticion(null);
     setCreando(false);
   };
 
@@ -6703,6 +6752,29 @@ ${entrevista}`;
                 </div>
               </div>
               <p className="text-[10px] text-stone-500 italic mb-3">Si la persona no usa Nexo todavía, escribe su nombre y equipo igualmente — la petición queda canalizada por ti.</p>
+
+              <div className="mb-3">
+                <button
+                  type="button"
+                  onClick={sugerirPeticionIA}
+                  disabled={sugiriendoPeticion || !nuevaDescripcion.trim()}
+                  className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
+                  title={!nuevaDescripcion.trim() ? 'Escribe primero la descripción' : 'La IA leerá la descripción y propondrá tipo y prioridad'}
+                >
+                  {sugiriendoPeticion ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                  {sugiriendoPeticion ? 'Analizando…' : 'Sugerir tipo y prioridad con IA'}
+                </button>
+                {sugerenciaPeticion?.razon && (
+                  <div className={`mt-2 px-3 py-2 rounded-md text-[11px] flex items-start gap-2 ${sugerenciaPeticion.error ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-navy-50 text-navy-900 border border-navy-200'}`}>
+                    <Sparkles size={12} className="flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-semibold mb-0.5">Sugerencia de la IA</p>
+                      <p>{sugerenciaPeticion.razon}</p>
+                    </div>
+                    <button onClick={() => setSugerenciaPeticion(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0"><X size={12} /></button>
+                  </div>
+                )}
+              </div>
 
               <div className="mb-4">
                 <label className="text-xs uppercase tracking-wider text-navy-800 font-bold mb-2 block">Tipo de petición</label>
