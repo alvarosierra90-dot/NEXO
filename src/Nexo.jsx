@@ -5275,7 +5275,7 @@ const EQUIPOS_NEGOCIO = [
   'Capital Markets',
 ];
 
-const DELEGACIONES = ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla'];
+const DELEGACIONES = ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla', 'Portugal', 'Londres'];
 
 const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
   'BI',
@@ -5331,6 +5331,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [filtroPorUsoEquipos, setFiltroPorUsoEquipos] = useState([]);
   const [filtroPorUsoDelegaciones, setFiltroPorUsoDelegaciones] = useState([]);
   const [filtroPorUsoCoste, setFiltroPorUsoCoste] = useState('todos');
+  const [filtroPorUsoOrigen, setFiltroPorUsoOrigen] = useState('todos');
 
   const [editandoId, setEditandoId] = useState(null);
   const [edicion, setEdicion] = useState(null);
@@ -5486,7 +5487,7 @@ RECOMENDACIÓN: [una frase]`;
       ? h.equipos
       : (h.areas || []).filter(a => a !== 'Toda la compañía').filter(a => EQUIPOS_NEGOCIO.includes(a));
     const delegacionesDerivadas = Array.isArray(h.delegaciones) && h.delegaciones.length
-      ? h.delegaciones.filter(d => d !== 'Portugal')
+      ? h.delegaciones
       : (h.delegacion ? [h.delegacion] : []);
     const todaCompaniaDerivada = h.todaCompaniaUsuarios != null
       ? !!h.todaCompaniaUsuarios
@@ -6331,6 +6332,10 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           }
           if (filtroPorUsoCoste === 'con_coste' && (h.sinCosteLicencia || (h.costeAnual || 0) === 0)) return false;
           if (filtroPorUsoCoste === 'sin_coste' && !h.sinCosteLicencia && (h.costeAnual || 0) !== 0) return false;
+          if (filtroPorUsoOrigen !== 'todos') {
+            const origen = h.origen === 'inhouse' ? 'inhouse' : 'externa';
+            if (origen !== filtroPorUsoOrigen) return false;
+          }
           return true;
         });
         const todasLasDelegaciones = [...new Set([...DELEGACIONES, ...herramientas.flatMap(h => delegacionesDeH(h))])].sort();
@@ -6383,9 +6388,22 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${filtroPorUsoCoste === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
                   >{opt.l}</button>
                 ))}
-                {(filtroPorUsoEquipos.length > 0 || filtroPorUsoDelegaciones.length > 0 || filtroPorUsoCoste !== 'todos') && (
+                <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold ml-2">Origen:</span>
+                {[
+                  { v: 'todos', l: 'Todas' },
+                  { v: 'externa', l: 'Externa' },
+                  { v: 'inhouse', l: 'In-house' },
+                ].map(opt => (
                   <button
-                    onClick={() => { setFiltroPorUsoEquipos([]); setFiltroPorUsoDelegaciones([]); setFiltroPorUsoCoste('todos'); }}
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setFiltroPorUsoOrigen(opt.v)}
+                    className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${filtroPorUsoOrigen === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >{opt.l}</button>
+                ))}
+                {(filtroPorUsoEquipos.length > 0 || filtroPorUsoDelegaciones.length > 0 || filtroPorUsoCoste !== 'todos' || filtroPorUsoOrigen !== 'todos') && (
+                  <button
+                    onClick={() => { setFiltroPorUsoEquipos([]); setFiltroPorUsoDelegaciones([]); setFiltroPorUsoCoste('todos'); setFiltroPorUsoOrigen('todos'); }}
                     className="text-[11px] text-stone-600 hover:text-navy-900 underline ml-auto"
                   >Limpiar filtros</button>
                 )}
