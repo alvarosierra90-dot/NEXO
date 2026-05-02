@@ -49,15 +49,39 @@ const SEED_TALLERES = [
 ];
 
 const SEED_HERRAMIENTAS = [
-  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], areas: ['Toda la compañía'], licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000 },
-  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', funcionalidades: ['Asistente IA', 'Productividad'], areas: ['Arquitectura', 'Valoraciones', 'Jurídico', 'Capital'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, alerta: 'Infrautilizada' },
+  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], areas: ['Toda la compañía'], licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, solicitudesLicencia: [
+    { id: 's1-h1', personaId: 'p17', fecha: '2026-04-22T10:00:00.000Z' },
+    { id: 's2-h1', personaId: 'p26', fecha: '2026-04-25T09:30:00.000Z' },
+  ] },
+  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', funcionalidades: ['Asistente IA', 'Productividad'], areas: ['Arquitectura', 'Valoraciones', 'Jurídico', 'Capital'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, alerta: 'Infrautilizada', solicitudesLicencia: [
+    { id: 's1-h2', personaId: 'p9', fecha: '2026-04-15T08:00:00.000Z' },
+    { id: 's2-h2', personaId: 'p11', fecha: '2026-04-18T14:00:00.000Z' },
+    { id: 's3-h2', personaId: 'p13', fecha: '2026-04-20T09:30:00.000Z' },
+    { id: 's4-h2', personaId: 'p14', fecha: '2026-04-23T11:15:00.000Z' },
+    { id: 's5-h2', personaId: 'p17', fecha: '2026-04-26T10:00:00.000Z' },
+    { id: 's6-h2', personaId: 'p25', fecha: '2026-04-28T16:30:00.000Z' },
+  ] },
   { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', funcionalidades: ['Sales Intelligence', 'Networking'], areas: ['Capital'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, alerta: 'Infrautilizada' },
   { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Valoraciones'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, alerta: 'Duplica BI Suite B' },
-  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Arquitectura', 'Valoraciones', 'Property', 'Capital'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000 },
-  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', funcionalidades: ['Firma electrónica'], areas: ['Toda la compañía'], licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000 },
+  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Arquitectura', 'Valoraciones', 'Property', 'Capital'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, solicitudesLicencia: [
+    { id: 's1-h5', personaId: 'p18', fecha: '2026-04-19T12:00:00.000Z' },
+    { id: 's2-h5', personaId: 'p21', fecha: '2026-04-24T10:45:00.000Z' },
+  ] },
+  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', funcionalidades: ['Firma electrónica'], areas: ['Toda la compañía'], licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, solicitudesLicencia: [
+    { id: 's1-h6', personaId: 'p13', fecha: '2026-04-21T15:00:00.000Z' },
+    { id: 's2-h6', personaId: 'p20', fecha: '2026-04-23T09:15:00.000Z' },
+    { id: 's3-h6', personaId: 'p22', fecha: '2026-04-25T13:30:00.000Z' },
+    { id: 's4-h6', personaId: 'p26', fecha: '2026-04-27T11:00:00.000Z' },
+  ] },
   { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', funcionalidades: ['Firma electrónica'], areas: ['Property'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, alerta: 'Duplica Firma Digital A' },
-  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', funcionalidades: ['Gestión documental'], areas: ['Arquitectura', 'Valoraciones'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000 },
-  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', funcionalidades: ['Gestión documental', 'Property'], areas: ['Property'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000 },
+  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', funcionalidades: ['Gestión documental'], areas: ['Arquitectura', 'Valoraciones'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, solicitudesLicencia: [
+    { id: 's1-h8', personaId: 'p24', fecha: '2026-04-22T08:30:00.000Z' },
+  ] },
+  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', funcionalidades: ['Gestión documental', 'Property'], areas: ['Property'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, solicitudesLicencia: [
+    { id: 's1-h9', personaId: 'p17', fecha: '2026-04-20T10:00:00.000Z' },
+    { id: 's2-h9', personaId: 'p19', fecha: '2026-04-24T15:30:00.000Z' },
+    { id: 's3-h9', personaId: 'p23', fecha: '2026-04-26T09:45:00.000Z' },
+  ] },
 ];
 
 const SEED_INICIATIVAS = [
@@ -4545,7 +4569,7 @@ const CATEGORIAS_DESCRIPCIONES = {
   'Valoraciones': 'Tasaciones y valoración de activos inmobiliarios.',
 };
 
-function HerramientasView({ herramientas, setHerramientas }) {
+function HerramientasView({ herramientas, setHerramientas, personas = [], usuarioActualId }) {
   const [solicitud, setSolicitud] = useState('');
   const [analizando, setAnalizando] = useState(false);
   const [alternativas, setAlternativas] = useState(null);
@@ -4669,9 +4693,10 @@ RECOMENDACIÓN: [una frase]`;
       areas: areasFinal,
       licenciasContratadas: Number(nuevaHerr.licenciasContratadas) || 1,
       licenciasActivas: Number(nuevaHerr.licenciasActivas) || 0,
-      costeAnual: (Number(nuevaHerr.costePorLicencia) || 0) * (Number(nuevaHerr.licenciasContratadas) || 1),
+      costeAnual: (Number(nuevaHerr.costePorLicencia) || 0) * 12 * (Number(nuevaHerr.licenciasContratadas) || 1),
       alerta: null,
       fechaAlta: new Date().toISOString().slice(0, 10),
+      solicitudesLicencia: [],
     };
     await setHerramientas([...herramientas, item]);
     setNuevaHerr({
@@ -4694,7 +4719,7 @@ RECOMENDACIÓN: [una frase]`;
       todaCompania: (h.areas || []).includes('Toda la compañía'),
       licenciasContratadas: h.licenciasContratadas || 1,
       licenciasActivas: h.licenciasActivas || 0,
-      costePorLicencia: costePorLicenciaDe(h),
+      costePorLicencia: Math.round(costePorLicenciaDe(h) / 12),
       alerta: h.alerta || '',
     });
   };
@@ -4722,7 +4747,7 @@ RECOMENDACIÓN: [una frase]`;
       areas: areasFinal,
       licenciasContratadas: Number(edicion.licenciasContratadas) || 1,
       licenciasActivas: Number(edicion.licenciasActivas) || 0,
-      costeAnual: (Number(edicion.costePorLicencia) || 0) * (Number(edicion.licenciasContratadas) || 1),
+      costeAnual: (Number(edicion.costePorLicencia) || 0) * 12 * (Number(edicion.licenciasContratadas) || 1),
       alerta: edicion.alerta || null,
     };
     const nuevas = herramientas.map(h => h.id === editandoId ? { ...h, ...updates } : h);
@@ -4739,6 +4764,31 @@ RECOMENDACIÓN: [una frase]`;
   };
 
   const [borrandoCategoria, setBorrandoCategoria] = useState(null);
+  const [solicitarDesdePersona, setSolicitarDesdePersona] = useState('');
+
+  const personaById = Object.fromEntries((personas || []).map(p => [p.id, p]));
+
+  const solicitarLicencia = async (herramientaId, personaId) => {
+    if (!personaId) return;
+    const nuevas = herramientas.map(h => {
+      if (h.id !== herramientaId) return h;
+      const sols = h.solicitudesLicencia || [];
+      if (sols.some(s => s.personaId === personaId)) return h;
+      return {
+        ...h,
+        solicitudesLicencia: [...sols, { id: `s-${Date.now()}`, personaId, fecha: new Date().toISOString() }],
+      };
+    });
+    await setHerramientas(nuevas);
+  };
+
+  const cancelarSolicitud = async (herramientaId, solicitudId) => {
+    const nuevas = herramientas.map(h => {
+      if (h.id !== herramientaId) return h;
+      return { ...h, solicitudesLicencia: (h.solicitudesLicencia || []).filter(s => s.id !== solicitudId) };
+    });
+    await setHerramientas(nuevas);
+  };
 
   const aplicarBorradoCategoria = async (cat, destino) => {
     const nuevas = herramientas.map(h => {
@@ -4960,7 +5010,7 @@ RECOMENDACIÓN: [una frase]`;
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/año)</label>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/mes)</label>
               <input
                 type="number"
                 min="0"
@@ -4968,7 +5018,7 @@ RECOMENDACIÓN: [una frase]`;
                 onChange={e => setNuevaHerr({ ...nuevaHerr, costePorLicencia: e.target.value })}
                 className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
               />
-              <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(nuevaHerr.costePorLicencia) || 0) * (Number(nuevaHerr.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
+              <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(nuevaHerr.costePorLicencia) || 0) * 12 * (Number(nuevaHerr.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
             </div>
           </div>
 
@@ -5196,7 +5246,7 @@ RECOMENDACIÓN: [una frase]`;
 
                         <div className="flex items-center justify-between text-xs text-stone-600">
                           <span className="font-medium">{h.licenciasActivas}/{h.licenciasContratadas} lic.</span>
-                          <span className="font-bold text-navy-800 tabular-nums" title={`${(h.costeAnual || 0).toLocaleString()}€/año total`}>{costePorLicenciaDe(h).toLocaleString()}€/lic</span>
+                          <span className="font-bold text-navy-800 tabular-nums" title={`${(h.costeAnual || 0).toLocaleString()}€/año total · ${costePorLicenciaDe(h).toLocaleString()}€/año por licencia`}>{Math.round(costePorLicenciaDe(h) / 12).toLocaleString()}€/mes·lic</span>
                         </div>
                         {esDuplicada && (
                           <p className="text-[10px] text-red-700 font-semibold mt-1.5 flex items-center gap-1">
@@ -5349,7 +5399,7 @@ RECOMENDACIÓN: [una frase]`;
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/año)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/mes)</label>
                       <input
                         type="number"
                         min="0"
@@ -5357,7 +5407,7 @@ RECOMENDACIÓN: [una frase]`;
                         onChange={e => setEdicion({ ...edicion, costePorLicencia: e.target.value })}
                         className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
                       />
-                      <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(edicion.costePorLicencia) || 0) * (Number(edicion.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
+                      <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(edicion.costePorLicencia) || 0) * 12 * (Number(edicion.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
                     </div>
                   </div>
                 </div>
@@ -5372,6 +5422,97 @@ RECOMENDACIÓN: [una frase]`;
                   />
                   <p className="text-[10px] text-stone-500 mt-1">Si la herramienta tiene un problema (duplicidad, infrautilización...). Déjalo vacío si está OK.</p>
                 </div>
+
+                {(() => {
+                  const sols = herramientaOriginal?.solicitudesLicencia || [];
+                  const yaSolicitada = usuarioActualId && sols.some(s => s.personaId === usuarioActualId);
+                  const personasSinLicencia = (personas || []).filter(p => p.id !== usuarioActualId && !sols.some(s => s.personaId === p.id));
+                  return (
+                    <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Solicitudes de licencia</span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${sols.length > 0 ? 'bg-amber-100 text-amber-800' : 'bg-stone-200 text-stone-600'}`}>{sols.length}</span>
+                        </div>
+                        {sols.length > 0 && (
+                          <span className="text-[10px] text-stone-500 italic">Indicador de demanda</span>
+                        )}
+                      </div>
+
+                      {sols.length === 0 ? (
+                        <p className="text-xs text-stone-500 mb-3">Sin solicitudes pendientes.</p>
+                      ) : (
+                        <ul className="space-y-1.5 mb-3 max-h-40 overflow-y-auto">
+                          {sols.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).map(s => {
+                            const p = personaById[s.personaId];
+                            const inic = p ? p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() : '?';
+                            const fechaRel = s.fecha ? formatFecha(s.fecha, true) : '';
+                            return (
+                              <li key={s.id} className="flex items-center gap-2 bg-white border border-stone-200 rounded-md px-2 py-1.5">
+                                <div className="w-5 h-5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[9px] flex-shrink-0">{inic}</div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-stone-800 truncate">{p?.nombre || 'Persona desconocida'}</p>
+                                  {p && <p className="text-[10px] text-stone-500 truncate">{getEquipo(p)}</p>}
+                                </div>
+                                <span className="text-[10px] text-stone-500 flex-shrink-0">{fechaRel}</span>
+                                <button
+                                  onClick={() => cancelarSolicitud(editandoId, s.id)}
+                                  className="text-stone-400 hover:text-red-600 flex-shrink-0"
+                                  title="Eliminar solicitud"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {usuarioActualId && (
+                          yaSolicitada ? (
+                            <button
+                              onClick={() => {
+                                const mia = sols.find(s => s.personaId === usuarioActualId);
+                                if (mia) cancelarSolicitud(editandoId, mia.id);
+                              }}
+                              className="text-xs px-3 py-1.5 bg-white border border-stone-300 hover:border-stone-500 text-stone-700 rounded-md font-medium transition-colors"
+                            >Cancelar mi solicitud</button>
+                          ) : (
+                            <button
+                              onClick={() => solicitarLicencia(editandoId, usuarioActualId)}
+                              className="text-xs px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md font-medium transition-colors"
+                            >Solicitar licencia para mí</button>
+                          )
+                        )}
+                        {personasSinLicencia.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <select
+                              value={solicitarDesdePersona}
+                              onChange={e => setSolicitarDesdePersona(e.target.value)}
+                              className="text-xs bg-white border border-stone-200 rounded-md px-2 py-1.5 outline-none focus:border-navy-700"
+                            >
+                              <option value="">— Solicitar para otra persona —</option>
+                              {personasSinLicencia.map(p => (
+                                <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => {
+                                if (solicitarDesdePersona) {
+                                  solicitarLicencia(editandoId, solicitarDesdePersona);
+                                  setSolicitarDesdePersona('');
+                                }
+                              }}
+                              disabled={!solicitarDesdePersona}
+                              className="text-xs px-2 py-1.5 bg-stone-200 hover:bg-stone-300 disabled:opacity-40 text-stone-800 rounded-md font-medium transition-colors"
+                            >Añadir</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="p-4 border-t border-stone-200 flex items-center justify-between">
@@ -9334,7 +9475,7 @@ export default function Nexo() {
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'solapamientos' && <SolapamientosView talleres={talleres} herramientas={herramientas} iniciativas={iniciativas} personas={personas} solapamientos={solapamientos} setSolapamientos={setSolapamientos} peticiones={peticiones} setPeticiones={setPeticiones} usuarioActualId={usuarioActualId} setActive={setActive} />}
-        {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} />}
+        {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} personas={personas} usuarioActualId={usuarioActualId} />}
         {active === 'tareas' && <TareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} />}
         {active === 'chat' && <ChatView personas={personas} talleres={talleres} usuarioActualId={usuarioActualId} demoMode={demoMode} mensajesLocal={mensajesLs} setMensajesLocal={setMensajesLs} tareas={tareas} setTareas={setTareas} peticiones={peticiones} setPeticiones={setPeticiones} reuniones={reuniones} setReuniones={setReuniones} historico={historico} setHistorico={setHistorico} setActive={setActive} irATaller={irATaller} />}
       </main>
