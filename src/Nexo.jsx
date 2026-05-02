@@ -6203,6 +6203,8 @@ function PeticionCard({ peticion, personaById, tallerById, onClick }) {
   const [dragging, setDragging] = useState(false);
 
   const solicitante = personaById[peticion.solicitanteId];
+  const solicitanteNombre = solicitante?.nombre || peticion.solicitanteNombre || null;
+  const solicitanteEsExterno = !solicitante && !!peticion.solicitanteNombre;
   const tallerAsignado = tallerById[peticion.tallerAsignadoId];
   const tipo = TIPOS_PETICION[peticion.tipoSolicitud] || TIPOS_PETICION.herramienta;
   const TipoIcon = tipo.icon;
@@ -6236,11 +6238,11 @@ function PeticionCard({ peticion, personaById, tallerById, onClick }) {
 
       <div className="flex items-center gap-2 pl-[22px] mb-2">
         <span className="text-xs text-stone-600 font-medium truncate flex-1 min-w-0" title={peticion.equipo}>{peticion.equipo}</span>
-        {solicitante && (
+        {solicitanteNombre && (
           <div
-            className="w-5 h-5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center text-[10px] font-semibold flex-shrink-0"
-            title={solicitante.nombre}
-          >{solicitante.nombre.split(' ')[0][0]}</div>
+            className={`w-5 h-5 rounded-full text-stone-50 flex items-center justify-center text-[10px] font-semibold flex-shrink-0 ${solicitanteEsExterno ? 'bg-stone-500' : 'bg-navy-900'}`}
+            title={solicitanteEsExterno ? `${solicitanteNombre} · canalizada (no usa Nexo)` : solicitanteNombre}
+          >{solicitanteNombre.split(' ')[0][0]}</div>
         )}
       </div>
 
@@ -6248,6 +6250,13 @@ function PeticionCard({ peticion, personaById, tallerById, onClick }) {
         <div className="flex items-center gap-1.5 pl-[22px] pt-2 border-t border-stone-100">
           <Layers size={11} className="text-violet-600 flex-shrink-0" />
           <span className="text-xs text-violet-700 font-semibold truncate" title={tallerAsignado.nombre}>{tallerAsignado.nombre}</span>
+        </div>
+      )}
+
+      {peticion.estado === 'rechazada' && peticion.motivoRechazo && (
+        <div className="pl-[22px] pt-2 mt-2 border-t border-red-100">
+          <p className="text-[10px] uppercase tracking-wider text-red-700 font-bold mb-0.5">Motivo del rechazo</p>
+          <p className="text-[11px] text-stone-700 leading-snug line-clamp-3" title={peticion.motivoRechazo}>{peticion.motivoRechazo}</p>
         </div>
       )}
     </div>
@@ -6320,7 +6329,7 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
   const [nuevaTitulo, setNuevaTitulo] = useState('');
   const [nuevaDescripcion, setNuevaDescripcion] = useState('');
   const [nuevaEquipo, setNuevaEquipo] = useState('');
-  const [nuevaSolicitanteId, setNuevaSolicitanteId] = useState(usuarioActualId || 'p16');
+  const [nuevaSolicitanteNombre, setNuevaSolicitanteNombre] = useState('');
   const [nuevaTipo, setNuevaTipo] = useState('herramienta_nueva');
   const [nuevaPrioridad, setNuevaPrioridad] = useState('media');
 
@@ -6333,12 +6342,18 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
 
   const crearPeticion = async () => {
     if (!nuevaTitulo.trim() || !nuevaDescripcion.trim()) return;
+    const nombreLimpio = nuevaSolicitanteNombre.trim();
+    const matchPersona = nombreLimpio
+      ? personas.find(p => p.nombre.toLowerCase() === nombreLimpio.toLowerCase())
+      : null;
     const nueva = {
       id: `pet-${Date.now()}`,
       titulo: nuevaTitulo.trim(),
       descripcion: nuevaDescripcion.trim(),
       equipo: nuevaEquipo.trim() || 'Sin equipo',
-      solicitanteId: nuevaSolicitanteId || null,
+      solicitanteId: matchPersona ? matchPersona.id : null,
+      solicitanteNombre: matchPersona ? null : (nombreLimpio || null),
+      canalizadoPorId: usuarioActualId || null,
       tipoSolicitud: nuevaTipo,
       funcionalidades: [],
       estado: 'nueva',
@@ -6349,13 +6364,35 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
       impactoEstimado: null,
     };
     await setPeticiones([...peticiones, nueva]);
-    setNuevaTitulo(''); setNuevaDescripcion(''); setNuevaEquipo(''); setNuevaTipo('herramienta_nueva'); setNuevaPrioridad('media');
+    setNuevaTitulo(''); setNuevaDescripcion(''); setNuevaEquipo(''); setNuevaSolicitanteNombre(''); setNuevaTipo('herramienta_nueva'); setNuevaPrioridad('media');
     setCreando(false);
   };
 
+  const [rechazando, setRechazando] = useState(null);
+
   const moverEstado = async (id, nuevoEstado) => {
+    if (nuevoEstado === 'rechazada') {
+      const peticion = peticiones.find(p => p.id === id);
+      setRechazando({ id, motivo: peticion?.motivoRechazo || '' });
+      return;
+    }
     const nuevas = peticiones.map(p => p.id === id ? { ...p, estado: nuevoEstado } : p);
     await setPeticiones(nuevas);
+  };
+
+  const confirmarRechazo = async () => {
+    if (!rechazando) return;
+    const motivo = (rechazando.motivo || '').trim();
+    if (!motivo) return;
+    const nuevas = peticiones.map(p => p.id === rechazando.id ? {
+      ...p,
+      estado: 'rechazada',
+      motivoRechazo: motivo,
+      fechaRechazo: new Date().toISOString(),
+      rechazadoPorId: usuarioActualId || null,
+    } : p);
+    await setPeticiones(nuevas);
+    setRechazando(null);
   };
 
   const asignarTaller = async (id, tallerId) => {
@@ -6545,28 +6582,36 @@ ${entrevista}`;
                 className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
               />
 
-              <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="grid grid-cols-2 gap-3 mb-1">
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo solicitante</label>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante</label>
+                  <input
+                    list="peticion-personas"
+                    value={nuevaSolicitanteNombre}
+                    onChange={e => {
+                      const valor = e.target.value;
+                      setNuevaSolicitanteNombre(valor);
+                      const match = personas.find(p => p.nombre.toLowerCase() === valor.toLowerCase());
+                      if (match && !nuevaEquipo.trim()) setNuevaEquipo(getEquipo(match));
+                    }}
+                    placeholder="Quién lo plantea (escribe el nombre)…"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                  <datalist id="peticion-personas">
+                    {personas.map(p => <option key={p.id} value={p.nombre}>{getEquipo(p)}</option>)}
+                  </datalist>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo del solicitante</label>
                   <input
                     value={nuevaEquipo}
                     onChange={e => setNuevaEquipo(e.target.value)}
-                    placeholder="Ej: Retail, Property..."
+                    placeholder="Ej: Retail, Property, Marketing…"
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
                   />
                 </div>
-                <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Persona que lo plantea</label>
-                  <select
-                    value={nuevaSolicitanteId}
-                    onChange={e => setNuevaSolicitanteId(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                  >
-                    <option value="">— Sin solicitante —</option>
-                    {personas.map(p => <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>)}
-                  </select>
-                </div>
               </div>
+              <p className="text-[10px] text-stone-500 italic mb-3">Si la persona no usa Nexo todavía, escribe su nombre y equipo igualmente — la petición queda canalizada por ti.</p>
 
               <div className="mb-4">
                 <label className="text-xs uppercase tracking-wider text-navy-800 font-bold mb-2 block">Tipo de petición</label>
@@ -6642,6 +6687,9 @@ ${entrevista}`;
             const p = peticiones.find(p => p.id === evaluando);
             if (!p) return null;
             const solicitante = personaById[p.solicitanteId];
+            const solicitanteLabel = solicitante?.nombre || p.solicitanteNombre || null;
+            const solicitanteEsExterno = !solicitante && !!p.solicitanteNombre;
+            const canalizadoPor = personaById[p.canalizadoPorId];
             const tipo = TIPOS_PETICION[p.tipoSolicitud] || TIPOS_PETICION.herramienta;
             const TipoIcon = tipo.icon;
             const estadoInfo = ESTADOS_PETICION[p.estado];
@@ -6665,7 +6713,13 @@ ${entrevista}`;
                         }`}>{p.prioridad}</span>
                       </div>
                       <h2 className="font-serif text-2xl text-stone-900 mb-1">{p.titulo}</h2>
-                      <p className="text-xs text-stone-500">{p.equipo}{solicitante ? ` · ${solicitante.nombre}` : ''} · {formatFecha(p.fecha)}</p>
+                      <p className="text-xs text-stone-500">
+                        {p.equipo}
+                        {solicitanteLabel && <> · <span className={solicitanteEsExterno ? 'italic' : ''}>{solicitanteLabel}</span>{solicitanteEsExterno ? ' (no usa Nexo)' : ''}</>}
+                        {' · '}
+                        {formatFecha(p.fecha)}
+                        {canalizadoPor && solicitanteEsExterno && <> · canalizada por <span className="font-medium text-stone-700">{canalizadoPor.nombre}</span></>}
+                      </p>
                     </div>
                     <button onClick={() => setEvaluando(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0">
                       <X size={20} />
@@ -6720,6 +6774,29 @@ ${entrevista}`;
                         className="w-full bg-white border border-stone-200 rounded px-2 py-1.5 text-xs outline-none focus:border-stone-400 resize-none"
                       />
                     </div>
+
+                    {p.estado === 'rechazada' && p.motivoRechazo && (() => {
+                      const rechazadoPor = personaById[p.rechazadoPorId];
+                      return (
+                        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-xs font-bold text-red-800 flex items-center gap-1.5 uppercase tracking-wider">
+                              <X size={12} /> Petición rechazada
+                            </p>
+                            {p.fechaRechazo && (
+                              <span className="text-[10px] text-red-700 italic">
+                                {formatFecha(p.fechaRechazo, true)}{rechazadoPor ? ` · ${rechazadoPor.nombre}` : ''}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-stone-800 leading-relaxed mb-2">{p.motivoRechazo}</p>
+                          <button
+                            onClick={() => setRechazando({ id: p.id, motivo: p.motivoRechazo })}
+                            className="text-[11px] text-red-700 hover:text-red-900 underline"
+                          >Editar motivo</button>
+                        </div>
+                      );
+                    })()}
 
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Asignar a taller del Plan Estratégico</p>
@@ -6822,6 +6899,55 @@ ${entrevista}`;
           </div>
         </div>
       )}
+
+      {rechazando && (() => {
+        const peticion = peticiones.find(p => p.id === rechazando.id);
+        const motivosRapidos = [
+          'Ya existe una herramienta con la misma finalidad en el catálogo.',
+          'Coste no justificado por el impacto estimado.',
+          'Fuera del alcance del Plan Estratégico.',
+          'Solapa con un taller en curso.',
+          'Faltan detalles para evaluar la petición.',
+        ];
+        return (
+          <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setRechazando(null)}>
+            <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="text-lg font-bold text-navy-900 mb-1">Rechazar petición</h3>
+              {peticion && <p className="text-sm text-stone-600 mb-4 italic">"{peticion.titulo}"</p>}
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block font-semibold">¿Por qué se rechaza?</label>
+              <textarea
+                value={rechazando.motivo}
+                onChange={e => setRechazando({ ...rechazando, motivo: e.target.value })}
+                placeholder="Explica el motivo. El solicitante necesita entender el porqué…"
+                rows={4}
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none mb-3"
+                autoFocus
+              />
+              <div className="mb-4">
+                <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Motivos frecuentes</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {motivosRapidos.map(m => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setRechazando({ ...rechazando, motivo: m })}
+                      className="text-[11px] px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors text-left"
+                    >{m}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setRechazando(null)} className="px-3 py-2 text-sm text-stone-600 hover:text-stone-900">Cancelar</button>
+                <button
+                  onClick={confirmarRechazo}
+                  disabled={!rechazando.motivo.trim()}
+                  className="px-4 py-2 bg-red-700 hover:bg-red-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
+                >Rechazar petición</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
