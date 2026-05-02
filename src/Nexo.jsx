@@ -53,7 +53,7 @@ const SEED_HERRAMIENTAS = [
     { id: 's1-h1', personaId: 'p17', fecha: '2026-04-22T10:00:00.000Z' },
     { id: 's2-h1', personaId: 'p26', fecha: '2026-04-25T09:30:00.000Z' },
   ] },
-  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], equipos: ['Arquitectura', 'Valoraciones', 'Capital Markets', 'Financiero'], todaCompaniaUsuarios: false, numeroUsuarios: 120, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/mes', alerta: 'Infrautilizada', solicitudesLicencia: [
+  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], equipos: ['Arquitectura', 'Valoraciones', 'Capital Markets Oficinas', 'Financiero'], todaCompaniaUsuarios: false, numeroUsuarios: 120, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/mes', alerta: 'Infrautilizada', solicitudesLicencia: [
     { id: 's1-h2', personaId: 'p9', fecha: '2026-04-15T08:00:00.000Z' },
     { id: 's2-h2', personaId: 'p11', fecha: '2026-04-18T14:00:00.000Z' },
     { id: 's3-h2', personaId: 'p13', fecha: '2026-04-20T09:30:00.000Z' },
@@ -61,9 +61,9 @@ const SEED_HERRAMIENTAS = [
     { id: 's5-h2', personaId: 'p17', fecha: '2026-04-26T10:00:00.000Z' },
     { id: 's6-h2', personaId: 'p25', fecha: '2026-04-28T16:30:00.000Z' },
   ] },
-  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], equipos: ['Capital Markets', 'Desarrollo de Negocio'], todaCompaniaUsuarios: false, numeroUsuarios: 45, delegaciones: ['Madrid'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Infrautilizada' },
+  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], equipos: ['Capital Markets Oficinas', 'Desarrollo de Negocio'], todaCompaniaUsuarios: false, numeroUsuarios: 45, delegaciones: ['Madrid'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Infrautilizada' },
   { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Valoraciones'], todaCompaniaUsuarios: false, numeroUsuarios: 22, delegaciones: ['Madrid'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Duplica BI Suite B' },
-  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Arquitectura', 'Valoraciones', 'Property Management', 'Capital Markets'], todaCompaniaUsuarios: false, numeroUsuarios: 110, delegaciones: ['Madrid', 'Barcelona', 'Valencia'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
+  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Arquitectura', 'Valoraciones', 'Property Management', 'Capital Markets Oficinas'], todaCompaniaUsuarios: false, numeroUsuarios: 110, delegaciones: ['Madrid', 'Barcelona', 'Valencia'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h5', personaId: 'p18', fecha: '2026-04-19T12:00:00.000Z' },
     { id: 's2-h5', personaId: 'p21', fecha: '2026-04-24T10:45:00.000Z' },
   ] },
@@ -82,7 +82,7 @@ const SEED_HERRAMIENTAS = [
     { id: 's2-h9', personaId: 'p19', fecha: '2026-04-24T15:30:00.000Z' },
     { id: 's3-h9', personaId: 'p23', fecha: '2026-04-26T09:45:00.000Z' },
   ] },
-  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], equipos: ['Property Management', 'Capital Markets', 'Arquitectura', 'IT'], todaCompaniaUsuarios: false, numeroUsuarios: 60, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 0, licenciasActivas: 0, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '', solicitudesLicencia: [
+  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], equipos: ['Property Management', 'Capital Markets Oficinas', 'Arquitectura', 'IT'], todaCompaniaUsuarios: false, numeroUsuarios: 60, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 0, licenciasActivas: 0, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '', solicitudesLicencia: [
     { id: 's1-h10', personaId: 'p9', fecha: '2026-04-25T11:00:00.000Z' },
     { id: 's2-h10', personaId: 'p18', fecha: '2026-04-27T14:30:00.000Z' },
   ] },
@@ -146,7 +146,7 @@ const SEED_SOLAPAMIENTOS = [
 ];
 
 const SEED_PETICIONES = [
-  { id: 'pet1', titulo: 'Herramienta para análisis de pliegos y RFPs', descripcion: 'Necesitamos una herramienta que lea y analice pliegos de concursos públicos y RFPs entrantes, extraiga requisitos clave, identifique riesgos y nos ayude a redactar propuestas más rápido. Ahora hacemos todo manualmente y perdemos oportunidades.', equipo: 'Capital Markets', delegacion: 'Madrid', solicitanteId: 'p4', tipoSolicitud: 'herramienta', funcionalidades: ['extracción de requisitos', 'análisis de riesgos', 'generación de propuestas', 'IA generativa'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'alta', fecha: '2026-04-26', evaluacion: null, impactoEstimado: null },
+  { id: 'pet1', titulo: 'Herramienta para análisis de pliegos y RFPs', descripcion: 'Necesitamos una herramienta que lea y analice pliegos de concursos públicos y RFPs entrantes, extraiga requisitos clave, identifique riesgos y nos ayude a redactar propuestas más rápido. Ahora hacemos todo manualmente y perdemos oportunidades.', equipo: 'Capital Markets Oficinas', delegacion: 'Madrid', solicitanteId: 'p4', tipoSolicitud: 'herramienta', funcionalidades: ['extracción de requisitos', 'análisis de riesgos', 'generación de propuestas', 'IA generativa'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'alta', fecha: '2026-04-26', evaluacion: null, impactoEstimado: null },
   { id: 'pet2', titulo: 'Mejora del proceso de alta de clientes', descripcion: 'El proceso actual de alta de clientes en Property tiene 8 pasos manuales que tardan 3-5 días. Equipo solicita revisar el flujo completo y proponer automatizaciones, especialmente la verificación KYC y la firma de contratos.', equipo: 'Property Management', delegacion: 'Madrid', solicitanteId: 'p14', tipoSolicitud: 'proceso', funcionalidades: ['automatización KYC', 'firma digital', 'flujo de aprobación'], estado: 'en_revision', tallerAsignadoId: 't1', prioridad: 'media', fecha: '2026-04-20', evaluacion: 'Encaja con el taller de Mejora de Procesos. Equipo Procesos 1 ya está mapeando AS-IS de procesos similares.', impactoEstimado: 'Reducir tiempo de alta de 3-5 días a 1 día. Liberar ~15h/semana del equipo.' },
   { id: 'pet3', titulo: 'Generación automatizada de pitch decks con IA', descripcion: 'Equipo de Desarrollo de Negocio quiere implementar generación automatizada de pitch decks y materiales personalizados por cliente usando IA generativa. Plantean integrarlo con CRM Salesforce.', equipo: 'Desarrollo de Negocio', delegacion: 'Barcelona', solicitanteId: 'p15', tipoSolicitud: 'iniciativa', funcionalidades: ['generación contenido', 'personalización CRM', 'IA generativa'], estado: 'asignada', tallerAsignadoId: 't2', prioridad: 'media', fecha: '2026-04-15', evaluacion: 'Asignado al taller de Innovación. Líder Property Data evaluará viabilidad técnica y conflicto con asistente IA de Plataforma Integrada.', impactoEstimado: 'Si funciona, ahorro estimado de 20% del tiempo de generación de propuestas comerciales.' },
   { id: 'pet4', titulo: 'Retail: necesidad de visualización de pipeline en tiempo real', descripcion: 'El equipo de Retail (locales comerciales) necesita un dashboard de pipeline en tiempo real, similar al de Office. Actualmente usa Excel manual cada lunes y la información llega tarde a dirección.', equipo: 'Retail', delegacion: 'Valencia', solicitanteId: 'p13', tipoSolicitud: 'herramienta', funcionalidades: ['dashboard tiempo real', 'pipeline comercial', 'alertas'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'media', fecha: '2026-04-28', evaluacion: null, impactoEstimado: null },
@@ -5255,24 +5255,16 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
   );
 }
 
+const EQUIPOS_NEGOCIO_GRUPOS = {
+  transaccional: ['Oficinas', 'Retail', 'Hoteles', 'Living', 'Industrial/Logístico', 'Agrobusiness', 'Alternativos'],
+  capital_markets: ['Capital Markets Oficinas', 'Capital Markets Industrial Logístico', 'Capital Markets Retail', 'Capital Markets Alternativos', 'Capital Markets Living', 'Capital Markets Hoteles'],
+  no_transaccional: ['Property Management', 'Facility Management', 'Arquitectura', 'Valoraciones', 'Financiero', 'IT', 'Desarrollo de Negocio', 'Consultoría'],
+};
+
 const EQUIPOS_NEGOCIO = [
-  'Oficinas',
-  'Retail',
-  'Hoteles',
-  'Centros Comerciales',
-  'Living',
-  'Industrial/Logístico',
-  'Alternativos',
-  'Agrobusiness',
-  'Property Management',
-  'Facility Management',
-  'Arquitectura',
-  'Valoraciones',
-  'Financiero',
-  'IT',
-  'Desarrollo de Negocio',
-  'Research',
-  'Capital Markets',
+  ...EQUIPOS_NEGOCIO_GRUPOS.transaccional,
+  ...EQUIPOS_NEGOCIO_GRUPOS.capital_markets,
+  ...EQUIPOS_NEGOCIO_GRUPOS.no_transaccional,
 ];
 
 const DELEGACIONES_ESPANA = ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla'];
@@ -5330,6 +5322,8 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [filtroOrigen, setFiltroOrigen] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
   const [vistaCatalogo, setVistaCatalogo] = useState('catalogo');
+  const [subTabEquiposAlta, setSubTabEquiposAlta] = useState('transaccional');
+  const [subTabEquiposEdicion, setSubTabEquiposEdicion] = useState('transaccional');
   const [filtroPorUsoEquipos, setFiltroPorUsoEquipos] = useState([]);
   const [filtroPorUsoDelegaciones, setFiltroPorUsoDelegaciones] = useState([]);
   const [filtroPorUsoCategorias, setFiltroPorUsoCategorias] = useState([]);
@@ -5938,8 +5932,29 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             </button>
             {!nuevaHerr.todosEquipos && (
               <>
+                <div className="flex items-center gap-1 mb-3 bg-stone-100 rounded-md p-0.5 w-fit">
+                  {[
+                    { k: 'transaccional', l: 'Transaccional' },
+                    { k: 'capital_markets', l: 'Capital Markets' },
+                    { k: 'no_transaccional', l: 'No transaccional' },
+                  ].map(t => {
+                    const count = EQUIPOS_NEGOCIO_GRUPOS[t.k].filter(e => nuevaHerr.equipos.includes(e)).length;
+                    const active = subTabEquiposAlta === t.k;
+                    return (
+                      <button
+                        key={t.k}
+                        type="button"
+                        onClick={() => setSubTabEquiposAlta(t.k)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${active ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+                      >
+                        {t.l}
+                        {count > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${active ? 'bg-navy-900 text-stone-50' : 'bg-stone-200 text-stone-700'}`}>{count}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
                 <div className="flex flex-wrap gap-1.5 mb-2">
-                  {EQUIPOS_NEGOCIO.map(eq => {
+                  {EQUIPOS_NEGOCIO_GRUPOS[subTabEquiposAlta].map(eq => {
                     const sel = nuevaHerr.equipos.includes(eq);
                     return (
                       <button
@@ -5953,7 +5968,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     );
                   })}
                 </div>
-                {nuevaHerr.equipos.length > 0 && <p className="text-[10px] text-stone-500">{nuevaHerr.equipos.length} {nuevaHerr.equipos.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'}</p>}
+                {nuevaHerr.equipos.length > 0 && <p className="text-[10px] text-stone-500">{nuevaHerr.equipos.length} {nuevaHerr.equipos.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'} en total</p>}
               </>
             )}
           </div>
@@ -6797,21 +6812,45 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     Todos los equipos
                   </button>
                   {!edicion.todosEquipos && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {EQUIPOS_NEGOCIO.map(eq => {
-                        const sel = (edicion.equipos || []).includes(eq);
-                        return (
-                          <button
-                            key={eq}
-                            type="button"
-                            onClick={() => setEdicion({ ...edicion, equipos: sel ? edicion.equipos.filter(x => x !== eq) : [...(edicion.equipos || []), eq] })}
-                            className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
-                          >
-                            {sel ? '+ ' : ''}{eq}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <>
+                      <div className="flex items-center gap-1 mb-3 bg-stone-100 rounded-md p-0.5 w-fit">
+                        {[
+                          { k: 'transaccional', l: 'Transaccional' },
+                          { k: 'capital_markets', l: 'Capital Markets' },
+                          { k: 'no_transaccional', l: 'No transaccional' },
+                        ].map(t => {
+                          const count = EQUIPOS_NEGOCIO_GRUPOS[t.k].filter(e => (edicion.equipos || []).includes(e)).length;
+                          const active = subTabEquiposEdicion === t.k;
+                          return (
+                            <button
+                              key={t.k}
+                              type="button"
+                              onClick={() => setSubTabEquiposEdicion(t.k)}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${active ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+                            >
+                              {t.l}
+                              {count > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${active ? 'bg-navy-900 text-stone-50' : 'bg-stone-200 text-stone-700'}`}>{count}</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {EQUIPOS_NEGOCIO_GRUPOS[subTabEquiposEdicion].map(eq => {
+                          const sel = (edicion.equipos || []).includes(eq);
+                          return (
+                            <button
+                              key={eq}
+                              type="button"
+                              onClick={() => setEdicion({ ...edicion, equipos: sel ? edicion.equipos.filter(x => x !== eq) : [...(edicion.equipos || []), eq] })}
+                              className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                            >
+                              {sel ? '+ ' : ''}{eq}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {(edicion.equipos || []).length > 0 && <p className="text-[10px] text-stone-500 mt-2">{edicion.equipos.length} {edicion.equipos.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'} en total</p>}
+                    </>
                   )}
                 </div>
 
