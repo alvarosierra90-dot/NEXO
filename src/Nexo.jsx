@@ -4507,6 +4507,23 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
   );
 }
 
+const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
+  'BI',
+  'CRM',
+  'Ciberseguridad',
+  'Comunicación',
+  'Documental',
+  'ERP / Finanzas',
+  'Firma',
+  'IA',
+  'Marketing',
+  'Productividad',
+  'Project Management',
+  'Property Database',
+  'Sales Intelligence',
+  'Valoraciones',
+];
+
 function HerramientasView({ herramientas, setHerramientas }) {
   const [solicitud, setSolicitud] = useState('');
   const [analizando, setAnalizando] = useState(false);
@@ -4608,7 +4625,10 @@ RECOMENDACIÓN: [una frase]`;
   ];
   const costeAtencion = requierenAtencion.reduce((acc, h) => acc + (h.costeAnual || 0), 0);
 
-  const categorias = [...new Set(herramientas.flatMap(h => categoriasDe(h)))].sort();
+  const categorias = [...new Set([
+    ...CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS,
+    ...herramientas.flatMap(h => categoriasDe(h)),
+  ])].sort();
 
   const crearHerramienta = async () => {
     if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return;
