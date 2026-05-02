@@ -5324,6 +5324,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [vistaCatalogo, setVistaCatalogo] = useState('catalogo');
   const [subTabEquiposAlta, setSubTabEquiposAlta] = useState('transaccional');
   const [subTabEquiposEdicion, setSubTabEquiposEdicion] = useState('transaccional');
+  const [subTabEquiposPorUso, setSubTabEquiposPorUso] = useState('transaccional');
   const [filtroPorUsoEquipos, setFiltroPorUsoEquipos] = useState([]);
   const [filtroPorUsoDelegaciones, setFiltroPorUsoDelegaciones] = useState([]);
   const [filtroPorUsoCategorias, setFiltroPorUsoCategorias] = useState([]);
@@ -6442,8 +6443,29 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Equipos <span className="normal-case text-stone-400">{filtroPorUsoEquipos.length > 0 ? `· ${filtroPorUsoEquipos.length} seleccionados` : '· ninguno (muestra todos)'}</span></p>
+                <div className="flex items-center gap-1 mb-2 bg-stone-100 rounded-md p-0.5 w-fit">
+                  {[
+                    { k: 'transaccional', l: 'Transaccional' },
+                    { k: 'capital_markets', l: 'Capital Markets' },
+                    { k: 'no_transaccional', l: 'No transaccional' },
+                  ].map(t => {
+                    const count = EQUIPOS_NEGOCIO_GRUPOS[t.k].filter(e => filtroPorUsoEquipos.includes(e)).length;
+                    const active = subTabEquiposPorUso === t.k;
+                    return (
+                      <button
+                        key={t.k}
+                        type="button"
+                        onClick={() => setSubTabEquiposPorUso(t.k)}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded text-[11px] font-medium transition-colors ${active ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+                      >
+                        {t.l}
+                        {count > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${active ? 'bg-navy-900 text-stone-50' : 'bg-stone-200 text-stone-700'}`}>{count}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
                 <div className="flex flex-wrap gap-1">
-                  {EQUIPOS_NEGOCIO.map(eq => {
+                  {EQUIPOS_NEGOCIO_GRUPOS[subTabEquiposPorUso].map(eq => {
                     const sel = filtroPorUsoEquipos.includes(eq);
                     return (
                       <button
