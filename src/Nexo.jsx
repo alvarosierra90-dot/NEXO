@@ -4512,6 +4512,7 @@ const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
   'CRM',
   'Ciberseguridad',
   'Comunicación',
+  'Datos de mercado',
   'Documental',
   'ERP / Finanzas',
   'Firma',
@@ -4520,6 +4521,7 @@ const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
   'Productividad',
   'Project Management',
   'Property Database',
+  'Research',
   'Sales Intelligence',
   'Valoraciones',
 ];
