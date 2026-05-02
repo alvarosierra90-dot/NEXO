@@ -5275,7 +5275,9 @@ const EQUIPOS_NEGOCIO = [
   'Capital Markets',
 ];
 
-const DELEGACIONES = ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla', 'Portugal', 'Londres'];
+const DELEGACIONES_ESPANA = ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla'];
+const DELEGACIONES_INTERNACIONALES = ['Portugal', 'Londres'];
+const DELEGACIONES = [...DELEGACIONES_ESPANA, ...DELEGACIONES_INTERNACIONALES];
 
 const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
   'BI',
@@ -5343,12 +5345,14 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
     categorias: [],
     nuevaCategoria: '',
     origen: 'externa',
-    funcionalidades: '',
+    funcionalidadesSel: [],
+    nuevaFuncionalidad: '',
     equipos: [],
     todosEquipos: false,
     delegaciones: [],
     nuevaDelegacion: '',
     todasDelegaciones: false,
+    todasDelegacionesEspana: false,
     todaCompaniaUsuarios: false,
     numeroUsuarios: 1,
     sinCosteLicencia: false,
@@ -5438,12 +5442,15 @@ RECOMENDACIÓN: [una frase]`;
     ...herramientas.flatMap(h => categoriasDe(h)),
   ])].sort();
 
+  const funcionalidadesDisponibles = [...new Set(herramientas.flatMap(h => h.funcionalidades || []))].sort();
+
   const crearHerramienta = async () => {
     if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return;
     if (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) return;
-    const delegacionesFinales = nuevaHerr.todasDelegaciones ? [] : [...nuevaHerr.delegaciones];
-    if (!nuevaHerr.todasDelegaciones && nuevaHerr.nuevaDelegacion.trim()) delegacionesFinales.push(nuevaHerr.nuevaDelegacion.trim());
-    if (!nuevaHerr.todasDelegaciones && delegacionesFinales.length === 0) return;
+    const cubreTodas = nuevaHerr.todasDelegaciones || nuevaHerr.todasDelegacionesEspana;
+    const delegacionesFinales = cubreTodas ? [] : [...nuevaHerr.delegaciones];
+    if (!cubreTodas && nuevaHerr.nuevaDelegacion.trim()) delegacionesFinales.push(nuevaHerr.nuevaDelegacion.trim());
+    if (!cubreTodas && delegacionesFinales.length === 0) return;
     if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.numeroUsuarios || Number(nuevaHerr.numeroUsuarios) <= 0)) return;
     const cats = [...nuevaHerr.categorias];
     if (nuevaHerr.nuevaCategoria.trim()) cats.push(nuevaHerr.nuevaCategoria.trim());
@@ -5460,11 +5467,16 @@ RECOMENDACIÓN: [una frase]`;
       descripcion: nuevaHerr.descripcion.trim(),
       categoria: categoriaFinal,
       origen: nuevaHerr.origen === 'inhouse' ? 'inhouse' : 'externa',
-      funcionalidades: nuevaHerr.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
+      funcionalidades: (() => {
+        const fs = [...(nuevaHerr.funcionalidadesSel || [])];
+        if ((nuevaHerr.nuevaFuncionalidad || '').trim()) fs.push(nuevaHerr.nuevaFuncionalidad.trim());
+        return fs;
+      })(),
       equipos: nuevaHerr.todosEquipos ? [] : nuevaHerr.equipos,
       todosEquipos: !!nuevaHerr.todosEquipos,
       delegaciones: delegacionesFinales,
       todasDelegaciones: !!nuevaHerr.todasDelegaciones,
+      todasDelegacionesEspana: !!nuevaHerr.todasDelegacionesEspana && !nuevaHerr.todasDelegaciones,
       todaCompaniaUsuarios: !!nuevaHerr.todaCompaniaUsuarios,
       numeroUsuarios: usuariosNum,
       licenciasContratadas: licContratadas,
@@ -5499,12 +5511,14 @@ RECOMENDACIÓN: [una frase]`;
       categoriasSel: categoriasDe(h),
       nuevaCategoria: '',
       origen: h.origen === 'inhouse' ? 'inhouse' : 'externa',
-      funcionalidades: (h.funcionalidades || []).join(', '),
+      funcionalidadesSel: Array.isArray(h.funcionalidades) ? h.funcionalidades : [],
+      nuevaFuncionalidad: '',
       equipos: equiposDerivados,
       todosEquipos: !!h.todosEquipos,
       delegaciones: delegacionesDerivadas,
       nuevaDelegacion: '',
       todasDelegaciones: !!h.todasDelegaciones,
+      todasDelegacionesEspana: !!h.todasDelegacionesEspana,
       todaCompaniaUsuarios: todaCompaniaDerivada,
       numeroUsuarios: h.numeroUsuarios != null ? h.numeroUsuarios : (h.licenciasContratadas || 1),
       sinCosteLicencia: !!h.sinCosteLicencia || (h.costeAnual === 0 && h.origen === 'inhouse'),
@@ -5529,10 +5543,11 @@ RECOMENDACIÓN: [una frase]`;
     if (edicion.nuevaCategoria && edicion.nuevaCategoria.trim()) catsEdit.push(edicion.nuevaCategoria.trim());
     if (catsEdit.length === 0) return;
     const categoriaFinal = catsEdit.join(', ');
-    const delegacionesFinales = edicion.todasDelegaciones ? [] : [...(edicion.delegaciones || [])];
-    if (!edicion.todasDelegaciones && edicion.nuevaDelegacion && edicion.nuevaDelegacion.trim()) delegacionesFinales.push(edicion.nuevaDelegacion.trim());
+    const cubreTodasEdit = edicion.todasDelegaciones || edicion.todasDelegacionesEspana;
+    const delegacionesFinales = cubreTodasEdit ? [] : [...(edicion.delegaciones || [])];
+    if (!cubreTodasEdit && edicion.nuevaDelegacion && edicion.nuevaDelegacion.trim()) delegacionesFinales.push(edicion.nuevaDelegacion.trim());
     if (!edicion.todosEquipos && (edicion.equipos || []).length === 0) return;
-    if (!edicion.todasDelegaciones && delegacionesFinales.length === 0) return;
+    if (!cubreTodasEdit && delegacionesFinales.length === 0) return;
     const usuariosEdit = edicion.todaCompaniaUsuarios ? 0 : (Number(edicion.numeroUsuarios) || 1);
     const licContratadasEdit = edicion.sinCosteLicencia ? 0 : Math.max(Number(edicion.licenciasContratadas) || 0, 0);
     const costeAnualCalc = edicion.sinCosteLicencia
@@ -5543,11 +5558,16 @@ RECOMENDACIÓN: [una frase]`;
       descripcion: edicion.descripcion.trim(),
       categoria: categoriaFinal,
       origen: edicion.origen === 'inhouse' ? 'inhouse' : 'externa',
-      funcionalidades: edicion.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
+      funcionalidades: (() => {
+        const fs = [...(edicion.funcionalidadesSel || [])];
+        if ((edicion.nuevaFuncionalidad || '').trim()) fs.push(edicion.nuevaFuncionalidad.trim());
+        return fs;
+      })(),
       equipos: edicion.todosEquipos ? [] : edicion.equipos,
       todosEquipos: !!edicion.todosEquipos,
       delegaciones: delegacionesFinales,
       todasDelegaciones: !!edicion.todasDelegaciones,
+      todasDelegacionesEspana: !!edicion.todasDelegacionesEspana && !edicion.todasDelegaciones,
       todaCompaniaUsuarios: !!edicion.todaCompaniaUsuarios,
       numeroUsuarios: usuariosEdit,
       licenciasContratadas: licContratadasEdit,
@@ -5940,21 +5960,39 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
           <div className="mb-4">
             <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Delegaciones donde se utiliza <span className="text-red-600">*</span></label>
-            <button
-              type="button"
-              onClick={() => setNuevaHerr({ ...nuevaHerr, todasDelegaciones: !nuevaHerr.todasDelegaciones })}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border mb-2 ${
-                nuevaHerr.todasDelegaciones ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
-              }`}
-            >
-              <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                nuevaHerr.todasDelegaciones ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
-              }`}>
-                {nuevaHerr.todasDelegaciones && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
-              </span>
-              Todas las delegaciones
-            </button>
-            {!nuevaHerr.todasDelegaciones && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => setNuevaHerr({ ...nuevaHerr, todasDelegaciones: !nuevaHerr.todasDelegaciones, todasDelegacionesEspana: false })}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${
+                  nuevaHerr.todasDelegaciones ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                }`}
+                title="Madrid · Barcelona · Valencia · Málaga · Sevilla · Portugal · Londres"
+              >
+                <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                  nuevaHerr.todasDelegaciones ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                }`}>
+                  {nuevaHerr.todasDelegaciones && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                </span>
+                Todas las delegaciones <span className="font-normal text-[10px]">(incluye internacionales)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setNuevaHerr({ ...nuevaHerr, todasDelegacionesEspana: !nuevaHerr.todasDelegacionesEspana, todasDelegaciones: false })}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${
+                  nuevaHerr.todasDelegacionesEspana ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                }`}
+                title="Madrid · Barcelona · Valencia · Málaga · Sevilla"
+              >
+                <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                  nuevaHerr.todasDelegacionesEspana ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                }`}>
+                  {nuevaHerr.todasDelegacionesEspana && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                </span>
+                Todas las delegaciones España
+              </button>
+            </div>
+            {!nuevaHerr.todasDelegaciones && !nuevaHerr.todasDelegacionesEspana && (
               <>
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {[...new Set([...DELEGACIONES, ...nuevaHerr.delegaciones])].map(d => {
@@ -5990,14 +6028,38 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             )}
           </div>
 
-          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Funcionalidades</label>
-          <input
-            value={nuevaHerr.funcionalidades}
-            onChange={e => setNuevaHerr({ ...nuevaHerr, funcionalidades: e.target.value })}
-            placeholder="Pipeline, reporting, dashboards..."
-            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 mb-1"
-          />
-          <p className="text-[10px] text-stone-500 mb-3">Separadas por comas. Sirven para detectar duplicidades con otras herramientas.</p>
+          <div className="mb-3">
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Funcionalidades <span className="normal-case text-stone-400 font-normal">(etiquetas estructuradas, sin texto libre)</span></label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {funcionalidadesDisponibles.map(f => {
+                const sel = nuevaHerr.funcionalidadesSel.includes(f);
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setNuevaHerr({ ...nuevaHerr, funcionalidadesSel: sel ? nuevaHerr.funcionalidadesSel.filter(x => x !== f) : [...nuevaHerr.funcionalidadesSel, f] })}
+                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >{sel ? '+ ' : ''}{f}</button>
+                );
+              })}
+              {funcionalidadesDisponibles.length === 0 && <p className="text-[11px] text-stone-400 italic">Aún no hay etiquetas. Crea la primera con el campo de abajo.</p>}
+            </div>
+            <input
+              value={nuevaHerr.nuevaFuncionalidad}
+              onChange={e => setNuevaHerr({ ...nuevaHerr, nuevaFuncionalidad: e.target.value })}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && nuevaHerr.nuevaFuncionalidad.trim()) {
+                  e.preventDefault();
+                  const nf = nuevaHerr.nuevaFuncionalidad.trim();
+                  if (!nuevaHerr.funcionalidadesSel.includes(nf)) {
+                    setNuevaHerr({ ...nuevaHerr, funcionalidadesSel: [...nuevaHerr.funcionalidadesSel, nf], nuevaFuncionalidad: '' });
+                  }
+                }
+              }}
+              placeholder="+ Añadir nueva etiqueta y pulsa Enter"
+              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
+          </div>
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 mb-3">
             <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Número de usuarios <span className="text-red-600">*</span></p>
@@ -6119,7 +6181,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               !nuevaHerr.nombre.trim() ||
               !nuevaHerr.descripcion.trim() ||
               (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) ||
-              (!nuevaHerr.todasDelegaciones && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) ||
+              (!nuevaHerr.todasDelegaciones && !nuevaHerr.todasDelegacionesEspana && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) ||
               (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.numeroUsuarios || Number(nuevaHerr.numeroUsuarios) <= 0)) ||
               (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())
             }
@@ -6130,7 +6192,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           {(() => {
             const faltan = [];
             if (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) faltan.push('equipos');
-            if (!nuevaHerr.todasDelegaciones && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) faltan.push('delegaciones');
+            if (!nuevaHerr.todasDelegaciones && !nuevaHerr.todasDelegacionesEspana && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) faltan.push('delegaciones');
             if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.numeroUsuarios || Number(nuevaHerr.numeroUsuarios) <= 0)) faltan.push('nº usuarios');
             if (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim()) faltan.push('categoría');
             if (faltan.length === 0) return null;
@@ -6314,9 +6376,11 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             : (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : []));
         const delegacionesDeH = (h) => h.todasDelegaciones
           ? [...DELEGACIONES]
-          : (Array.isArray(h.delegaciones) && h.delegaciones.length > 0
-            ? h.delegaciones
-            : (h.delegacion ? [h.delegacion] : []));
+          : h.todasDelegacionesEspana
+            ? [...DELEGACIONES_ESPANA]
+            : (Array.isArray(h.delegaciones) && h.delegaciones.length > 0
+              ? h.delegaciones
+              : (h.delegacion ? [h.delegacion] : []));
         const filtradas = herramientas.filter(h => {
           if (busqueda && !h.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
           if (filtroPorUsoEquipos.length > 0) {
@@ -6326,10 +6390,8 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             }
           }
           if (filtroPorUsoDelegaciones.length > 0) {
-            if (!h.todasDelegaciones) {
-              const dl = delegacionesDeH(h);
-              if (!filtroPorUsoDelegaciones.some(f => dl.includes(f))) return false;
-            }
+            const dl = delegacionesDeH(h);
+            if (!filtroPorUsoDelegaciones.some(f => dl.includes(f))) return false;
           }
           if (filtroPorUsoCoste === 'con_coste' && (h.sinCosteLicencia || (h.costeAnual || 0) === 0)) return false;
           if (filtroPorUsoCoste === 'sin_coste' && !h.sinCosteLicencia && (h.costeAnual || 0) !== 0) return false;
@@ -6473,7 +6535,9 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                           </td>
                           <td className="px-4 py-3">
                             {h.todasDelegaciones ? (
-                              <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Todas</span>
+                              <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Todas (incl. intl.)</span>
+                            ) : h.todasDelegacionesEspana ? (
+                              <span className="text-[11px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">Todas España</span>
                             ) : (
                               <div className="flex flex-wrap gap-0.5">
                                 {delegaciones.slice(0, 3).map(d => <span key={d} className="text-[10px] bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded">{d}</span>)}
@@ -6753,21 +6817,39 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
                 <div>
                   <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Delegaciones donde se utiliza <span className="text-red-600">*</span></label>
-                  <button
-                    type="button"
-                    onClick={() => setEdicion({ ...edicion, todasDelegaciones: !edicion.todasDelegaciones })}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border mb-2 ${
-                      edicion.todasDelegaciones ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
-                    }`}
-                  >
-                    <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                      edicion.todasDelegaciones ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
-                    }`}>
-                      {edicion.todasDelegaciones && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
-                    </span>
-                    Todas las delegaciones
-                  </button>
-                  {!edicion.todasDelegaciones && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setEdicion({ ...edicion, todasDelegaciones: !edicion.todasDelegaciones, todasDelegacionesEspana: false })}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${
+                        edicion.todasDelegaciones ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                      }`}
+                      title="Madrid · Barcelona · Valencia · Málaga · Sevilla · Portugal · Londres"
+                    >
+                      <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        edicion.todasDelegaciones ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                      }`}>
+                        {edicion.todasDelegaciones && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                      </span>
+                      Todas las delegaciones <span className="font-normal text-[10px]">(incluye internacionales)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEdicion({ ...edicion, todasDelegacionesEspana: !edicion.todasDelegacionesEspana, todasDelegaciones: false })}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${
+                        edicion.todasDelegacionesEspana ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                      }`}
+                      title="Madrid · Barcelona · Valencia · Málaga · Sevilla"
+                    >
+                      <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                        edicion.todasDelegacionesEspana ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                      }`}>
+                        {edicion.todasDelegacionesEspana && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                      </span>
+                      Todas las delegaciones España
+                    </button>
+                  </div>
+                  {!edicion.todasDelegaciones && !edicion.todasDelegacionesEspana && (
                     <>
                       <div className="flex flex-wrap gap-1.5 mb-2">
                         {[...new Set([...DELEGACIONES, ...(edicion.delegaciones || [])])].map(d => {
@@ -6804,14 +6886,35 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Funcionalidades</label>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Funcionalidades <span className="normal-case text-stone-400 font-normal">(etiquetas estructuradas)</span></label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {funcionalidadesDisponibles.map(f => {
+                      const sel = (edicion.funcionalidadesSel || []).includes(f);
+                      return (
+                        <button
+                          key={f}
+                          type="button"
+                          onClick={() => setEdicion({ ...edicion, funcionalidadesSel: sel ? edicion.funcionalidadesSel.filter(x => x !== f) : [...(edicion.funcionalidadesSel || []), f] })}
+                          className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                        >{sel ? '+ ' : ''}{f}</button>
+                      );
+                    })}
+                  </div>
                   <input
-                    value={edicion.funcionalidades}
-                    onChange={e => setEdicion({ ...edicion, funcionalidades: e.target.value })}
-                    placeholder="Pipeline, reporting, dashboards..."
-                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                    value={edicion.nuevaFuncionalidad || ''}
+                    onChange={e => setEdicion({ ...edicion, nuevaFuncionalidad: e.target.value })}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && (edicion.nuevaFuncionalidad || '').trim()) {
+                        e.preventDefault();
+                        const nf = edicion.nuevaFuncionalidad.trim();
+                        if (!(edicion.funcionalidadesSel || []).includes(nf)) {
+                          setEdicion({ ...edicion, funcionalidadesSel: [...(edicion.funcionalidadesSel || []), nf], nuevaFuncionalidad: '' });
+                        }
+                      }
+                    }}
+                    placeholder="+ Añadir nueva etiqueta y pulsa Enter"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
                   />
-                  <p className="text-[10px] text-stone-500 mt-1">Separadas por comas</p>
                 </div>
 
                 <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
@@ -7058,7 +7161,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                   >Cancelar</button>
                   <button
                     onClick={guardarEdicion}
-                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim()) || (!edicion.todosEquipos && (edicion.equipos || []).length === 0) || (!edicion.todasDelegaciones && (edicion.delegaciones || []).length === 0 && !(edicion.nuevaDelegacion || '').trim())}
+                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim()) || (!edicion.todosEquipos && (edicion.equipos || []).length === 0) || (!edicion.todasDelegaciones && !edicion.todasDelegacionesEspana && (edicion.delegaciones || []).length === 0 && !(edicion.nuevaDelegacion || '').trim())}
                     className="flex items-center gap-1.5 px-4 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
                   >
                     Guardar cambios
