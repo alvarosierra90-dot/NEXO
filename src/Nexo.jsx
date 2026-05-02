@@ -5221,6 +5221,53 @@ RECOMENDACIÓN: [una frase]`;
   const [sugiriendoCategorias, setSugiriendoCategorias] = useState(false);
   const [sugerenciaRazon, setSugerenciaRazon] = useState(null);
 
+  const [mostrandoAnalisis, setMostrandoAnalisis] = useState(false);
+  const [analisisHerramientas, setAnalisisHerramientas] = useState(null);
+  const [analizandoHerramientas, setAnalizandoHerramientas] = useState(false);
+
+  const analizarHerramientas = async () => {
+    setAnalizandoHerramientas(true);
+    setMostrandoAnalisis(true);
+    setAnalisisHerramientas(null);
+    const catalogo = herramientas.map(h => {
+      const cats = (Array.isArray(h.categorias) && h.categorias.length) ? h.categorias.join(', ') : (h.categoria || '');
+      return `- ID ${h.id} | ${h.nombre} | Categorías: ${cats} | Descripción: ${h.descripcion || ''} | Funcionalidades actuales: ${(h.funcionalidades || []).join(', ') || '(ninguna declarada)'}`;
+    }).join('\n');
+    const userMessage = `Analiza este catálogo de herramientas de una consultora inmobiliaria. Para cada herramienta, identifica funcionalidades adicionales que típicamente cubre una herramienta de su categoría pero que NO están declaradas en sus funcionalidades actuales.
+
+CATÁLOGO:
+${catalogo}
+
+Devuelve SOLO JSON válido, sin markdown:
+[
+  {"id":"<id-exacto>","faltantes":["funcionalidad sugerida 1","sugerida 2"],"razon":"1 frase explicando por qué"}
+]
+
+Reglas:
+- Incluye un objeto por cada herramienta del catálogo, usando su ID exacto.
+- 3-5 sugerencias por herramienta. Si la herramienta ya cubre todo lo típico, devuelve "faltantes":[] y explica brevemente.
+- No repitas funcionalidades ya declaradas.
+- Sé concreto, en español, con vocabulario del negocio inmobiliario.`;
+    const respuesta = await callClaude(
+      'Eres analista de gobierno de herramientas en una consultora inmobiliaria. Conoces qué funcionalidades suele cubrir cada categoría. Respondes solo JSON válido sin markdown.',
+      userMessage,
+    );
+    try {
+      const json = respuesta && respuesta.match(/\[[\s\S]*\]/);
+      if (json) {
+        const data = JSON.parse(json[0]);
+        const map = {};
+        data.forEach(item => { if (item.id) map[item.id] = item; });
+        setAnalisisHerramientas(map);
+      } else {
+        setAnalisisHerramientas({ __error: 'No se pudo interpretar la respuesta de la IA.' });
+      }
+    } catch (e) {
+      setAnalisisHerramientas({ __error: 'No se pudo interpretar la respuesta de la IA.' });
+    }
+    setAnalizandoHerramientas(false);
+  };
+
   const sugerirCategorias = async (modo) => {
     const nombre = (modo === 'alta' ? nuevaHerr.nombre : edicion?.nombre || '').trim();
     const descripcion = (modo === 'alta' ? nuevaHerr.descripcion : edicion?.descripcion || '').trim();
@@ -5353,6 +5400,15 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={analizarHerramientas}
+            disabled={analizandoHerramientas || herramientas.length === 0}
+            className="flex items-center gap-2 px-3 py-2 bg-white border border-stone-300 hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed text-stone-800 rounded-md text-sm font-medium transition-colors"
+            title="La IA revisa cada herramienta del catálogo y sugiere funcionalidades que podría cubrir"
+          >
+            {analizandoHerramientas ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            {analizandoHerramientas ? 'Analizando…' : 'Análisis de herramientas'}
+          </button>
+          <button
             onClick={() => { setVistaSolicitud(!vistaSolicitud); if (vistaAlta) setVistaAlta(false); }}
             className="flex items-center gap-2 px-3 py-2 bg-white border border-stone-300 hover:border-stone-500 text-stone-800 rounded-md text-sm font-medium transition-colors"
           >
@@ -5390,7 +5446,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           tooltip="Porcentaje de licencias activas sobre el total contratado. Un porcentaje bajo indica licencias infrautilizadas que se pueden reasignar o dar de baja."
         />
         <Metric
-          label="Atención requerida"
+          label="Avisos"
           value={requierenAtencion.length}
           accent={requierenAtencion.length > 0 ? 'amber' : 'emerald'}
           hint={`${sinUsoH.length} sin uso · ${infrautilizadas.length} infra · ${duplicadas.length} duplica`}
@@ -6238,6 +6294,99 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           </div>
         );
       })()}
+
+      {mostrandoAnalisis && (
+        <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setMostrandoAnalisis(false)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-stone-200 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-1">Catálogo</p>
+                <h2 className="font-serif text-2xl text-stone-900 flex items-center gap-2">
+                  <Sparkles size={20} className="text-gold-600" />
+                  Análisis de herramientas
+                </h2>
+                <p className="text-sm text-stone-600 mt-1">Para cada herramienta: las funcionalidades que tiene declaradas y las que la IA propone que podría cubrir según su categoría.</p>
+              </div>
+              <button onClick={() => setMostrandoAnalisis(false)} className="text-stone-400 hover:text-stone-700 flex-shrink-0">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-6">
+              {analizandoHerramientas ? (
+                <div className="flex items-center justify-center gap-3 py-16 text-stone-600">
+                  <Loader2 size={20} className="animate-spin" />
+                  <p className="text-sm">Analizando {herramientas.length} {herramientas.length === 1 ? 'herramienta' : 'herramientas'}…</p>
+                </div>
+              ) : analisisHerramientas?.__error ? (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 text-sm text-red-800">
+                  {analisisHerramientas.__error}
+                  <button onClick={analizarHerramientas} className="ml-3 text-red-700 hover:text-red-900 underline">Reintentar</button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {herramientas.map(h => {
+                    const cats = (Array.isArray(h.categorias) && h.categorias.length) ? h.categorias.join(' · ') : (h.categoria || 'Sin categoría');
+                    const funcsActuales = h.funcionalidades || [];
+                    const a = analisisHerramientas?.[h.id];
+                    const faltantes = a?.faltantes || [];
+                    return (
+                      <div key={h.id} className="bg-white border border-stone-200 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3 flex-wrap">
+                          <h3 className="text-sm font-bold text-navy-900">{h.nombre}</h3>
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-stone-100 text-stone-700 font-semibold">{cats}</span>
+                          {h.origen === 'inhouse' && <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-navy-100 text-navy-800 font-bold">In-house</span>}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Funcionalidades actuales · {funcsActuales.length}</p>
+                            {funcsActuales.length === 0 ? (
+                              <p className="text-xs text-stone-400 italic">No hay funcionalidades declaradas.</p>
+                            ) : (
+                              <div className="flex flex-wrap gap-1">
+                                {funcsActuales.map(f => (
+                                  <span key={f} className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">{f}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase tracking-wider text-gold-700 font-semibold mb-1.5 flex items-center gap-1">
+                              <Sparkles size={11} /> Le faltaría · {faltantes.length}
+                            </p>
+                            {faltantes.length === 0 ? (
+                              <p className="text-xs text-stone-500 italic">{a?.razon || 'Sin sugerencias.'}</p>
+                            ) : (
+                              <div className="flex flex-wrap gap-1">
+                                {faltantes.map((f, i) => (
+                                  <span key={i} className="text-[11px] bg-gold-50 text-gold-900 border border-gold-200 px-2 py-0.5 rounded font-medium">+ {f}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {faltantes.length > 0 && a?.razon && (
+                          <p className="text-[11px] text-stone-500 italic mt-3 bg-stone-50 px-3 py-2 rounded">{a.razon}</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-stone-200 flex items-center justify-between">
+              <p className="text-[11px] text-stone-500 italic">Las sugerencias son orientativas. Si una herramienta ya cubre algo de la lista, edítala y añade la funcionalidad.</p>
+              <div className="flex items-center gap-2">
+                {!analizandoHerramientas && analisisHerramientas && !analisisHerramientas.__error && (
+                  <button onClick={analizarHerramientas} className="text-xs text-stone-600 hover:text-navy-900 underline">Volver a analizar</button>
+                )}
+                <button onClick={() => setMostrandoAnalisis(false)} className="px-4 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium transition-colors">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {borrandoCategoria && (
         <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setBorrandoCategoria(null)}>
