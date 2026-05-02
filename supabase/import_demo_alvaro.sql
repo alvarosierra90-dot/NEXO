@@ -10,24 +10,36 @@
 -- ============================================================
 
 -- ─────────────────────── 1. MIGRACIÓN DE SCHEMA ────────────────────────────
--- Importante: hay que SOLTAR todas las FKs PRIMERO y luego cambiar los tipos
--- de columna. Si no, Postgres se queja al cambiar profiles.id porque las
--- otras tablas todavía la referencian con tipo uuid.
+-- Hay que SOLTAR todas las FKs PRIMERO y luego cambiar los tipos. No
+-- dependemos del nombre del constraint: buscamos dinámicamente cualquier FK
+-- que referencie profiles.id y la soltamos.
 
--- 1a. Soltar todas las FKs que dependen de profiles.id
+-- 1a. Soltar todas las FKs que apunten a profiles.id (sin importar su nombre)
+do $$
+declare r record;
+begin
+  for r in
+    select tc.table_schema, tc.table_name, tc.constraint_name
+    from information_schema.referential_constraints rc
+    join information_schema.table_constraints tc
+      on tc.constraint_name = rc.constraint_name
+     and tc.table_schema = rc.constraint_schema
+    join information_schema.key_column_usage kcu
+      on kcu.constraint_name = rc.unique_constraint_name
+     and kcu.table_schema = rc.unique_constraint_schema
+    where kcu.table_schema = 'public'
+      and kcu.table_name = 'profiles'
+      and kcu.column_name = 'id'
+  loop
+    execute format('alter table %I.%I drop constraint %I',
+      r.table_schema, r.table_name, r.constraint_name);
+  end loop;
+end $$;
+
+-- 1b. Soltar también la FK profiles → auth.users (si existe)
 alter table public.profiles drop constraint if exists profiles_id_fkey;
-alter table public.iniciativas drop constraint if exists iniciativas_autor_id_fkey;
-alter table public.tareas drop constraint if exists tareas_persona_id_fkey;
-alter table public.tareas drop constraint if exists tareas_creador_id_fkey;
-alter table public.historico drop constraint if exists historico_autor_id_fkey;
-alter table public.convocatorias drop constraint if exists convocatorias_organizador_id_fkey;
-alter table public.peticiones drop constraint if exists peticiones_solicitante_id_fkey;
-alter table public.peticiones drop constraint if exists peticiones_canalizado_por_id_fkey;
-alter table public.peticiones drop constraint if exists peticiones_rechazado_por_id_fkey;
-alter table public.mensajes drop constraint if exists mensajes_autor_id_fkey;
-alter table public.talleres drop constraint if exists talleres_updated_by_fkey;
 
--- 1b. Cambiar tipo de columnas (profiles.id primero, luego las que la referencian)
+-- 1c. Cambiar tipo de columnas. Ahora que las FKs están soltadas, no fallará.
 alter table public.profiles alter column id type text;
 alter table public.iniciativas alter column autor_id type text;
 alter table public.tareas alter column persona_id type text;
