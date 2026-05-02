@@ -2238,6 +2238,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               violet: 'bg-violet-100 text-violet-800',
               amber: 'bg-amber-100 text-amber-800',
               red: 'bg-red-100 text-red-800',
+              navy: 'bg-navy-100 text-navy-800',
             };
             const Icon = tipo.icon;
             return (
@@ -3552,6 +3553,7 @@ const TIPOS_EVENTO = {
   iniciativa: { label: 'Iniciativa', color: 'violet', icon: Lightbulb },
   riesgo: { label: 'Riesgo', color: 'amber', icon: AlertOctagon },
   bloqueo: { label: 'Bloqueo', color: 'red', icon: AlertTriangle },
+  reunion: { label: 'Reunión', color: 'navy', icon: Mic },
 };
 
 function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, onBack, usuarioActualId, demoMode }) {
@@ -3565,7 +3567,6 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   const [generandoResumen, setGenerandoResumen] = useState(false);
   const [editandoEventoId, setEditandoEventoId] = useState(null);
   const [gestionandoMiembros, setGestionandoMiembros] = useState(false);
-  const [tabEvolucion, setTabEvolucion] = useState('historico');
 
   // Objetivos
   const [nuevoObjTitulo, setNuevoObjTitulo] = useState('');
@@ -4210,6 +4211,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           violet: { bg: '#EEEDFE', border: '#8b5cf6', text: '#3C3489', dot: '#8b5cf6' },
           amber: { bg: '#FAEEDA', border: '#BA7517', text: '#633806', dot: '#BA7517' },
           red: { bg: '#FCEBEB', border: '#A32D2D', text: '#791F1F', dot: '#A32D2D' },
+          navy: { bg: '#E5EAF3', border: '#1E3A6F', text: '#0E1F3D', dot: '#1E3A6F' },
         };
 
         const grupos = {};
@@ -4336,41 +4338,17 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="font-serif text-xl text-stone-900">Evolución del taller</h2>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-stone-100 rounded-md p-0.5">
-            <button
-              onClick={() => setTabEvolucion('historico')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${tabEvolucion === 'historico' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
-            >
-              <Activity size={12} />
-              Histórico
-            </button>
-            <button
-              onClick={() => setTabEvolucion('reuniones')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${tabEvolucion === 'reuniones' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
-            >
-              <Mic size={12} />
-              Reuniones
-              {(() => {
-                const n = (reuniones || []).filter(r => (r.tallerIds || []).includes(taller.id)).length;
-                return n > 0 ? <span className="text-[10px] bg-navy-900 text-stone-50 px-1.5 py-0.5 rounded">{n}</span> : null;
-              })()}
-            </button>
-          </div>
-          {tabEvolucion === 'historico' && (
-            <button
-              onClick={() => setAñadiendo(!añadiendo)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-xs transition-colors"
-            >
-              <Plus size={12} /> Nuevo evento
-            </button>
-          )}
-        </div>
+        <button
+          onClick={() => setAñadiendo(!añadiendo)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-xs transition-colors"
+        >
+          <Plus size={12} /> Nuevo evento
+        </button>
       </div>
 
-      {tabEvolucion === 'historico' && añadiendo && (
+      {añadiendo && (
         <div className="bg-white border border-stone-300 rounded-xl p-5 mb-4">
           <div className="grid grid-cols-3 gap-2 mb-2">
             <select
@@ -4432,7 +4410,6 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         </div>
       )}
 
-      {tabEvolucion === 'historico' && (
       <div className="bg-white border border-stone-200 rounded-xl p-2 mb-4 flex items-center gap-1 flex-wrap">
         <button
           onClick={() => setFiltroTipo('todos')}
@@ -4450,9 +4427,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           >{val.label} {conteoTipos[key] ? `(${conteoTipos[key]})` : ''}</button>
         ))}
       </div>
-      )}
 
-      {tabEvolucion === 'historico' && (
       <div className="relative">
         <div className="absolute left-[15px] top-2 bottom-2 w-px bg-stone-200"></div>
         <div className="space-y-3">
@@ -4470,6 +4445,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
               violet: 'bg-violet-100 text-violet-800',
               amber: 'bg-amber-100 text-amber-800',
               red: 'bg-red-100 text-red-800',
+              navy: 'bg-navy-100 text-navy-800',
             };
             const editando = editandoEventoId === evento.id;
             return (
@@ -4562,55 +4538,6 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           })}
         </div>
       </div>
-      )}
-
-      {tabEvolucion === 'reuniones' && (() => {
-        const reunionesTaller = (reuniones || [])
-          .filter(r => (r.tallerIds || []).includes(taller.id))
-          .slice()
-          .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
-        if (reunionesTaller.length === 0) {
-          return (
-            <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
-              <Mic size={36} className="text-stone-300 mx-auto mb-3" />
-              <p className="text-sm text-stone-600 font-medium mb-1">No hay reuniones vinculadas a este taller</p>
-              <p className="text-xs text-stone-500">Cuando hagas un "Resumen express" en Reuniones y lo vincules a este taller, aparecerá aquí.</p>
-            </div>
-          );
-        }
-        return (
-          <div className="space-y-3">
-            {reunionesTaller.map(r => {
-              const asistentesObj = (r.asistentes || []).map(id => personaById[id]).filter(Boolean);
-              return (
-                <div key={r.id} className="bg-white border border-stone-200 rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Mic size={14} className="text-navy-700" />
-                      <h3 className="text-sm font-bold text-navy-900">{r.titulo}</h3>
-                      {r.fuente === 'resumen_express' && (
-                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gold-100 text-gold-800 font-bold">Resumen IA</span>
-                      )}
-                    </div>
-                    <span className="text-xs text-stone-500 flex-shrink-0">{r.fecha ? formatFecha(r.fecha) : 'Sin fecha'}</span>
-                  </div>
-                  {asistentesObj.length > 0 && (
-                    <div className="flex items-center gap-1 mb-2 flex-wrap">
-                      <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mr-1">Asistentes:</span>
-                      {asistentesObj.map(p => (
-                        <span key={p.id} className="text-[11px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded">{p.nombre}</span>
-                      ))}
-                    </div>
-                  )}
-                  {r.notas && (
-                    <p className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap line-clamp-6">{r.notas}</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        );
-      })()}
     </div>
   );
 }
@@ -8361,8 +8288,8 @@ Devuelve SOLO JSON válido, sin markdown:
         id: `e-${Date.now()}`,
         tallerId: resumenForm.tallerId,
         fecha: resumenForm.fecha || new Date().toISOString().slice(0, 10),
-        tipo: 'avance',
-        titulo: `Reunión: ${resumenForm.titulo.trim()}`,
+        tipo: 'reunion',
+        titulo: resumenForm.titulo.trim(),
         descripcion: resumenIA.resumen || notasResumen,
         autorId: null,
         reunionId: resumenForm.guardarComoReunion ? reunionId : null,
