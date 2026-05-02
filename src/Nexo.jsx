@@ -6673,6 +6673,11 @@ function TaskCard({ tarea, talleres, personas, setTareas, tareas, compact, dragg
 
   const persona = personaById[tarea.personaId];
   const taller = tallerById[tarea.tallerId];
+  const creador = personaById[tarea.creadorId];
+  const fechaAsignacionIso = tareaTimestamp(tarea);
+  const fechaAsignacion = fechaAsignacionIso && !fechaAsignacionIso.startsWith('1970')
+    ? formatFecha(fechaAsignacionIso, true)
+    : null;
 
   const toggleEstado = async () => {
     const nuevas = tareas.map(t => t.id === tarea.id ? { ...t, estado: t.estado === 'pendiente' ? 'completada' : 'pendiente' } : t);
@@ -6714,22 +6719,40 @@ function TaskCard({ tarea, talleres, personas, setTareas, tareas, compact, dragg
         <p className={`flex-1 text-sm font-medium text-stone-900 leading-snug line-clamp-3 ${tarea.estado === 'completada' ? 'line-through text-stone-500' : ''}`}>{tarea.tarea}</p>
       </div>
 
-      <div className="flex items-center gap-2 pl-[24px] flex-wrap">
-        {persona && (
-          <div className="relative flex-shrink-0" title={`${persona.nombre}${nivel ? ' · Nivel ' + nivel : ''}`}>
-            <div className="w-5 h-5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[9px]">
-              {inicialesPersona}
+      <div className="pl-[24px] space-y-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          {persona && (
+            <div className="flex items-center gap-1.5 min-w-0" title={`${persona.nombre}${nivel ? ' · Nivel ' + nivel : ''}`}>
+              <div className="relative flex-shrink-0">
+                <div className="w-5 h-5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[9px]">
+                  {inicialesPersona}
+                </div>
+                {nivel && (
+                  <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${NIVELES[nivel].dot}`}></div>
+                )}
+              </div>
+              <span className="text-xs font-semibold text-stone-800 truncate">{persona.nombre}</span>
             </div>
-            {nivel && (
-              <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${NIVELES[nivel].dot}`}></div>
+          )}
+          {taller && (
+            <span className="text-xs text-stone-500 truncate min-w-0 font-medium" title={taller.nombre}>· {taller.nombre}</span>
+          )}
+          {tarea.deadline && tarea.deadline !== 'Sin fecha' && (
+            <span className="ml-auto text-xs text-navy-800 font-semibold bg-navy-50 px-1.5 py-0.5 rounded flex-shrink-0">{tarea.deadline}</span>
+          )}
+        </div>
+
+        {(creador || fechaAsignacion) && (
+          <div className="text-[10px] text-stone-500 flex items-center gap-1 flex-wrap">
+            {creador && (
+              <>
+                <span>Asignada por</span>
+                <span className="font-semibold text-stone-700 truncate">{creador.nombre}</span>
+              </>
             )}
+            {creador && fechaAsignacion && <span>·</span>}
+            {fechaAsignacion && <span>{fechaAsignacion}</span>}
           </div>
-        )}
-        {taller && (
-          <span className="text-xs text-stone-600 truncate flex-1 min-w-0 font-medium" title={taller.nombre}>{taller.nombre}</span>
-        )}
-        {tarea.deadline && tarea.deadline !== 'Sin fecha' && (
-          <span className="text-xs text-navy-800 font-semibold bg-navy-50 px-1.5 py-0.5 rounded flex-shrink-0">{tarea.deadline}</span>
         )}
       </div>
     </div>
