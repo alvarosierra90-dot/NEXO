@@ -234,15 +234,15 @@ function Sidebar({ active, setActive, usuarioActualId, setUsuarioActualId, perso
 
   const items = [
     { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard },
-    { id: 'mis-tareas', label: 'Mis Tareas', icon: User, badge: misTareasCount },
-    { id: 'reuniones', label: 'Reuniones', icon: Mic },
     { id: 'talleres', label: 'Talleres', icon: Layers },
     { id: 'personas', label: 'Personas', icon: Users },
-    { id: 'innovacion', label: 'Innovación', icon: Sparkles },
+    { id: 'reuniones', label: 'Reuniones', icon: Mic },
+    { id: 'mis-tareas', label: 'Mis Tareas', icon: User, badge: misTareasCount },
+    { id: 'herramientas', label: 'Herramientas', icon: Wrench },
     { id: 'peticiones', label: 'Peticiones', icon: Workflow },
     { id: 'solapamientos', label: 'Conflictos', icon: AlertTriangle },
-    { id: 'herramientas', label: 'Herramientas', icon: Wrench },
     { id: 'tareas', label: 'Tareas', icon: CheckSquare },
+    { id: 'innovacion', label: 'Innovación', icon: Sparkles },
     { id: 'chat', label: 'Chat', icon: MessageSquare, accent: 'gold' },
   ];
 
