@@ -146,11 +146,11 @@ const SEED_SOLAPAMIENTOS = [
 ];
 
 const SEED_PETICIONES = [
-  { id: 'pet1', titulo: 'Herramienta para análisis de pliegos y RFPs', descripcion: 'Necesitamos una herramienta que lea y analice pliegos de concursos públicos y RFPs entrantes, extraiga requisitos clave, identifique riesgos y nos ayude a redactar propuestas más rápido. Ahora hacemos todo manualmente y perdemos oportunidades.', equipo: 'Capital', solicitanteId: 'p4', tipoSolicitud: 'herramienta', funcionalidades: ['extracción de requisitos', 'análisis de riesgos', 'generación de propuestas', 'IA generativa'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'alta', fecha: '2026-04-26', evaluacion: null, impactoEstimado: null },
-  { id: 'pet2', titulo: 'Mejora del proceso de alta de clientes', descripcion: 'El proceso actual de alta de clientes en Property tiene 8 pasos manuales que tardan 3-5 días. Equipo solicita revisar el flujo completo y proponer automatizaciones, especialmente la verificación KYC y la firma de contratos.', equipo: 'Property', solicitanteId: 'p14', tipoSolicitud: 'proceso', funcionalidades: ['automatización KYC', 'firma digital', 'flujo de aprobación'], estado: 'en_revision', tallerAsignadoId: 't1', prioridad: 'media', fecha: '2026-04-20', evaluacion: 'Encaja con el taller de Mejora de Procesos. Equipo Procesos 1 ya está mapeando AS-IS de procesos similares.', impactoEstimado: 'Reducir tiempo de alta de 3-5 días a 1 día. Liberar ~15h/semana del equipo.' },
-  { id: 'pet3', titulo: 'Sugerencia de Marketing: campaña automatizada con IA', descripcion: 'Equipo de marketing quiere implementar generación automatizada de pitch decks y materiales personalizados por cliente usando IA generativa. Plantean integrarlo con CRM Salesforce.', equipo: 'Marketing', solicitanteId: 'p15', tipoSolicitud: 'iniciativa', funcionalidades: ['generación contenido', 'personalización CRM', 'IA generativa'], estado: 'asignada', tallerAsignadoId: 't2', prioridad: 'media', fecha: '2026-04-15', evaluacion: 'Asignado al taller de Innovación. Líder Property Data evaluará viabilidad técnica y conflicto con asistente IA de Plataforma Integrada.', impactoEstimado: 'Si funciona, ahorro estimado de 20% del tiempo de generación de propuestas comerciales.' },
-  { id: 'pet4', titulo: 'Retail: necesidad de visualización de pipeline en tiempo real', descripcion: 'El equipo de Retail (locales comerciales) necesita un dashboard de pipeline en tiempo real, similar al de Office. Actualmente usa Excel manual cada lunes y la información llega tarde a dirección.', equipo: 'Retail', solicitanteId: 'p13', tipoSolicitud: 'herramienta', funcionalidades: ['dashboard tiempo real', 'pipeline comercial', 'alertas'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'media', fecha: '2026-04-28', evaluacion: null, impactoEstimado: null },
-  { id: 'pet5', titulo: 'Jurídico: revisión automática de contratos', descripcion: 'Equipo jurídico solicita herramienta de IA que revise contratos entrantes detectando cláusulas no estándar, plazos de pago atípicos, riesgos legales. Ahora la revisión manual es cuello de botella.', equipo: 'Jurídico', solicitanteId: 'p7', tipoSolicitud: 'herramienta', funcionalidades: ['análisis de contratos', 'detección anomalías', 'IA generativa', 'redlining'], estado: 'aprobada', tallerAsignadoId: 't1', prioridad: 'alta', fecha: '2026-04-08', evaluacion: 'Aprobada en comité del 17 de abril. Encaja con el taller de Mejora de Procesos (primera oleada con Líder Jurídico).', impactoEstimado: 'Reducir tiempo de revisión de contratos de 2-3 días a 4 horas. Detección preventiva de cláusulas problemáticas.' },
+  { id: 'pet1', titulo: 'Herramienta para análisis de pliegos y RFPs', descripcion: 'Necesitamos una herramienta que lea y analice pliegos de concursos públicos y RFPs entrantes, extraiga requisitos clave, identifique riesgos y nos ayude a redactar propuestas más rápido. Ahora hacemos todo manualmente y perdemos oportunidades.', equipo: 'Capital Markets', delegacion: 'Madrid', solicitanteId: 'p4', tipoSolicitud: 'herramienta', funcionalidades: ['extracción de requisitos', 'análisis de riesgos', 'generación de propuestas', 'IA generativa'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'alta', fecha: '2026-04-26', evaluacion: null, impactoEstimado: null },
+  { id: 'pet2', titulo: 'Mejora del proceso de alta de clientes', descripcion: 'El proceso actual de alta de clientes en Property tiene 8 pasos manuales que tardan 3-5 días. Equipo solicita revisar el flujo completo y proponer automatizaciones, especialmente la verificación KYC y la firma de contratos.', equipo: 'Property Management', delegacion: 'Madrid', solicitanteId: 'p14', tipoSolicitud: 'proceso', funcionalidades: ['automatización KYC', 'firma digital', 'flujo de aprobación'], estado: 'en_revision', tallerAsignadoId: 't1', prioridad: 'media', fecha: '2026-04-20', evaluacion: 'Encaja con el taller de Mejora de Procesos. Equipo Procesos 1 ya está mapeando AS-IS de procesos similares.', impactoEstimado: 'Reducir tiempo de alta de 3-5 días a 1 día. Liberar ~15h/semana del equipo.' },
+  { id: 'pet3', titulo: 'Generación automatizada de pitch decks con IA', descripcion: 'Equipo de Desarrollo de Negocio quiere implementar generación automatizada de pitch decks y materiales personalizados por cliente usando IA generativa. Plantean integrarlo con CRM Salesforce.', equipo: 'Desarrollo de Negocio', delegacion: 'Barcelona', solicitanteId: 'p15', tipoSolicitud: 'iniciativa', funcionalidades: ['generación contenido', 'personalización CRM', 'IA generativa'], estado: 'asignada', tallerAsignadoId: 't2', prioridad: 'media', fecha: '2026-04-15', evaluacion: 'Asignado al taller de Innovación. Líder Property Data evaluará viabilidad técnica y conflicto con asistente IA de Plataforma Integrada.', impactoEstimado: 'Si funciona, ahorro estimado de 20% del tiempo de generación de propuestas comerciales.' },
+  { id: 'pet4', titulo: 'Retail: necesidad de visualización de pipeline en tiempo real', descripcion: 'El equipo de Retail (locales comerciales) necesita un dashboard de pipeline en tiempo real, similar al de Office. Actualmente usa Excel manual cada lunes y la información llega tarde a dirección.', equipo: 'Retail', delegacion: 'Valencia', solicitanteId: 'p13', tipoSolicitud: 'herramienta', funcionalidades: ['dashboard tiempo real', 'pipeline comercial', 'alertas'], estado: 'nueva', tallerAsignadoId: null, prioridad: 'media', fecha: '2026-04-28', evaluacion: null, impactoEstimado: null },
+  { id: 'pet5', titulo: 'Revisión automática de contratos', descripcion: 'Equipo financiero/jurídico solicita herramienta de IA que revise contratos entrantes detectando cláusulas no estándar, plazos de pago atípicos, riesgos legales. Ahora la revisión manual es cuello de botella.', equipo: 'Financiero', delegacion: 'Madrid', solicitanteId: 'p7', tipoSolicitud: 'herramienta', funcionalidades: ['análisis de contratos', 'detección anomalías', 'IA generativa', 'redlining'], estado: 'aprobada', tallerAsignadoId: 't1', prioridad: 'alta', fecha: '2026-04-08', evaluacion: 'Aprobada en comité del 17 de abril. Encaja con el taller de Mejora de Procesos (primera oleada).', impactoEstimado: 'Reducir tiempo de revisión de contratos de 2-3 días a 4 horas. Detección preventiva de cláusulas problemáticas.' },
 ];
 
 const SEED_CONVOCATORIAS = [
@@ -4542,6 +4542,28 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
   );
 }
 
+const EQUIPOS_NEGOCIO = [
+  'Oficinas',
+  'Retail',
+  'Hoteles',
+  'Centros Comerciales',
+  'Living',
+  'Industrial/Logístico',
+  'Alternativos',
+  'Agrobusiness',
+  'Property Management',
+  'Facility Management',
+  'Arquitectura',
+  'Valoraciones',
+  'Financiero',
+  'IT',
+  'Desarrollo de Negocio',
+  'Research',
+  'Capital Markets',
+];
+
+const DELEGACIONES = ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla', 'Portugal'];
+
 const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
   'BI',
   'CRM',
@@ -4602,6 +4624,9 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
     categorias: [],
     nuevaCategoria: '',
     origen: 'externa',
+    solicitanteNombre: '',
+    equipoSolicitante: '',
+    delegacion: '',
     funcionalidades: '',
     areas: '',
     todaCompania: false,
@@ -4692,6 +4717,7 @@ RECOMENDACIÓN: [una frase]`;
 
   const crearHerramienta = async () => {
     if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return;
+    if (!nuevaHerr.solicitanteNombre.trim() || !nuevaHerr.equipoSolicitante || !nuevaHerr.delegacion.trim()) return;
     const cats = [...nuevaHerr.categorias];
     if (nuevaHerr.nuevaCategoria.trim()) cats.push(nuevaHerr.nuevaCategoria.trim());
     if (cats.length === 0) return;
@@ -4705,6 +4731,9 @@ RECOMENDACIÓN: [una frase]`;
       descripcion: nuevaHerr.descripcion.trim(),
       categoria: categoriaFinal,
       origen: nuevaHerr.origen === 'inhouse' ? 'inhouse' : 'externa',
+      solicitanteNombre: nuevaHerr.solicitanteNombre.trim(),
+      equipoSolicitante: nuevaHerr.equipoSolicitante,
+      delegacion: nuevaHerr.delegacion.trim(),
       funcionalidades: nuevaHerr.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
       areas: areasFinal,
       licenciasContratadas: Number(nuevaHerr.licenciasContratadas) || 1,
@@ -4718,6 +4747,7 @@ RECOMENDACIÓN: [una frase]`;
     setNuevaHerr({
       nombre: '', descripcion: '', categorias: [], nuevaCategoria: '',
       origen: 'externa',
+      solicitanteNombre: '', equipoSolicitante: '', delegacion: '',
       funcionalidades: '', areas: '', todaCompania: false,
       licenciasContratadas: 1, licenciasActivas: 0, costePorLicencia: 0,
     });
@@ -4733,6 +4763,9 @@ RECOMENDACIÓN: [una frase]`;
       categoriasSel: categoriasDe(h),
       nuevaCategoria: '',
       origen: h.origen === 'inhouse' ? 'inhouse' : 'externa',
+      solicitanteNombre: h.solicitanteNombre || '',
+      equipoSolicitante: h.equipoSolicitante || '',
+      delegacion: h.delegacion || '',
       funcionalidades: (h.funcionalidades || []).join(', '),
       areas: (h.areas || []).filter(a => a !== 'Toda la compañía').join(', '),
       todaCompania: (h.areas || []).includes('Toda la compañía'),
@@ -4764,6 +4797,9 @@ RECOMENDACIÓN: [una frase]`;
       descripcion: edicion.descripcion.trim(),
       categoria: categoriaFinal,
       origen: edicion.origen === 'inhouse' ? 'inhouse' : 'externa',
+      solicitanteNombre: (edicion.solicitanteNombre || '').trim(),
+      equipoSolicitante: edicion.equipoSolicitante || '',
+      delegacion: (edicion.delegacion || '').trim(),
       funcionalidades: edicion.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
       areas: areasFinal,
       licenciasContratadas: Number(edicion.licenciasContratadas) || 1,
@@ -4991,6 +5027,46 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
           />
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante <span className="text-red-600">*</span></label>
+              <input
+                list="herramienta-personas"
+                value={nuevaHerr.solicitanteNombre}
+                onChange={e => setNuevaHerr({ ...nuevaHerr, solicitanteNombre: e.target.value })}
+                placeholder="Quién registra la herramienta…"
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+              />
+              <datalist id="herramienta-personas">
+                {(personas || []).map(p => <option key={p.id} value={p.nombre}>{getEquipo(p)}</option>)}
+              </datalist>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo <span className="text-red-600">*</span></label>
+              <select
+                value={nuevaHerr.equipoSolicitante}
+                onChange={e => setNuevaHerr({ ...nuevaHerr, equipoSolicitante: e.target.value })}
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+              >
+                <option value="">— Selecciona equipo —</option>
+                {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Delegación <span className="text-red-600">*</span></label>
+              <input
+                list="herramienta-delegaciones"
+                value={nuevaHerr.delegacion}
+                onChange={e => setNuevaHerr({ ...nuevaHerr, delegacion: e.target.value })}
+                placeholder="Madrid, Barcelona…"
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+              />
+              <datalist id="herramienta-delegaciones">
+                {DELEGACIONES.map(d => <option key={d} value={d} />)}
+              </datalist>
+            </div>
+          </div>
+
           <div className="mb-3">
             <button
               type="button"
@@ -5134,14 +5210,28 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
           <button
             onClick={crearHerramienta}
-            disabled={!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim() || (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())}
+            disabled={
+              !nuevaHerr.nombre.trim() ||
+              !nuevaHerr.descripcion.trim() ||
+              !nuevaHerr.solicitanteNombre.trim() ||
+              !nuevaHerr.equipoSolicitante ||
+              !nuevaHerr.delegacion.trim() ||
+              (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())
+            }
             className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
           >
             <Plus size={14} /> Añadir al catálogo
           </button>
-          {nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim() && nuevaHerr.nombre.trim() && nuevaHerr.descripcion.trim() && (
-            <p className="text-[11px] text-stone-500 italic mt-2">Selecciona al menos una categoría.</p>
-          )}
+          {(() => {
+            const faltan = [];
+            if (!nuevaHerr.solicitanteNombre.trim()) faltan.push('solicitante');
+            if (!nuevaHerr.equipoSolicitante) faltan.push('equipo');
+            if (!nuevaHerr.delegacion.trim()) faltan.push('delegación');
+            if (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim()) faltan.push('categoría');
+            if (faltan.length === 0) return null;
+            if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return null;
+            return <p className="text-[11px] text-stone-500 italic mt-2">Faltan: {faltan.join(', ')}.</p>;
+          })()}
         </div>
       )}
 
@@ -5422,6 +5512,46 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     rows={2}
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante <span className="text-red-600">*</span></label>
+                    <input
+                      list="herramienta-edit-personas"
+                      value={edicion.solicitanteNombre || ''}
+                      onChange={e => setEdicion({ ...edicion, solicitanteNombre: e.target.value })}
+                      placeholder="Quién registró la herramienta…"
+                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                    />
+                    <datalist id="herramienta-edit-personas">
+                      {(personas || []).map(p => <option key={p.id} value={p.nombre}>{getEquipo(p)}</option>)}
+                    </datalist>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo <span className="text-red-600">*</span></label>
+                    <select
+                      value={edicion.equipoSolicitante || ''}
+                      onChange={e => setEdicion({ ...edicion, equipoSolicitante: e.target.value })}
+                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                    >
+                      <option value="">— Selecciona equipo —</option>
+                      {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Delegación <span className="text-red-600">*</span></label>
+                    <input
+                      list="herramienta-edit-delegaciones"
+                      value={edicion.delegacion || ''}
+                      onChange={e => setEdicion({ ...edicion, delegacion: e.target.value })}
+                      placeholder="Madrid, Barcelona…"
+                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                    />
+                    <datalist id="herramienta-edit-delegaciones">
+                      {DELEGACIONES.map(d => <option key={d} value={d} />)}
+                    </datalist>
+                  </div>
                 </div>
 
                 <div>
@@ -6339,7 +6469,9 @@ function PeticionCard({ peticion, personaById, tallerById, onClick }) {
       </div>
 
       <div className="flex items-center gap-2 pl-[22px] mb-2">
-        <span className="text-xs text-stone-600 font-medium truncate flex-1 min-w-0" title={peticion.equipo}>{peticion.equipo}</span>
+        <span className="text-xs text-stone-600 font-medium truncate flex-1 min-w-0" title={`${peticion.equipo}${peticion.delegacion ? ' · ' + peticion.delegacion : ''}`}>
+          {peticion.equipo}{peticion.delegacion && <span className="text-stone-400"> · {peticion.delegacion}</span>}
+        </span>
         {solicitanteNombre && (
           <div
             className={`w-5 h-5 rounded-full text-stone-50 flex items-center justify-center text-[10px] font-semibold flex-shrink-0 ${solicitanteEsExterno ? 'bg-stone-500' : 'bg-navy-900'}`}
@@ -6431,6 +6563,7 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
   const [nuevaTitulo, setNuevaTitulo] = useState('');
   const [nuevaDescripcion, setNuevaDescripcion] = useState('');
   const [nuevaEquipo, setNuevaEquipo] = useState('');
+  const [nuevaDelegacion, setNuevaDelegacion] = useState('');
   const [nuevaSolicitanteNombre, setNuevaSolicitanteNombre] = useState('');
   const [nuevaTipo, setNuevaTipo] = useState('herramienta_nueva');
   const [nuevaPrioridad, setNuevaPrioridad] = useState('media');
@@ -6486,18 +6619,17 @@ Reglas: usa exactamente uno de los 4 tipos listados. La prioridad debe ser alta,
   };
 
   const crearPeticion = async () => {
-    if (!nuevaTitulo.trim() || !nuevaDescripcion.trim()) return;
     const nombreLimpio = nuevaSolicitanteNombre.trim();
-    const matchPersona = nombreLimpio
-      ? personas.find(p => p.nombre.toLowerCase() === nombreLimpio.toLowerCase())
-      : null;
+    if (!nuevaTitulo.trim() || !nuevaDescripcion.trim() || !nombreLimpio || !nuevaEquipo || !nuevaDelegacion.trim()) return;
+    const matchPersona = personas.find(p => p.nombre.toLowerCase() === nombreLimpio.toLowerCase());
     const nueva = {
       id: `pet-${Date.now()}`,
       titulo: nuevaTitulo.trim(),
       descripcion: nuevaDescripcion.trim(),
-      equipo: nuevaEquipo.trim() || 'Sin equipo',
+      equipo: nuevaEquipo,
+      delegacion: nuevaDelegacion.trim(),
       solicitanteId: matchPersona ? matchPersona.id : null,
-      solicitanteNombre: matchPersona ? null : (nombreLimpio || null),
+      solicitanteNombre: matchPersona ? null : nombreLimpio,
       canalizadoPorId: usuarioActualId || null,
       tipoSolicitud: nuevaTipo,
       funcionalidades: [],
@@ -6509,7 +6641,7 @@ Reglas: usa exactamente uno de los 4 tipos listados. La prioridad debe ser alta,
       impactoEstimado: null,
     };
     await setPeticiones([...peticiones, nueva]);
-    setNuevaTitulo(''); setNuevaDescripcion(''); setNuevaEquipo(''); setNuevaSolicitanteNombre(''); setNuevaTipo('herramienta_nueva'); setNuevaPrioridad('media');
+    setNuevaTitulo(''); setNuevaDescripcion(''); setNuevaEquipo(''); setNuevaDelegacion(''); setNuevaSolicitanteNombre(''); setNuevaTipo('herramienta_nueva'); setNuevaPrioridad('media');
     setSugerenciaPeticion(null);
     setCreando(false);
   };
@@ -6693,19 +6825,14 @@ Formato:
                 className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
               />
 
-              <div className="grid grid-cols-2 gap-3 mb-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-1">
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante</label>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante <span className="text-red-600">*</span></label>
                   <input
                     list="peticion-personas"
                     value={nuevaSolicitanteNombre}
-                    onChange={e => {
-                      const valor = e.target.value;
-                      setNuevaSolicitanteNombre(valor);
-                      const match = personas.find(p => p.nombre.toLowerCase() === valor.toLowerCase());
-                      if (match && !nuevaEquipo.trim()) setNuevaEquipo(getEquipo(match));
-                    }}
-                    placeholder="Quién lo plantea (escribe el nombre)…"
+                    onChange={e => setNuevaSolicitanteNombre(e.target.value)}
+                    placeholder="Quién lo plantea…"
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
                   />
                   <datalist id="peticion-personas">
@@ -6713,16 +6840,31 @@ Formato:
                   </datalist>
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo del solicitante</label>
-                  <input
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo del solicitante <span className="text-red-600">*</span></label>
+                  <select
                     value={nuevaEquipo}
                     onChange={e => setNuevaEquipo(e.target.value)}
-                    placeholder="Ej: Retail, Property, Marketing…"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  >
+                    <option value="">— Selecciona equipo —</option>
+                    {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Delegación <span className="text-red-600">*</span></label>
+                  <input
+                    list="peticion-delegaciones"
+                    value={nuevaDelegacion}
+                    onChange={e => setNuevaDelegacion(e.target.value)}
+                    placeholder="Madrid, Barcelona…"
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
                   />
+                  <datalist id="peticion-delegaciones">
+                    {DELEGACIONES.map(d => <option key={d} value={d} />)}
+                  </datalist>
                 </div>
               </div>
-              <p className="text-[10px] text-stone-500 italic mb-3">Si la persona no usa Nexo todavía, escribe su nombre y equipo igualmente — la petición queda canalizada por ti.</p>
+              <p className="text-[10px] text-stone-500 italic mb-3">Si la persona no usa Nexo todavía, escribe su nombre igualmente — la petición queda canalizada por ti. La delegación admite valores libres si no está en la lista.</p>
 
               <div className="mb-3">
                 <button
@@ -6791,11 +6933,14 @@ Formato:
 
               <button
                 onClick={crearPeticion}
-                disabled={!nuevaTitulo.trim() || !nuevaDescripcion.trim()}
+                disabled={!nuevaTitulo.trim() || !nuevaDescripcion.trim() || !nuevaSolicitanteNombre.trim() || !nuevaEquipo || !nuevaDelegacion.trim()}
                 className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
               >
                 <Plus size={14} /> Añadir al buzón
               </button>
+              {(!nuevaSolicitanteNombre.trim() || !nuevaEquipo || !nuevaDelegacion.trim()) && nuevaTitulo.trim() && nuevaDescripcion.trim() && (
+                <p className="text-[11px] text-stone-500 italic mt-2">Solicitante, equipo y delegación son obligatorios.</p>
+              )}
             </div>
           )}
 
@@ -6849,6 +6994,7 @@ Formato:
                       <h2 className="font-serif text-2xl text-stone-900 mb-1">{p.titulo}</h2>
                       <p className="text-xs text-stone-500">
                         {p.equipo}
+                        {p.delegacion && <> · {p.delegacion}</>}
                         {solicitanteLabel && <> · <span className={solicitanteEsExterno ? 'italic' : ''}>{solicitanteLabel}</span>{solicitanteEsExterno ? ' (no usa Nexo)' : ''}</>}
                         {' · '}
                         {formatFecha(p.fecha)}
