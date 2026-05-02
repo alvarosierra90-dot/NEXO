@@ -5256,9 +5256,9 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
 }
 
 const EQUIPOS_NEGOCIO_GRUPOS = {
-  transaccional: ['Oficinas', 'Retail', 'Hoteles', 'Living', 'Industrial/Logístico', 'Agrobusiness', 'Alternativos'],
-  capital_markets: ['Capital Markets Oficinas', 'Capital Markets Industrial Logístico', 'Capital Markets Retail', 'Capital Markets Alternativos', 'Capital Markets Living', 'Capital Markets Hoteles'],
-  no_transaccional: ['Property Management', 'Facility Management', 'Arquitectura', 'Valoraciones', 'Financiero', 'IT', 'Desarrollo de Negocio', 'Consultoría'],
+  transaccional: ['Oficinas', 'Retail', 'Hoteles', 'Living', 'Industrial/Logístico', 'Agrobusiness', 'Alternativos', 'Centros Comerciales'],
+  capital_markets: ['Capital Markets Oficinas', 'Capital Markets Industrial Logístico', 'Capital Markets Retail', 'Capital Markets Alternativos', 'Capital Markets Living', 'Capital Markets Hoteles', 'Capital Markets Centros Comerciales'],
+  no_transaccional: ['Property Management', 'Facility Management', 'Arquitectura', 'Valoraciones', 'Financiero', 'IT', 'Desarrollo de Negocio', 'Research', 'Consultoría'],
 };
 
 const EQUIPOS_NEGOCIO = [
