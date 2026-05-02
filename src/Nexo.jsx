@@ -49,11 +49,11 @@ const SEED_TALLERES = [
 ];
 
 const SEED_HERRAMIENTAS = [
-  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], areas: ['Toda la compañía'], licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, solicitudesLicencia: [
+  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], equipos: [], todaCompaniaUsuarios: true, delegaciones: ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla', 'Portugal'], licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, sinCosteLicencia: false, tipoLicencia: 'Suscripción anual', solicitudesLicencia: [
     { id: 's1-h1', personaId: 'p17', fecha: '2026-04-22T10:00:00.000Z' },
     { id: 's2-h1', personaId: 'p26', fecha: '2026-04-25T09:30:00.000Z' },
   ] },
-  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], areas: ['Arquitectura', 'Valoraciones', 'Jurídico', 'Capital'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, alerta: 'Infrautilizada', solicitudesLicencia: [
+  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], equipos: ['Arquitectura', 'Valoraciones', 'Capital Markets', 'Financiero'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/mes', alerta: 'Infrautilizada', solicitudesLicencia: [
     { id: 's1-h2', personaId: 'p9', fecha: '2026-04-15T08:00:00.000Z' },
     { id: 's2-h2', personaId: 'p11', fecha: '2026-04-18T14:00:00.000Z' },
     { id: 's3-h2', personaId: 'p13', fecha: '2026-04-20T09:30:00.000Z' },
@@ -61,32 +61,32 @@ const SEED_HERRAMIENTAS = [
     { id: 's5-h2', personaId: 'p17', fecha: '2026-04-26T10:00:00.000Z' },
     { id: 's6-h2', personaId: 'p25', fecha: '2026-04-28T16:30:00.000Z' },
   ] },
-  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], areas: ['Capital'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, alerta: 'Infrautilizada' },
-  { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Valoraciones'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, alerta: 'Duplica BI Suite B' },
-  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Arquitectura', 'Valoraciones', 'Property', 'Capital'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, solicitudesLicencia: [
+  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], equipos: ['Capital Markets', 'Desarrollo de Negocio'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Infrautilizada' },
+  { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Valoraciones'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Duplica BI Suite B' },
+  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Arquitectura', 'Valoraciones', 'Property Management', 'Capital Markets'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona', 'Valencia'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h5', personaId: 'p18', fecha: '2026-04-19T12:00:00.000Z' },
     { id: 's2-h5', personaId: 'p21', fecha: '2026-04-24T10:45:00.000Z' },
   ] },
-  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], areas: ['Toda la compañía'], licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, solicitudesLicencia: [
+  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: [], todaCompaniaUsuarios: true, delegaciones: ['Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Sevilla', 'Portugal'], licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, sinCosteLicencia: false, tipoLicencia: 'Por firma', solicitudesLicencia: [
     { id: 's1-h6', personaId: 'p13', fecha: '2026-04-21T15:00:00.000Z' },
     { id: 's2-h6', personaId: 'p20', fecha: '2026-04-23T09:15:00.000Z' },
     { id: 's3-h6', personaId: 'p22', fecha: '2026-04-25T13:30:00.000Z' },
     { id: 's4-h6', personaId: 'p26', fecha: '2026-04-27T11:00:00.000Z' },
   ] },
-  { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], areas: ['Property'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, alerta: 'Duplica Firma Digital A' },
-  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental'], areas: ['Arquitectura', 'Valoraciones'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, solicitudesLicencia: [
+  { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: ['Property Management'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, sinCosteLicencia: false, tipoLicencia: 'Por firma', alerta: 'Duplica Firma Digital A' },
+  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental'], equipos: ['Arquitectura', 'Valoraciones'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h8', personaId: 'p24', fecha: '2026-04-22T08:30:00.000Z' },
   ] },
-  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental', 'Property'], areas: ['Property'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, solicitudesLicencia: [
+  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental', 'Property'], equipos: ['Property Management'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona', 'Valencia', 'Sevilla'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h9', personaId: 'p17', fecha: '2026-04-20T10:00:00.000Z' },
     { id: 's2-h9', personaId: 'p19', fecha: '2026-04-24T15:30:00.000Z' },
     { id: 's3-h9', personaId: 'p23', fecha: '2026-04-26T09:45:00.000Z' },
   ] },
-  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], areas: ['Property', 'Capital', 'Arquitectura'], licenciasContratadas: 50, licenciasActivas: 32, costeAnual: 0, solicitudesLicencia: [
+  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], equipos: ['Property Management', 'Capital Markets', 'Arquitectura', 'IT'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 50, licenciasActivas: 32, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '', solicitudesLicencia: [
     { id: 's1-h10', personaId: 'p9', fecha: '2026-04-25T11:00:00.000Z' },
     { id: 's2-h10', personaId: 'p18', fecha: '2026-04-27T14:30:00.000Z' },
   ] },
-  { id: 'h11', nombre: 'Repositorio 360', descripcion: 'Repositorio documental 360º conectado a Plataforma Integrada. Mockup funcional construido por IT Local.', categoria: 'Documental', origen: 'inhouse', funcionalidades: ['Gestión documental', 'Property', 'Visión 360'], areas: ['Property', 'Arquitectura'], licenciasContratadas: 30, licenciasActivas: 12, costeAnual: 0 },
+  { id: 'h11', nombre: 'Repositorio 360', descripcion: 'Repositorio documental 360º conectado a Plataforma Integrada. Mockup funcional construido por IT Local.', categoria: 'Documental', origen: 'inhouse', funcionalidades: ['Gestión documental', 'Property', 'Visión 360'], equipos: ['Property Management', 'Arquitectura'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 30, licenciasActivas: 12, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '' },
 ];
 
 const SEED_INICIATIVAS = [
@@ -5327,6 +5327,10 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [filtroEstado, setFiltroEstado] = useState('todas');
   const [filtroOrigen, setFiltroOrigen] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
+  const [vistaCatalogo, setVistaCatalogo] = useState('catalogo');
+  const [filtroPorUsoEquipos, setFiltroPorUsoEquipos] = useState([]);
+  const [filtroPorUsoDelegaciones, setFiltroPorUsoDelegaciones] = useState([]);
+  const [filtroPorUsoCoste, setFiltroPorUsoCoste] = useState('todos');
 
   const [editandoId, setEditandoId] = useState(null);
   const [edicion, setEdicion] = useState(null);
@@ -5337,12 +5341,13 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
     categorias: [],
     nuevaCategoria: '',
     origen: 'externa',
-    solicitanteNombre: '',
-    equipoSolicitante: '',
-    delegacion: '',
     funcionalidades: '',
-    areas: '',
-    todaCompania: false,
+    equipos: [],
+    delegaciones: [],
+    nuevaDelegacion: '',
+    todaCompaniaUsuarios: false,
+    sinCosteLicencia: false,
+    tipoLicencia: '',
     licenciasContratadas: 1,
     licenciasActivas: 0,
     costePorLicencia: 0,
@@ -5430,58 +5435,68 @@ RECOMENDACIÓN: [una frase]`;
 
   const crearHerramienta = async () => {
     if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return;
-    if (!nuevaHerr.solicitanteNombre.trim() || !nuevaHerr.equipoSolicitante || !nuevaHerr.delegacion.trim()) return;
+    if (nuevaHerr.equipos.length === 0) return;
+    const delegacionesFinales = [...nuevaHerr.delegaciones];
+    if (nuevaHerr.nuevaDelegacion.trim()) delegacionesFinales.push(nuevaHerr.nuevaDelegacion.trim());
+    if (delegacionesFinales.length === 0) return;
+    if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) return;
     const cats = [...nuevaHerr.categorias];
     if (nuevaHerr.nuevaCategoria.trim()) cats.push(nuevaHerr.nuevaCategoria.trim());
     if (cats.length === 0) return;
     const categoriaFinal = cats.join(', ');
-    const areasFinal = nuevaHerr.todaCompania
-      ? ['Toda la compañía']
-      : nuevaHerr.areas.split(',').map(a => a.trim()).filter(Boolean);
+    const usuarios = nuevaHerr.todaCompaniaUsuarios ? 0 : (Number(nuevaHerr.licenciasContratadas) || 1);
+    const costeAnualCalc = nuevaHerr.sinCosteLicencia
+      ? 0
+      : (Number(nuevaHerr.costePorLicencia) || 0) * 12 * Math.max(usuarios, 1);
     const item = {
       id: `h-${Date.now()}`,
       nombre: nuevaHerr.nombre.trim(),
       descripcion: nuevaHerr.descripcion.trim(),
       categoria: categoriaFinal,
       origen: nuevaHerr.origen === 'inhouse' ? 'inhouse' : 'externa',
-      solicitanteNombre: nuevaHerr.solicitanteNombre.trim(),
-      equipoSolicitante: nuevaHerr.equipoSolicitante,
-      delegacion: nuevaHerr.delegacion.trim(),
       funcionalidades: nuevaHerr.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
-      areas: areasFinal,
-      licenciasContratadas: Number(nuevaHerr.licenciasContratadas) || 1,
+      equipos: nuevaHerr.equipos,
+      delegaciones: delegacionesFinales,
+      todaCompaniaUsuarios: !!nuevaHerr.todaCompaniaUsuarios,
+      licenciasContratadas: usuarios,
       licenciasActivas: Number(nuevaHerr.licenciasActivas) || 0,
-      costeAnual: (Number(nuevaHerr.costePorLicencia) || 0) * 12 * (Number(nuevaHerr.licenciasContratadas) || 1),
+      sinCosteLicencia: !!nuevaHerr.sinCosteLicencia,
+      tipoLicencia: nuevaHerr.tipoLicencia.trim(),
+      costeAnual: costeAnualCalc,
       alerta: null,
       fechaAlta: new Date().toISOString().slice(0, 10),
       solicitudesLicencia: [],
     };
     await setHerramientas([...herramientas, item]);
-    setNuevaHerr({
-      nombre: '', descripcion: '', categorias: [], nuevaCategoria: '',
-      origen: 'externa',
-      solicitanteNombre: '', equipoSolicitante: '', delegacion: '',
-      funcionalidades: '', areas: '', todaCompania: false,
-      licenciasContratadas: 1, licenciasActivas: 0, costePorLicencia: 0,
-    });
+    setNuevaHerr(initialNuevaHerr);
     setSugerenciaRazon(null);
     setVistaAlta(false);
   };
 
   const abrirDetalle = (h) => {
     setEditandoId(h.id);
+    const equiposDerivados = Array.isArray(h.equipos) && h.equipos.length
+      ? h.equipos
+      : (h.areas || []).filter(a => a !== 'Toda la compañía').filter(a => EQUIPOS_NEGOCIO.includes(a));
+    const delegacionesDerivadas = Array.isArray(h.delegaciones) && h.delegaciones.length
+      ? h.delegaciones
+      : (h.delegacion ? [h.delegacion] : []);
+    const todaCompaniaDerivada = h.todaCompaniaUsuarios != null
+      ? !!h.todaCompaniaUsuarios
+      : (h.areas || []).includes('Toda la compañía');
     setEdicion({
       nombre: h.nombre || '',
       descripcion: h.descripcion || '',
       categoriasSel: categoriasDe(h),
       nuevaCategoria: '',
       origen: h.origen === 'inhouse' ? 'inhouse' : 'externa',
-      solicitanteNombre: h.solicitanteNombre || '',
-      equipoSolicitante: h.equipoSolicitante || '',
-      delegacion: h.delegacion || '',
       funcionalidades: (h.funcionalidades || []).join(', '),
-      areas: (h.areas || []).filter(a => a !== 'Toda la compañía').join(', '),
-      todaCompania: (h.areas || []).includes('Toda la compañía'),
+      equipos: equiposDerivados,
+      delegaciones: delegacionesDerivadas,
+      nuevaDelegacion: '',
+      todaCompaniaUsuarios: todaCompaniaDerivada,
+      sinCosteLicencia: !!h.sinCosteLicencia || (h.costeAnual === 0 && h.origen === 'inhouse'),
+      tipoLicencia: h.tipoLicencia || '',
       licenciasContratadas: h.licenciasContratadas || 1,
       licenciasActivas: h.licenciasActivas || 0,
       costePorLicencia: Math.round(costePorLicenciaDe(h) / 12),
@@ -5502,22 +5517,28 @@ RECOMENDACIÓN: [una frase]`;
     if (edicion.nuevaCategoria && edicion.nuevaCategoria.trim()) catsEdit.push(edicion.nuevaCategoria.trim());
     if (catsEdit.length === 0) return;
     const categoriaFinal = catsEdit.join(', ');
-    const areasFinal = edicion.todaCompania
-      ? ['Toda la compañía']
-      : edicion.areas.split(',').map(a => a.trim()).filter(Boolean);
+    const delegacionesFinales = [...(edicion.delegaciones || [])];
+    if (edicion.nuevaDelegacion && edicion.nuevaDelegacion.trim()) delegacionesFinales.push(edicion.nuevaDelegacion.trim());
+    if ((edicion.equipos || []).length === 0) return;
+    if (delegacionesFinales.length === 0) return;
+    const usuariosEdit = edicion.todaCompaniaUsuarios ? 0 : (Number(edicion.licenciasContratadas) || 1);
+    const costeAnualCalc = edicion.sinCosteLicencia
+      ? 0
+      : (Number(edicion.costePorLicencia) || 0) * 12 * Math.max(usuariosEdit, 1);
     const updates = {
       nombre: edicion.nombre.trim(),
       descripcion: edicion.descripcion.trim(),
       categoria: categoriaFinal,
       origen: edicion.origen === 'inhouse' ? 'inhouse' : 'externa',
-      solicitanteNombre: (edicion.solicitanteNombre || '').trim(),
-      equipoSolicitante: edicion.equipoSolicitante || '',
-      delegacion: (edicion.delegacion || '').trim(),
       funcionalidades: edicion.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
-      areas: areasFinal,
-      licenciasContratadas: Number(edicion.licenciasContratadas) || 1,
+      equipos: edicion.equipos,
+      delegaciones: delegacionesFinales,
+      todaCompaniaUsuarios: !!edicion.todaCompaniaUsuarios,
+      licenciasContratadas: usuariosEdit,
       licenciasActivas: Number(edicion.licenciasActivas) || 0,
-      costeAnual: (Number(edicion.costePorLicencia) || 0) * 12 * (Number(edicion.licenciasContratadas) || 1),
+      sinCosteLicencia: !!edicion.sinCosteLicencia,
+      tipoLicencia: (edicion.tipoLicencia || '').trim(),
+      costeAnual: costeAnualCalc,
       alerta: edicion.alerta || null,
     };
     const nuevas = herramientas.map(h => h.id === editandoId ? { ...h, ...updates } : h);
@@ -5796,46 +5817,6 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante <span className="text-red-600">*</span></label>
-              <input
-                list="herramienta-personas"
-                value={nuevaHerr.solicitanteNombre}
-                onChange={e => setNuevaHerr({ ...nuevaHerr, solicitanteNombre: e.target.value })}
-                placeholder="Quién registra la herramienta…"
-                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-              />
-              <datalist id="herramienta-personas">
-                {(personas || []).map(p => <option key={p.id} value={p.nombre}>{getEquipo(p)}</option>)}
-              </datalist>
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo <span className="text-red-600">*</span></label>
-              <select
-                value={nuevaHerr.equipoSolicitante}
-                onChange={e => setNuevaHerr({ ...nuevaHerr, equipoSolicitante: e.target.value })}
-                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-              >
-                <option value="">— Selecciona equipo —</option>
-                {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Delegación <span className="text-red-600">*</span></label>
-              <input
-                list="herramienta-delegaciones"
-                value={nuevaHerr.delegacion}
-                onChange={e => setNuevaHerr({ ...nuevaHerr, delegacion: e.target.value })}
-                placeholder="Madrid, Barcelona…"
-                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-              />
-              <datalist id="herramienta-delegaciones">
-                {DELEGACIONES.map(d => <option key={d} value={d} />)}
-              </datalist>
-            </div>
-          </div>
-
           <div className="mb-3">
             <button
               type="button"
@@ -5903,35 +5884,58 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             />
           </div>
 
-          <div className="mb-3">
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Áreas que la usan</label>
-              <button
-                type="button"
-                onClick={() => setNuevaHerr({ ...nuevaHerr, todaCompania: !nuevaHerr.todaCompania })}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all border mb-2 ${
-                  nuevaHerr.todaCompania ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-stone-50 border-stone-200 text-stone-700 hover:border-stone-400'
-                }`}
-              >
-                <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                  nuevaHerr.todaCompania ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
-                }`}>
-                  {nuevaHerr.todaCompania && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
-                </span>
-                Toda la compañía
-              </button>
-              {!nuevaHerr.todaCompania && (
-                <>
-                  <input
-                    value={nuevaHerr.areas}
-                    onChange={e => setNuevaHerr({ ...nuevaHerr, areas: e.target.value })}
-                    placeholder="Property, Retail, Marketing..."
-                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                  />
-                  <p className="text-[10px] text-stone-500 mt-1">Áreas concretas separadas por comas</p>
-                </>
-              )}
+          <div className="mb-4">
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Equipos que utilizan la herramienta <span className="text-red-600">*</span></label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {EQUIPOS_NEGOCIO.map(eq => {
+                const sel = nuevaHerr.equipos.includes(eq);
+                return (
+                  <button
+                    key={eq}
+                    type="button"
+                    onClick={() => setNuevaHerr({ ...nuevaHerr, equipos: sel ? nuevaHerr.equipos.filter(x => x !== eq) : [...nuevaHerr.equipos, eq] })}
+                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >
+                    {sel ? '+ ' : ''}{eq}
+                  </button>
+                );
+              })}
             </div>
+            {nuevaHerr.equipos.length > 0 && <p className="text-[10px] text-stone-500">{nuevaHerr.equipos.length} {nuevaHerr.equipos.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'}</p>}
+          </div>
+
+          <div className="mb-4">
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Delegaciones donde se utiliza <span className="text-red-600">*</span></label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {[...new Set([...DELEGACIONES, ...nuevaHerr.delegaciones])].map(d => {
+                const sel = nuevaHerr.delegaciones.includes(d);
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setNuevaHerr({ ...nuevaHerr, delegaciones: sel ? nuevaHerr.delegaciones.filter(x => x !== d) : [...nuevaHerr.delegaciones, d] })}
+                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >
+                    {sel ? '+ ' : ''}{d}
+                  </button>
+                );
+              })}
+            </div>
+            <input
+              value={nuevaHerr.nuevaDelegacion}
+              onChange={e => setNuevaHerr({ ...nuevaHerr, nuevaDelegacion: e.target.value })}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && nuevaHerr.nuevaDelegacion.trim()) {
+                  e.preventDefault();
+                  const nd = nuevaHerr.nuevaDelegacion.trim();
+                  if (!nuevaHerr.delegaciones.includes(nd)) {
+                    setNuevaHerr({ ...nuevaHerr, delegaciones: [...nuevaHerr.delegaciones, nd], nuevaDelegacion: '' });
+                  }
+                }
+              }}
+              placeholder="+ Añadir otra provincia (Bilbao, Zaragoza…) y pulsa Enter"
+              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
           </div>
 
           <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Funcionalidades</label>
@@ -5943,38 +5947,90 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           />
           <p className="text-[10px] text-stone-500 mb-3">Separadas por comas. Sirven para detectar duplicidades con otras herramientas.</p>
 
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. contratadas</label>
-              <input
-                type="number"
-                min="1"
-                value={nuevaHerr.licenciasContratadas}
-                onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasContratadas: e.target.value })}
-                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. activas</label>
-              <input
-                type="number"
-                min="0"
-                value={nuevaHerr.licenciasActivas}
-                onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasActivas: e.target.value })}
-                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/mes)</label>
-              <input
-                type="number"
-                min="0"
-                value={nuevaHerr.costePorLicencia}
-                onChange={e => setNuevaHerr({ ...nuevaHerr, costePorLicencia: e.target.value })}
-                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-              />
-              <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(nuevaHerr.costePorLicencia) || 0) * 12 * (Number(nuevaHerr.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
-            </div>
+          <div className="bg-stone-50 border border-stone-200 rounded-md p-3 mb-3">
+            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Número de usuarios <span className="text-red-600">*</span></p>
+            <button
+              type="button"
+              onClick={() => setNuevaHerr({ ...nuevaHerr, todaCompaniaUsuarios: !nuevaHerr.todaCompaniaUsuarios })}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all border mb-2 ${
+                nuevaHerr.todaCompaniaUsuarios ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+              }`}
+            >
+              <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                nuevaHerr.todaCompaniaUsuarios ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+              }`}>
+                {nuevaHerr.todaCompaniaUsuarios && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+              </span>
+              Toda la compañía
+            </button>
+            {!nuevaHerr.todaCompaniaUsuarios && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nº aproximado de usuarios</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={nuevaHerr.licenciasContratadas}
+                    onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasContratadas: e.target.value })}
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">De los cuales activos</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={nuevaHerr.licenciasActivas}
+                    onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasActivas: e.target.value })}
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-stone-50 border border-stone-200 rounded-md p-3 mb-4">
+            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Coste de licencia</p>
+            <button
+              type="button"
+              onClick={() => setNuevaHerr({ ...nuevaHerr, sinCosteLicencia: !nuevaHerr.sinCosteLicencia })}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all border mb-2 ${
+                nuevaHerr.sinCosteLicencia ? 'bg-emerald-700 text-stone-50 border-emerald-700' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+              }`}
+            >
+              <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                nuevaHerr.sinCosteLicencia ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+              }`}>
+                {nuevaHerr.sinCosteLicencia && <span className="text-emerald-700 text-[10px] leading-none">✓</span>}
+              </span>
+              Sin coste de licencia (in-house, free, etc.)
+            </button>
+            {!nuevaHerr.sinCosteLicencia && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por usuario (€/mes)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={nuevaHerr.costePorLicencia}
+                    onChange={e => setNuevaHerr({ ...nuevaHerr, costePorLicencia: e.target.value })}
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                  {!nuevaHerr.todaCompaniaUsuarios && (
+                    <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(nuevaHerr.costePorLicencia) || 0) * 12 * (Number(nuevaHerr.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Tipo de licencia <span className="normal-case text-stone-400">(opcional)</span></label>
+                  <input
+                    value={nuevaHerr.tipoLicencia}
+                    onChange={e => setNuevaHerr({ ...nuevaHerr, tipoLicencia: e.target.value })}
+                    placeholder="Suscripción anual, por usuario/mes, perpetua…"
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button
@@ -5982,9 +6038,9 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             disabled={
               !nuevaHerr.nombre.trim() ||
               !nuevaHerr.descripcion.trim() ||
-              !nuevaHerr.solicitanteNombre.trim() ||
-              !nuevaHerr.equipoSolicitante ||
-              !nuevaHerr.delegacion.trim() ||
+              nuevaHerr.equipos.length === 0 ||
+              (nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) ||
+              (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) ||
               (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())
             }
             className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
@@ -5993,9 +6049,9 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           </button>
           {(() => {
             const faltan = [];
-            if (!nuevaHerr.solicitanteNombre.trim()) faltan.push('solicitante');
-            if (!nuevaHerr.equipoSolicitante) faltan.push('equipo');
-            if (!nuevaHerr.delegacion.trim()) faltan.push('delegación');
+            if (nuevaHerr.equipos.length === 0) faltan.push('equipos');
+            if (nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) faltan.push('delegaciones');
+            if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) faltan.push('nº usuarios');
             if (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim()) faltan.push('categoría');
             if (faltan.length === 0) return null;
             if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return null;
@@ -6123,6 +6179,23 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
         </div>
       )}
 
+      <div className="flex items-center gap-1 mb-4 bg-stone-100 rounded-md p-0.5 w-fit">
+        <button
+          onClick={() => setVistaCatalogo('catalogo')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${vistaCatalogo === 'catalogo' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+        >
+          <Package size={12} />
+          Catálogo
+        </button>
+        <button
+          onClick={() => setVistaCatalogo('por_uso')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${vistaCatalogo === 'por_uso' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+        >
+          <Filter size={12} />
+          Por uso
+        </button>
+      </div>
+
       <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4 flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-1 min-w-[200px]">
           <Search size={13} className="text-stone-500" />
@@ -6145,12 +6218,164 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
         <span className="ml-auto text-xs text-stone-500">{herramientasFiltradas.length} herramientas</span>
       </div>
 
-      {Object.keys(herramientasPorCategoria).length === 0 ? (
+      {vistaCatalogo === 'por_uso' && (() => {
+        const equiposDeH = (h) => Array.isArray(h.equipos) && h.equipos.length > 0
+          ? (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : h.equipos)
+          : (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : []);
+        const delegacionesDeH = (h) => Array.isArray(h.delegaciones) && h.delegaciones.length > 0
+          ? h.delegaciones
+          : (h.delegacion ? [h.delegacion] : []);
+        const filtradas = herramientas.filter(h => {
+          if (busqueda && !h.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
+          if (filtroPorUsoEquipos.length > 0) {
+            const eq = equiposDeH(h);
+            if (!filtroPorUsoEquipos.some(f => eq.includes(f))) return false;
+          }
+          if (filtroPorUsoDelegaciones.length > 0) {
+            const dl = delegacionesDeH(h);
+            if (!filtroPorUsoDelegaciones.some(f => dl.includes(f))) return false;
+          }
+          if (filtroPorUsoCoste === 'con_coste' && (h.sinCosteLicencia || (h.costeAnual || 0) === 0)) return false;
+          if (filtroPorUsoCoste === 'sin_coste' && !h.sinCosteLicencia && (h.costeAnual || 0) !== 0) return false;
+          return true;
+        });
+        const todasLasDelegaciones = [...new Set([...DELEGACIONES, ...herramientas.flatMap(h => delegacionesDeH(h))])].sort();
+        return (
+          <div>
+            <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4 space-y-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Equipos <span className="normal-case text-stone-400">{filtroPorUsoEquipos.length > 0 ? `· ${filtroPorUsoEquipos.length} seleccionados` : '· ninguno (muestra todos)'}</span></p>
+                <div className="flex flex-wrap gap-1">
+                  {EQUIPOS_NEGOCIO.map(eq => {
+                    const sel = filtroPorUsoEquipos.includes(eq);
+                    return (
+                      <button
+                        key={eq}
+                        type="button"
+                        onClick={() => setFiltroPorUsoEquipos(sel ? filtroPorUsoEquipos.filter(x => x !== eq) : [...filtroPorUsoEquipos, eq])}
+                        className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                      >{eq}</button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Delegaciones <span className="normal-case text-stone-400">{filtroPorUsoDelegaciones.length > 0 ? `· ${filtroPorUsoDelegaciones.length} seleccionadas` : '· ninguna (muestra todas)'}</span></p>
+                <div className="flex flex-wrap gap-1">
+                  {todasLasDelegaciones.map(d => {
+                    const sel = filtroPorUsoDelegaciones.includes(d);
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setFiltroPorUsoDelegaciones(sel ? filtroPorUsoDelegaciones.filter(x => x !== d) : [...filtroPorUsoDelegaciones, d])}
+                        className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                      >{d}</button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Coste:</span>
+                {[
+                  { v: 'todos', l: 'Todos' },
+                  { v: 'con_coste', l: 'Con coste' },
+                  { v: 'sin_coste', l: 'Sin coste' },
+                ].map(opt => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setFiltroPorUsoCoste(opt.v)}
+                    className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${filtroPorUsoCoste === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >{opt.l}</button>
+                ))}
+                {(filtroPorUsoEquipos.length > 0 || filtroPorUsoDelegaciones.length > 0 || filtroPorUsoCoste !== 'todos') && (
+                  <button
+                    onClick={() => { setFiltroPorUsoEquipos([]); setFiltroPorUsoDelegaciones([]); setFiltroPorUsoCoste('todos'); }}
+                    className="text-[11px] text-stone-600 hover:text-navy-900 underline ml-auto"
+                  >Limpiar filtros</button>
+                )}
+                <span className="ml-auto text-xs text-stone-500">{filtradas.length} de {herramientas.length}</span>
+              </div>
+            </div>
+
+            {filtradas.length === 0 ? (
+              <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+                <Filter size={36} className="text-stone-300 mx-auto mb-3" />
+                <p className="text-sm text-stone-600 font-medium mb-1">No hay herramientas que coincidan con los filtros.</p>
+              </div>
+            ) : (
+              <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-stone-50 border-b border-stone-200">
+                    <tr>
+                      <th className="text-left px-4 py-2 text-[10px] uppercase tracking-wider text-stone-600 font-bold">Herramienta</th>
+                      <th className="text-left px-4 py-2 text-[10px] uppercase tracking-wider text-stone-600 font-bold">Equipos</th>
+                      <th className="text-left px-4 py-2 text-[10px] uppercase tracking-wider text-stone-600 font-bold">Delegaciones</th>
+                      <th className="text-right px-4 py-2 text-[10px] uppercase tracking-wider text-stone-600 font-bold">Usuarios</th>
+                      <th className="text-right px-4 py-2 text-[10px] uppercase tracking-wider text-stone-600 font-bold">Coste</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtradas.map(h => {
+                      const equipos = equiposDeH(h);
+                      const delegaciones = delegacionesDeH(h);
+                      const cats = (Array.isArray(h.categorias) && h.categorias.length) ? h.categorias.join(', ') : (h.categoria || '');
+                      return (
+                        <tr key={h.id} className="border-b border-stone-100 hover:bg-stone-50 cursor-pointer" onClick={() => abrirDetalle(h)}>
+                          <td className="px-4 py-3">
+                            <p className="font-bold text-navy-900">{h.nombre}</p>
+                            <p className="text-[10px] text-stone-500">{cats}{h.origen === 'inhouse' ? ' · In-house' : ''}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            {h.todaCompaniaUsuarios ? (
+                              <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Toda la compañía</span>
+                            ) : (
+                              <div className="flex flex-wrap gap-0.5">
+                                {equipos.slice(0, 3).map(e => <span key={e} className="text-[10px] bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded">{e}</span>)}
+                                {equipos.length > 3 && <span className="text-[10px] text-stone-500">+{equipos.length - 3}</span>}
+                                {equipos.length === 0 && <span className="text-[10px] text-stone-400 italic">Sin equipo</span>}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-0.5">
+                              {delegaciones.slice(0, 3).map(d => <span key={d} className="text-[10px] bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded">{d}</span>)}
+                              {delegaciones.length > 3 && <span className="text-[10px] text-stone-500">+{delegaciones.length - 3}</span>}
+                              {delegaciones.length === 0 && <span className="text-[10px] text-stone-400 italic">—</span>}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {h.todaCompaniaUsuarios ? (
+                              <span className="text-xs font-bold text-stone-700">Toda la compañía</span>
+                            ) : (
+                              <span className="text-sm font-bold text-stone-900 tabular-nums">{h.licenciasContratadas || 0}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {h.sinCosteLicencia || (h.costeAnual || 0) === 0 ? (
+                              <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Sin coste</span>
+                            ) : (
+                              <span className="text-sm font-bold text-navy-800 tabular-nums">{(h.costeAnual || 0).toLocaleString()}€/año</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {vistaCatalogo === 'catalogo' && Object.keys(herramientasPorCategoria).length === 0 ? (
         <div className="bg-white border border-dashed border-stone-300 rounded-2xl p-12 text-center">
           <Package size={36} className="text-stone-300 mx-auto mb-3" />
           <p className="text-base text-stone-600 font-medium">No hay herramientas que coincidan con los filtros.</p>
         </div>
-      ) : (
+      ) : vistaCatalogo === 'catalogo' ? (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {Object.entries(herramientasPorCategoria).map(([categoria, items]) => {
             const Icon = categoriaIcon[categoria] || Package;
@@ -6238,7 +6463,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             );
           })}
         </div>
-      )}
+      ) : null}
 
       {editandoId && edicion && (() => {
         const herramientaOriginal = herramientas.find(h => h.id === editandoId);
@@ -6281,46 +6506,6 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     rows={2}
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none"
                   />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre del solicitante <span className="text-red-600">*</span></label>
-                    <input
-                      list="herramienta-edit-personas"
-                      value={edicion.solicitanteNombre || ''}
-                      onChange={e => setEdicion({ ...edicion, solicitanteNombre: e.target.value })}
-                      placeholder="Quién registró la herramienta…"
-                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                    />
-                    <datalist id="herramienta-edit-personas">
-                      {(personas || []).map(p => <option key={p.id} value={p.nombre}>{getEquipo(p)}</option>)}
-                    </datalist>
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Equipo <span className="text-red-600">*</span></label>
-                    <select
-                      value={edicion.equipoSolicitante || ''}
-                      onChange={e => setEdicion({ ...edicion, equipoSolicitante: e.target.value })}
-                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                    >
-                      <option value="">— Selecciona equipo —</option>
-                      {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Delegación <span className="text-red-600">*</span></label>
-                    <input
-                      list="herramienta-edit-delegaciones"
-                      value={edicion.delegacion || ''}
-                      onChange={e => setEdicion({ ...edicion, delegacion: e.target.value })}
-                      placeholder="Madrid, Barcelona…"
-                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                    />
-                    <datalist id="herramienta-edit-delegaciones">
-                      {DELEGACIONES.map(d => <option key={d} value={d} />)}
-                    </datalist>
-                  </div>
                 </div>
 
                 <div>
@@ -6392,31 +6577,59 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                       className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
                     />
                   </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Áreas que la usan</label>
-                    <button
-                      type="button"
-                      onClick={() => setEdicion({ ...edicion, todaCompania: !edicion.todaCompania })}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all border mb-2 ${
-                        edicion.todaCompania ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-stone-50 border-stone-200 text-stone-700 hover:border-stone-400'
-                      }`}
-                    >
-                      <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                        edicion.todaCompania ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
-                      }`}>
-                        {edicion.todaCompania && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
-                      </span>
-                      Toda la compañía
-                    </button>
-                    {!edicion.todaCompania && (
-                      <input
-                        value={edicion.areas}
-                        onChange={e => setEdicion({ ...edicion, areas: e.target.value })}
-                        placeholder="Property, Retail, Marketing..."
-                        className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                      />
-                    )}
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Equipos que utilizan la herramienta <span className="text-red-600">*</span></label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {EQUIPOS_NEGOCIO.map(eq => {
+                      const sel = (edicion.equipos || []).includes(eq);
+                      return (
+                        <button
+                          key={eq}
+                          type="button"
+                          onClick={() => setEdicion({ ...edicion, equipos: sel ? edicion.equipos.filter(x => x !== eq) : [...(edicion.equipos || []), eq] })}
+                          className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                        >
+                          {sel ? '+ ' : ''}{eq}
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Delegaciones donde se utiliza <span className="text-red-600">*</span></label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {[...new Set([...DELEGACIONES, ...(edicion.delegaciones || [])])].map(d => {
+                      const sel = (edicion.delegaciones || []).includes(d);
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => setEdicion({ ...edicion, delegaciones: sel ? edicion.delegaciones.filter(x => x !== d) : [...(edicion.delegaciones || []), d] })}
+                          className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                        >
+                          {sel ? '+ ' : ''}{d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <input
+                    value={edicion.nuevaDelegacion || ''}
+                    onChange={e => setEdicion({ ...edicion, nuevaDelegacion: e.target.value })}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && (edicion.nuevaDelegacion || '').trim()) {
+                        e.preventDefault();
+                        const nd = edicion.nuevaDelegacion.trim();
+                        if (!(edicion.delegaciones || []).includes(nd)) {
+                          setEdicion({ ...edicion, delegaciones: [...(edicion.delegaciones || []), nd], nuevaDelegacion: '' });
+                        }
+                      }
+                    }}
+                    placeholder="+ Añadir otra provincia y pulsa Enter"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+                  />
                 </div>
 
                 <div>
@@ -6431,46 +6644,98 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                 </div>
 
                 <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] uppercase tracking-wider text-stone-500">Uso de licencias</span>
-                    <span className="text-xs font-medium text-stone-900">{edicion.licenciasActivas}<span className="text-stone-400">/{edicion.licenciasContratadas}</span> · {pctUsoEdit}%</span>
-                  </div>
-                  <div className="h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
-                    <div className={`h-full transition-all ${colorBarraEdit}`} style={{ width: `${Math.max(2, pctUsoEdit)}%` }}></div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. contratadas</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={edicion.licenciasContratadas}
-                        onChange={e => setEdicion({ ...edicion, licenciasContratadas: e.target.value })}
-                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                      />
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Número de usuarios</p>
+                  <button
+                    type="button"
+                    onClick={() => setEdicion({ ...edicion, todaCompaniaUsuarios: !edicion.todaCompaniaUsuarios })}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all border mb-2 ${
+                      edicion.todaCompaniaUsuarios ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                    }`}
+                  >
+                    <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                      edicion.todaCompaniaUsuarios ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                    }`}>
+                      {edicion.todaCompaniaUsuarios && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                    </span>
+                    Toda la compañía
+                  </button>
+                  {!edicion.todaCompaniaUsuarios && (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] uppercase tracking-wider text-stone-500">Uso</span>
+                        <span className="text-xs font-medium text-stone-900">{edicion.licenciasActivas}<span className="text-stone-400">/{edicion.licenciasContratadas}</span> · {pctUsoEdit}%</span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
+                        <div className={`h-full transition-all ${colorBarraEdit}`} style={{ width: `${Math.max(2, pctUsoEdit)}%` }}></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nº aproximado</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={edicion.licenciasContratadas}
+                            onChange={e => setEdicion({ ...edicion, licenciasContratadas: e.target.value })}
+                            className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Activos</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={edicion.licenciasActivas}
+                            onChange={e => setEdicion({ ...edicion, licenciasActivas: e.target.value })}
+                            className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Coste de licencia</p>
+                  <button
+                    type="button"
+                    onClick={() => setEdicion({ ...edicion, sinCosteLicencia: !edicion.sinCosteLicencia })}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all border mb-2 ${
+                      edicion.sinCosteLicencia ? 'bg-emerald-700 text-stone-50 border-emerald-700' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                    }`}
+                  >
+                    <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                      edicion.sinCosteLicencia ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                    }`}>
+                      {edicion.sinCosteLicencia && <span className="text-emerald-700 text-[10px] leading-none">✓</span>}
+                    </span>
+                    Sin coste de licencia
+                  </button>
+                  {!edicion.sinCosteLicencia && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por usuario (€/mes)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={edicion.costePorLicencia}
+                          onChange={e => setEdicion({ ...edicion, costePorLicencia: e.target.value })}
+                          className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                        />
+                        {!edicion.todaCompaniaUsuarios && (
+                          <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(edicion.costePorLicencia) || 0) * 12 * (Number(edicion.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Tipo de licencia <span className="normal-case text-stone-400">(opcional)</span></label>
+                        <input
+                          value={edicion.tipoLicencia || ''}
+                          onChange={e => setEdicion({ ...edicion, tipoLicencia: e.target.value })}
+                          placeholder="Suscripción anual, por usuario/mes…"
+                          className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. activas</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={edicion.licenciasActivas}
-                        onChange={e => setEdicion({ ...edicion, licenciasActivas: e.target.value })}
-                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/mes)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={edicion.costePorLicencia}
-                        onChange={e => setEdicion({ ...edicion, costePorLicencia: e.target.value })}
-                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                      />
-                      <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(edicion.costePorLicencia) || 0) * 12 * (Number(edicion.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 <div>
@@ -6600,7 +6865,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                   >Cancelar</button>
                   <button
                     onClick={guardarEdicion}
-                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim())}
+                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim()) || (edicion.equipos || []).length === 0 || ((edicion.delegaciones || []).length === 0 && !(edicion.nuevaDelegacion || '').trim())}
                     className="flex items-center gap-1.5 px-4 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
                   >
                     Guardar cambios
