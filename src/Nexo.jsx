@@ -260,11 +260,31 @@ function Sidebar({ active, setActive, usuarioActualId, setUsuarioActualId, perso
           </div>
         </div>
         {demoMode && (
-          <div className="mt-3 flex items-center gap-2 bg-gold-100 border border-gold-300 rounded-md px-2.5 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse"></span>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-gold-800">Modo demo</p>
-            <button onClick={onLogout} className="ml-auto text-[10px] text-gold-800 hover:text-gold-900 font-bold underline-offset-2 hover:underline">Salir</button>
-          </div>
+          <>
+            <div className="mt-3 flex items-center gap-2 bg-gold-100 border border-gold-300 rounded-md px-2.5 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse"></span>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-gold-800">Modo demo</p>
+              <button onClick={onLogout} className="ml-auto text-[10px] text-gold-800 hover:text-gold-900 font-bold underline-offset-2 hover:underline">Salir</button>
+            </div>
+            <button
+              onClick={() => {
+                const dump = {};
+                Object.keys(localStorage).filter(k => k.startsWith('nexo2:')).forEach(k => {
+                  try { dump[k] = JSON.parse(localStorage.getItem(k)); } catch (e) { dump[k] = localStorage.getItem(k); }
+                });
+                const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nexo-demo-${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              className="mt-2 w-full text-[10px] uppercase tracking-widest font-bold text-stone-700 hover:text-navy-900 bg-stone-100 hover:bg-stone-200 border border-stone-300 rounded-md px-2.5 py-1.5 transition-colors"
+            >📥 Exportar datos demo</button>
+          </>
         )}
       </div>
       <nav className="flex-1 p-2.5">
