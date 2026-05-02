@@ -14,9 +14,9 @@
 -- dependemos del nombre del constraint: buscamos dinámicamente cualquier FK
 -- que referencie profiles.id y la soltamos.
 
--- 1a. Brute force: soltar TODAS las foreign keys del schema public.
--- No las recreamos porque para el demo abierto no son necesarias y nos
--- evitamos problemas de tipos uuid/text.
+-- 1a. Brute force: soltar TODAS las foreign keys y CHECK constraints del
+-- schema public. No las recreamos porque para el demo abierto no son
+-- necesarias y nos evitamos conflictos de tipos / valores legacy.
 do $$
 declare r record;
 begin
@@ -27,8 +27,10 @@ begin
     from pg_constraint con
     join pg_class c on c.oid = con.conrelid
     join pg_namespace n on n.oid = c.relnamespace
-    where con.contype = 'f'
+    where con.contype in ('f', 'c')
       and n.nspname = 'public'
+      and con.conname not like '%_pkey'
+      and con.conname not like '%_not_null'
   loop
     execute format('alter table %I.%I drop constraint %I',
       r.schema_name, r.table_name, r.constraint_name);
