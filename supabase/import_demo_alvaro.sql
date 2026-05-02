@@ -14,30 +14,26 @@
 -- dependemos del nombre del constraint: buscamos dinámicamente cualquier FK
 -- que referencie profiles.id y la soltamos.
 
--- 1a. Soltar todas las FKs que apunten a profiles.id (sin importar su nombre)
+-- 1a. Brute force: soltar TODAS las foreign keys del schema public.
+-- No las recreamos porque para el demo abierto no son necesarias y nos
+-- evitamos problemas de tipos uuid/text.
 do $$
 declare r record;
 begin
   for r in
-    select tc.table_schema, tc.table_name, tc.constraint_name
-    from information_schema.referential_constraints rc
-    join information_schema.table_constraints tc
-      on tc.constraint_name = rc.constraint_name
-     and tc.table_schema = rc.constraint_schema
-    join information_schema.key_column_usage kcu
-      on kcu.constraint_name = rc.unique_constraint_name
-     and kcu.table_schema = rc.unique_constraint_schema
-    where kcu.table_schema = 'public'
-      and kcu.table_name = 'profiles'
-      and kcu.column_name = 'id'
+    select n.nspname as schema_name,
+           c.relname as table_name,
+           con.conname as constraint_name
+    from pg_constraint con
+    join pg_class c on c.oid = con.conrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where con.contype = 'f'
+      and n.nspname = 'public'
   loop
     execute format('alter table %I.%I drop constraint %I',
-      r.table_schema, r.table_name, r.constraint_name);
+      r.schema_name, r.table_name, r.constraint_name);
   end loop;
 end $$;
-
--- 1b. Soltar también la FK profiles → auth.users (si existe)
-alter table public.profiles drop constraint if exists profiles_id_fkey;
 
 -- 1c. Cambiar tipo de columnas. Ahora que las FKs están soltadas, no fallará.
 alter table public.profiles alter column id type text;
