@@ -10,40 +10,36 @@
 -- ============================================================
 
 -- ─────────────────────── 1. MIGRACIÓN DE SCHEMA ────────────────────────────
+-- Importante: hay que SOLTAR todas las FKs PRIMERO y luego cambiar los tipos
+-- de columna. Si no, Postgres se queja al cambiar profiles.id porque las
+-- otras tablas todavía la referencian con tipo uuid.
 
--- profiles: PK pasa de uuid (referencia a auth.users) a text (acepta p1, p4, etc.)
+-- 1a. Soltar todas las FKs que dependen de profiles.id
 alter table public.profiles drop constraint if exists profiles_id_fkey;
-alter table public.profiles alter column id type text;
-
--- Tablas que referencian profiles: cambiar tipo de columna y quitar FK
 alter table public.iniciativas drop constraint if exists iniciativas_autor_id_fkey;
-alter table public.iniciativas alter column autor_id type text;
-
 alter table public.tareas drop constraint if exists tareas_persona_id_fkey;
-alter table public.tareas alter column persona_id type text;
 alter table public.tareas drop constraint if exists tareas_creador_id_fkey;
-alter table public.tareas alter column creador_id type text;
-
 alter table public.historico drop constraint if exists historico_autor_id_fkey;
-alter table public.historico alter column autor_id type text;
-
-alter table public.reuniones alter column asistentes type text[] using asistentes::text[];
-
-alter table public.convocatorias alter column integrantes type text[] using integrantes::text[];
 alter table public.convocatorias drop constraint if exists convocatorias_organizador_id_fkey;
-alter table public.convocatorias alter column organizador_id type text;
-
 alter table public.peticiones drop constraint if exists peticiones_solicitante_id_fkey;
-alter table public.peticiones alter column solicitante_id type text;
 alter table public.peticiones drop constraint if exists peticiones_canalizado_por_id_fkey;
-alter table public.peticiones alter column canalizado_por_id type text;
 alter table public.peticiones drop constraint if exists peticiones_rechazado_por_id_fkey;
-alter table public.peticiones alter column rechazado_por_id type text;
-
 alter table public.mensajes drop constraint if exists mensajes_autor_id_fkey;
-alter table public.mensajes alter column autor_id type text;
-
 alter table public.talleres drop constraint if exists talleres_updated_by_fkey;
+
+-- 1b. Cambiar tipo de columnas (profiles.id primero, luego las que la referencian)
+alter table public.profiles alter column id type text;
+alter table public.iniciativas alter column autor_id type text;
+alter table public.tareas alter column persona_id type text;
+alter table public.tareas alter column creador_id type text;
+alter table public.historico alter column autor_id type text;
+alter table public.reuniones alter column asistentes type text[] using asistentes::text[];
+alter table public.convocatorias alter column integrantes type text[] using integrantes::text[];
+alter table public.convocatorias alter column organizador_id type text;
+alter table public.peticiones alter column solicitante_id type text;
+alter table public.peticiones alter column canalizado_por_id type text;
+alter table public.peticiones alter column rechazado_por_id type text;
+alter table public.mensajes alter column autor_id type text;
 alter table public.talleres alter column updated_by type text;
 
 -- ─────────────────────── 2. LIMPIAR TABLAS ─────────────────────────────────
