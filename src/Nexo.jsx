@@ -3302,12 +3302,38 @@ Formato:
 
 function TalleresView({ talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, tallerInicialId, onCerrarTaller, usuarioActualId, demoMode }) {
   const [tallerActivoId, setTallerActivoId] = useState(tallerInicialId || null);
+  const [creandoTaller, setCreandoTaller] = useState(false);
+  const [nuevoTallerForm, setNuevoTallerForm] = useState({ nombre: '', descripcion: '', area: '', estado: 'Planificado', lider: '' });
+  const [filtroNombre, setFiltroNombre] = useState('');
+  const [filtroPersona, setFiltroPersona] = useState('todas');
+  const [filtroArea, setFiltroArea] = useState('todas');
+  const [filtroEstadoTaller, setFiltroEstadoTaller] = useState('todos');
+  const [vistaTaller, setVistaTaller] = useState('cartas');
 
   useEffect(() => {
     if (tallerInicialId) setTallerActivoId(tallerInicialId);
   }, [tallerInicialId]);
 
   const tallerActivo = tallerActivoId ? talleres.find(t => t.id === tallerActivoId) : null;
+
+  const crearTaller = async () => {
+    if (!nuevoTallerForm.nombre.trim() || !nuevoTallerForm.descripcion.trim()) return;
+    const nuevo = {
+      id: `t-${Date.now()}`,
+      numero: null,
+      nombre: nuevoTallerForm.nombre.trim(),
+      descripcion: nuevoTallerForm.descripcion.trim(),
+      area: nuevoTallerForm.area.trim() || 'Sin área',
+      estado: nuevoTallerForm.estado || 'Planificado',
+      lider: nuevoTallerForm.lider.trim() || '',
+      objetivos: [],
+      documentos: [],
+    };
+    await setTalleres([...talleres, nuevo]);
+    setNuevoTallerForm({ nombre: '', descripcion: '', area: '', estado: 'Planificado', lider: '' });
+    setCreandoTaller(false);
+    setTallerActivoId(nuevo.id);
+  };
 
   if (tallerActivo) {
     return <TallerDetalle
@@ -3327,16 +3353,238 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
     />;
   }
 
+  const areasDisponibles = [...new Set(talleres.map(t => t.area).filter(Boolean))].sort();
+  const estadosDisponibles = [...new Set(talleres.map(t => t.estado).filter(Boolean))].sort();
+  const talleresFiltrados = talleres.filter(t => {
+    if (filtroNombre.trim()) {
+      const q = filtroNombre.trim().toLowerCase();
+      if (!t.nombre.toLowerCase().includes(q) && !(t.descripcion || '').toLowerCase().includes(q)) return false;
+    }
+    if (filtroPersona !== 'todas') {
+      const integrante = personas.find(p => p.id === filtroPersona);
+      if (!integrante || !(integrante.talleres || []).includes(t.id)) return false;
+    }
+    if (filtroArea !== 'todas' && t.area !== filtroArea) return false;
+    if (filtroEstadoTaller !== 'todos' && t.estado !== filtroEstadoTaller) return false;
+    return true;
+  });
+
   return (
     <div className="p-8 w-full">
-      <header className="mb-6">
-        <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-2">Plan Estratégico</p>
-        <h1 className="display-1 text-navy-900">Talleres</h1>
-        <p className="text-sm text-stone-600 mt-1">{talleres.length} talleres activos · pulsa cualquiera para ver su evolución y equipo</p>
+      <header className="mb-6 flex items-end justify-between gap-3 flex-wrap">
+        <div>
+          <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-2">Plan Estratégico</p>
+          <h1 className="display-1 text-navy-900">Talleres</h1>
+          <p className="text-sm text-stone-600 mt-1">{talleres.length} talleres · pulsa cualquiera para ver su evolución y equipo</p>
+        </div>
+        <button
+          onClick={() => setCreandoTaller(!creandoTaller)}
+          className="flex items-center gap-2 px-4 py-2 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium transition-colors"
+        >
+          {creandoTaller ? <X size={14} /> : <Plus size={14} />}
+          {creandoTaller ? 'Cancelar' : 'Nuevo taller'}
+        </button>
       </header>
 
+      {creandoTaller && (
+        <div className="bg-white border border-stone-300 rounded-xl p-5 mb-6">
+          <h3 className="text-sm font-medium text-stone-900 mb-4 flex items-center gap-2">
+            <Layers size={14} />
+            Nuevo taller
+          </h3>
+          <p className="text-xs text-stone-600 mb-4">Crea el taller con título y descripción. Después podrás añadir personas, objetivos, tareas, eventos y reuniones desde la vista de detalle.</p>
+
+          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Título <span className="text-red-600">*</span></label>
+          <input
+            value={nuevoTallerForm.nombre}
+            onChange={e => setNuevoTallerForm({ ...nuevoTallerForm, nombre: e.target.value })}
+            placeholder="Ej: Plan de talento"
+            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 mb-3"
+          />
+
+          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Descripción <span className="text-red-600">*</span></label>
+          <textarea
+            value={nuevoTallerForm.descripcion}
+            onChange={e => setNuevoTallerForm({ ...nuevoTallerForm, descripcion: e.target.value })}
+            placeholder="¿Sobre qué trata este taller? ¿Qué objetivos persigue?"
+            rows={3}
+            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Líder</label>
+              <input
+                value={nuevoTallerForm.lider}
+                onChange={e => setNuevoTallerForm({ ...nuevoTallerForm, lider: e.target.value })}
+                placeholder="Nombre del responsable"
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Área</label>
+              <input
+                list="taller-areas"
+                value={nuevoTallerForm.area}
+                onChange={e => setNuevoTallerForm({ ...nuevoTallerForm, area: e.target.value })}
+                placeholder="Tecnología, Cultura, Talento…"
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+              />
+              <datalist id="taller-areas">
+                {areasDisponibles.map(a => <option key={a} value={a} />)}
+              </datalist>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Estado inicial</label>
+              <select
+                value={nuevoTallerForm.estado}
+                onChange={e => setNuevoTallerForm({ ...nuevoTallerForm, estado: e.target.value })}
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+              >
+                {['Planificado', 'Diseño', 'En curso', 'Activo', 'Pendiente', 'Mockup', 'Exploratorio'].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={crearTaller}
+            disabled={!nuevoTallerForm.nombre.trim() || !nuevoTallerForm.descripcion.trim()}
+            className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
+          >
+            <Plus size={14} /> Crear taller y abrir
+          </button>
+        </div>
+      )}
+
+      <div className="flex items-center gap-1 mb-4 bg-stone-100 rounded-md p-0.5 w-fit">
+        <button
+          onClick={() => setVistaTaller('cartas')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${vistaTaller === 'cartas' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+        >
+          <Layers size={12} />
+          Cartas
+        </button>
+        <button
+          onClick={() => setVistaTaller('organigrama')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${vistaTaller === 'organigrama' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+        >
+          <Users size={12} />
+          Organigrama
+        </button>
+      </div>
+
+      <div className="bg-white border border-stone-200 rounded-xl p-3 mb-4 flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-stone-50 border border-stone-200 rounded-md px-3 py-1.5">
+          <Search size={13} className="text-stone-500" />
+          <input
+            value={filtroNombre}
+            onChange={e => setFiltroNombre(e.target.value)}
+            placeholder="Buscar por nombre o descripción…"
+            className="flex-1 bg-transparent text-sm outline-none"
+          />
+        </div>
+        <select value={filtroPersona} onChange={e => setFiltroPersona(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 outline-none">
+          <option value="todas">Todas las personas</option>
+          {personas.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+        </select>
+        <select value={filtroArea} onChange={e => setFiltroArea(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 outline-none">
+          <option value="todas">Todas las áreas</option>
+          {areasDisponibles.map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+        <select value={filtroEstadoTaller} onChange={e => setFiltroEstadoTaller(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 outline-none">
+          <option value="todos">Todos los estados</option>
+          {estadosDisponibles.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <span className="ml-auto text-xs text-stone-500">{talleresFiltrados.length} de {talleres.length}</span>
+        {(filtroNombre.trim() || filtroPersona !== 'todas' || filtroArea !== 'todas' || filtroEstadoTaller !== 'todos') && (
+          <button
+            onClick={() => { setFiltroNombre(''); setFiltroPersona('todas'); setFiltroArea('todas'); setFiltroEstadoTaller('todos'); }}
+            className="text-[11px] text-stone-600 hover:text-navy-900 underline"
+          >Limpiar</button>
+        )}
+      </div>
+
+      {talleresFiltrados.length === 0 && (
+        <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+          <Layers size={36} className="text-stone-300 mx-auto mb-3" />
+          <p className="text-sm text-stone-600 font-medium mb-1">No hay talleres que coincidan con los filtros.</p>
+          <p className="text-xs text-stone-400">Ajusta o limpia los filtros para verlos todos.</p>
+        </div>
+      )}
+
+      {vistaTaller === 'organigrama' && talleresFiltrados.length > 0 && (() => {
+        const porArea = {};
+        talleresFiltrados.forEach(t => {
+          const area = t.area || 'Sin área';
+          if (!porArea[area]) porArea[area] = [];
+          porArea[area].push(t);
+        });
+        const areasOrden = Object.keys(porArea).sort();
+        return (
+          <div className="space-y-6">
+            {areasOrden.map(area => (
+              <div key={area} className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+                <div className="px-5 py-3 bg-navy-50 border-b border-stone-200 flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">{area}</h2>
+                  <span className="text-xs text-stone-600">{porArea[area].length} {porArea[area].length === 1 ? 'taller' : 'talleres'}</span>
+                </div>
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {porArea[area].map(t => {
+                    const integrantes = personas.filter(p => (p.talleres || []).includes(t.id));
+                    const responsable = integrantes.find(p => p.nombre === t.lider);
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => setTallerActivoId(t.id)}
+                        className="text-left bg-stone-50/60 border border-stone-200 rounded-xl p-4 hover:border-navy-700 hover:shadow-sm transition-all"
+                      >
+                        <div className="mb-3 pb-3 border-b border-stone-200">
+                          <h3 className="font-serif text-base font-semibold text-navy-900 leading-snug min-h-[2.6rem] line-clamp-2">{t.nombre}</h3>
+                          {responsable ? (
+                            <p className="text-[11px] text-stone-600 mt-1">Líder: <span className="font-semibold text-stone-800">{responsable.nombre}</span></p>
+                          ) : t.lider ? (
+                            <p className="text-[11px] text-stone-600 mt-1">Líder: <span className="font-semibold text-stone-800">{t.lider}</span></p>
+                          ) : (
+                            <p className="text-[11px] text-stone-400 italic mt-1">Sin líder asignado</p>
+                          )}
+                        </div>
+                        {integrantes.length === 0 ? (
+                          <p className="text-xs text-stone-400 italic">Sin integrantes</p>
+                        ) : (
+                          <div className="space-y-1.5">
+                            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">{integrantes.length} {integrantes.length === 1 ? 'integrante' : 'integrantes'}</p>
+                            {integrantes.map(p => {
+                              const inic = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                              const esLider = responsable?.id === p.id || p.nombre === t.lider;
+                              const esDiaADia = p.nombre === t.diaADia;
+                              const matchFiltro = filtroPersona !== 'todas' && filtroPersona === p.id;
+                              return (
+                                <div key={p.id} className={`flex items-center gap-2 px-2 py-1 rounded-md ${matchFiltro ? 'bg-gold-100 border border-gold-300' : 'bg-white border border-stone-200'}`}>
+                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-semibold text-[9px] flex-shrink-0 ${esLider ? 'bg-navy-900 text-stone-50' : 'bg-stone-200 text-stone-700'}`}>{inic}</div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-stone-800 truncate">{p.nombre}</p>
+                                    <p className="text-[10px] text-stone-500 truncate">{getEquipo(p)}</p>
+                                  </div>
+                                  {esLider && <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-navy-100 text-navy-800 font-bold flex-shrink-0">Líder</span>}
+                                  {esDiaADia && !esLider && <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold flex-shrink-0">Día a día</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
+      {vistaTaller === 'cartas' && (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {talleres.map(t => {
+        {talleresFiltrados.map(t => {
           const eventos = historico.filter(e => e.tallerId === t.id);
           const eventosOrdenados = [...eventos].sort((a, b) => b.fecha.localeCompare(a.fecha));
           const ultimoEvento = eventosOrdenados[0];
@@ -3385,39 +3633,45 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
               <div className={`h-1 ${saludColor}`}></div>
 
               <div className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-serif text-xl text-stone-900 group-hover:text-stone-950">{t.nombre}</h3>
-                      <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${estadoBg}`}>{t.estado}</span>
-                    </div>
-                    <p className="text-[11px] text-stone-500">{t.area}</p>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-1.5 text-[10px] flex-shrink-0">
+                    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${estadoBg}`}>{t.estado}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px]">
+                  <div className="flex items-center gap-1.5 text-[10px] flex-shrink-0">
                     <div className={`w-1.5 h-1.5 rounded-full ${saludColor}`}></div>
                     <span className="text-stone-600">{saludLabel}</span>
                   </div>
                 </div>
 
-                {responsable && (
-                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-stone-100">
-                    <div className="w-7 h-7 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-medium text-[10px] flex-shrink-0">
-                      {responsable.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] uppercase tracking-wider text-stone-500">Responsable</p>
-                      <p className="text-xs font-medium text-stone-900">{responsable.nombre}</p>
-                    </div>
-                    {t.diaADia && (
-                      <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-wider text-stone-500">Día a día</p>
-                        <p className="text-xs text-stone-700">{t.diaADia}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <h3 className="font-serif text-base font-semibold text-stone-900 group-hover:text-stone-950 leading-snug min-h-[2.6rem] line-clamp-2 mb-1">{t.nombre}</h3>
+                <p className="text-[11px] text-stone-500 mb-3 truncate">{t.area || 'Sin área'}</p>
 
-                <p className="text-xs text-stone-700 leading-relaxed mb-3 line-clamp-2">{t.descripcion}</p>
+                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-stone-100 min-h-[2.5rem]">
+                  {responsable ? (
+                    <>
+                      <div className="w-7 h-7 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-medium text-[10px] flex-shrink-0">
+                        {responsable.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] uppercase tracking-wider text-stone-500">Responsable</p>
+                        <p className="text-xs font-medium text-stone-900 truncate">{responsable.nombre}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1">
+                      <p className="text-[10px] uppercase tracking-wider text-stone-400">Responsable</p>
+                      <p className="text-xs text-stone-400 italic">{t.lider || 'Sin asignar'}</p>
+                    </div>
+                  )}
+                  {t.diaADia && (
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-[10px] uppercase tracking-wider text-stone-500">Día a día</p>
+                      <p className="text-xs text-stone-700 truncate max-w-[100px]">{t.diaADia}</p>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-xs text-stone-700 leading-relaxed mb-3 line-clamp-2 min-h-[2.4rem]">{t.descripcion}</p>
 
                 {integrantes.length > 0 && (
                   <div className="flex items-center gap-2 mb-3">
@@ -3497,6 +3751,7 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
           );
         })}
       </div>
+      )}
     </div>
   );
 }
@@ -3567,6 +3822,50 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   const [generandoResumen, setGenerandoResumen] = useState(false);
   const [editandoEventoId, setEditandoEventoId] = useState(null);
   const [gestionandoMiembros, setGestionandoMiembros] = useState(false);
+  const [editandoTaller, setEditandoTaller] = useState(false);
+  const [editTallerForm, setEditTallerForm] = useState({
+    nombre: taller.nombre || '',
+    descripcion: taller.descripcion || '',
+    area: taller.area || '',
+    estado: taller.estado || '',
+    lider: taller.lider || '',
+    diaADia: taller.diaADia || '',
+  });
+
+  useEffect(() => {
+    setEditTallerForm({
+      nombre: taller.nombre || '',
+      descripcion: taller.descripcion || '',
+      area: taller.area || '',
+      estado: taller.estado || '',
+      lider: taller.lider || '',
+      diaADia: taller.diaADia || '',
+    });
+  }, [taller.id]);
+
+  const guardarTaller = async () => {
+    if (!editTallerForm.nombre.trim() || !editTallerForm.descripcion.trim()) return;
+    if (!setTalleres) return;
+    const actualizados = talleres.map(t => t.id === taller.id ? {
+      ...t,
+      nombre: editTallerForm.nombre.trim(),
+      descripcion: editTallerForm.descripcion.trim(),
+      area: editTallerForm.area.trim(),
+      estado: editTallerForm.estado || t.estado,
+      lider: editTallerForm.lider.trim(),
+      diaADia: editTallerForm.diaADia.trim(),
+    } : t);
+    await setTalleres(actualizados);
+    setEditandoTaller(false);
+  };
+
+  const eliminarTaller = async () => {
+    if (!setTalleres) return;
+    if (!confirm(`¿Eliminar el taller "${taller.nombre}"? Se eliminarán también sus eventos del histórico. Esta acción no se puede deshacer.`)) return;
+    await setTalleres(talleres.filter(t => t.id !== taller.id));
+    if (setHistorico) await setHistorico(historico.filter(e => e.tallerId !== taller.id));
+    onBack && onBack();
+  };
 
   // Objetivos
   const [nuevoObjTitulo, setNuevoObjTitulo] = useState('');
@@ -3766,9 +4065,106 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
 
   return (
     <div className="p-8 w-full">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-stone-600 hover:text-stone-900 mb-4 transition-colors">
-        <ArrowLeft size={14} /> Volver a talleres
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-stone-600 hover:text-stone-900 transition-colors">
+          <ArrowLeft size={14} /> Volver a talleres
+        </button>
+        <button
+          onClick={() => setEditandoTaller(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-stone-300 hover:border-stone-500 text-stone-700 rounded-md text-xs font-medium transition-colors"
+        >
+          <Settings size={12} /> Editar taller
+        </button>
+      </div>
+
+      {editandoTaller && (
+        <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setEditandoTaller(false)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-stone-200 flex items-start justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-1">Editar taller</p>
+                <h2 className="font-serif text-2xl text-stone-900">{taller.nombre}</h2>
+              </div>
+              <button onClick={() => setEditandoTaller(false)} className="text-stone-400 hover:text-stone-700"><X size={20} /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Título <span className="text-red-600">*</span></label>
+                <input
+                  value={editTallerForm.nombre}
+                  onChange={e => setEditTallerForm({ ...editTallerForm, nombre: e.target.value })}
+                  className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Descripción <span className="text-red-600">*</span></label>
+                <textarea
+                  value={editTallerForm.descripcion}
+                  onChange={e => setEditTallerForm({ ...editTallerForm, descripcion: e.target.value })}
+                  rows={3}
+                  className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Líder</label>
+                  <input
+                    value={editTallerForm.lider}
+                    onChange={e => setEditTallerForm({ ...editTallerForm, lider: e.target.value })}
+                    placeholder="Nombre del responsable"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Día a día</label>
+                  <input
+                    value={editTallerForm.diaADia}
+                    onChange={e => setEditTallerForm({ ...editTallerForm, diaADia: e.target.value })}
+                    placeholder="Quien lo lleva en el día a día"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Área</label>
+                  <input
+                    value={editTallerForm.area}
+                    onChange={e => setEditTallerForm({ ...editTallerForm, area: e.target.value })}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Estado</label>
+                  <select
+                    value={editTallerForm.estado}
+                    onChange={e => setEditTallerForm({ ...editTallerForm, estado: e.target.value })}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  >
+                    {['Planificado', 'Diseño', 'En curso', 'Activo', 'Pendiente', 'Mockup', 'Exploratorio', taller.estado].filter((v, i, a) => v && a.indexOf(v) === i).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 border-t border-stone-200 flex items-center justify-between">
+              <button
+                onClick={eliminarTaller}
+                className="text-xs text-red-700 hover:text-red-800 font-medium transition-colors flex items-center gap-1"
+              >
+                <X size={12} /> Eliminar taller
+              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setEditandoTaller(false)} className="px-3 py-1.5 text-stone-600 hover:text-stone-900 text-sm">Cancelar</button>
+                <button
+                  onClick={guardarTaller}
+                  disabled={!editTallerForm.nombre.trim() || !editTallerForm.descripcion.trim()}
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
+                >Guardar cambios</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <header className="mb-8 pb-8 border-b border-stone-200">
         <div className="flex items-start justify-between mb-4 gap-6 flex-wrap">
