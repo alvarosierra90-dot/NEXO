@@ -6554,8 +6554,17 @@ function PeticionColumn({ estadoKey, estadoInfo, items, personaById, tallerById,
   );
 }
 
-function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioActualId, setActive }) {
-  const [tabActiva, setTabActiva] = useState('buzon');
+function ProcesosView({ peticiones, setPeticiones, talleres, personas, herramientas = [], usuarioActualId, setActive }) {
+  const [tabActiva, setTabActiva] = useState('todas');
+
+  const [filtroTipoBuzon, setFiltroTipoBuzon] = useState('todos');
+  const [filtroEquipoBuzon, setFiltroEquipoBuzon] = useState('todos');
+  const [filtroDelegacionBuzon, setFiltroDelegacionBuzon] = useState('todas');
+  const [filtroEstadoBuzon, setFiltroEstadoBuzon] = useState('todos');
+  const [ordenBuzon, setOrdenBuzon] = useState('fecha_desc');
+
+  const [matchingResultados, setMatchingResultados] = useState(null);
+  const [buscandoMatches, setBuscandoMatches] = useState(false);
   const [creando, setCreando] = useState(false);
   const [evaluando, setEvaluando] = useState(null);
   const [analizandoIA, setAnalizandoIA] = useState(false);
@@ -6643,6 +6652,7 @@ Reglas: usa exactamente uno de los 4 tipos listados. La prioridad debe ser alta,
     await setPeticiones([...peticiones, nueva]);
     setNuevaTitulo(''); setNuevaDescripcion(''); setNuevaEquipo(''); setNuevaDelegacion(''); setNuevaSolicitanteNombre(''); setNuevaTipo('herramienta_nueva'); setNuevaPrioridad('media');
     setSugerenciaPeticion(null);
+    setMatchingResultados(null);
     setCreando(false);
   };
 
@@ -6733,6 +6743,64 @@ Formato:
     setAnalizandoIA(false);
   };
 
+  const tipoEsHerramienta = (t) => t === 'herramienta_nueva' || t === 'herramienta_existente' || t === 'mejora_herramienta';
+
+  const buscarMatchesHerramientas = async () => {
+    if (!nuevaDescripcion.trim() || !tipoEsHerramienta(nuevaTipo)) return;
+    if ((herramientas || []).length === 0) return;
+    setBuscandoMatches(true);
+    setMatchingResultados(null);
+    const catalogo = herramientas.map(h => {
+      const cats = (Array.isArray(h.categorias) && h.categorias.length) ? h.categorias.join(', ') : (h.categoria || '');
+      const funcs = (h.funcionalidades || []).join(', ');
+      const areas = (h.areas || []).join(', ');
+      return `- ${h.nombre} [${cats}]: ${h.descripcion || ''} | Funcionalidades: ${funcs} | Equipos que la usan: ${areas} | Licencias libres: ${(h.licenciasContratadas || 0) - (h.licenciasActivas || 0)}`;
+    }).join('\n');
+    const userMessage = `Una persona quiere registrar una petición tipo "${TIPOS_PETICION[nuevaTipo]?.label || nuevaTipo}".
+
+PETICIÓN:
+Título: ${nuevaTitulo.trim() || '(sin título)'}
+Descripción: ${nuevaDescripcion.trim()}
+Equipo: ${nuevaEquipo || '(sin equipo)'}
+Delegación: ${nuevaDelegacion.trim() || '(sin delegación)'}
+
+CATÁLOGO DE HERRAMIENTAS:
+${catalogo}
+
+Detecta hasta 4 herramientas del catálogo que podrían cubrir esta necesidad (total o parcialmente). Para cada match indica:
+- nombre exacto
+- nivelCoincidencia: porcentaje 0-100 según cuánto cubre la necesidad
+- motivo: 1 frase explicando por qué encaja
+
+Si no hay match razonable, devuelve "matches": [] y explica brevemente por qué en "razon".
+
+Devuelve SOLO JSON válido, sin markdown:
+{"matches":[{"nombre":"...","nivelCoincidencia":85,"motivo":"..."}],"razon":"..."}`;
+    const respuesta = await callClaude(
+      'Eres analista de gobierno de herramientas. Detectas duplicidades comparando peticiones nuevas contra el catálogo. Respondes solo JSON válido.',
+      userMessage,
+    );
+    try {
+      const json = respuesta && respuesta.match(/\{[\s\S]*\}/);
+      if (json) {
+        const data = JSON.parse(json[0]);
+        const matches = (data.matches || [])
+          .map(m => {
+            const h = herramientas.find(x => x.nombre.toLowerCase() === String(m.nombre || '').toLowerCase());
+            if (!h) return null;
+            return { ...m, herramienta: h };
+          })
+          .filter(Boolean);
+        setMatchingResultados({ matches, razon: data.razon || '' });
+      } else {
+        setMatchingResultados({ matches: [], razon: 'No se pudo interpretar la respuesta de la IA.' });
+      }
+    } catch (e) {
+      setMatchingResultados({ matches: [], razon: 'No se pudo interpretar la respuesta de la IA.' });
+    }
+    setBuscandoMatches(false);
+  };
+
   const peticionesPorEstado = {
     nueva: peticiones.filter(p => p.estado === 'nueva'),
     en_revision: peticiones.filter(p => p.estado === 'en_revision'),
@@ -6754,7 +6822,7 @@ Formato:
           <h1 className="display-1 text-navy-900">Peticiones</h1>
           <p className="text-sm text-stone-600 mt-1">Buzón de peticiones de los equipos. Las rechazadas quedan archivadas con su motivo.</p>
         </div>
-        {tabActiva === 'buzon' && (
+        {tabActiva !== 'rechazadas' && (
           <button
             onClick={() => setCreando(!creando)}
             className="flex items-center gap-2 px-4 py-2 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium transition-colors"
@@ -6765,18 +6833,37 @@ Formato:
         )}
       </header>
 
-      <div className="flex items-center gap-1 mb-6 bg-stone-100 rounded-md p-0.5 w-fit">
+      <div className="flex items-center gap-1 mb-6 bg-stone-100 rounded-md p-0.5 flex-wrap">
         <button
-          onClick={() => setTabActiva('buzon')}
+          onClick={() => setTabActiva('todas')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-            tabActiva === 'buzon' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
+            tabActiva === 'todas' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
           }`}
         >
           <FileSearch size={12} />
-          Buzón de peticiones
-          <span className="text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded">{totalPet}</span>
+          Todas
+          <span className="text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded">{peticiones.filter(p => p.estado !== 'rechazada').length}</span>
           {nuevas > 0 && <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">{nuevas} nuevas</span>}
         </button>
+        {['herramienta_nueva', 'herramienta_existente', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'].map(k => {
+          const tipo = TIPOS_PETICION[k];
+          const Icon = tipo.icon;
+          const n = peticiones.filter(p => p.tipoSolicitud === k && p.estado !== 'rechazada').length;
+          const active = tabActiva === k;
+          return (
+            <button
+              key={k}
+              onClick={() => setTabActiva(k)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                active ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              <Icon size={12} className={active ? tipo.color : ''} />
+              {tipo.label}
+              {n > 0 && <span className="text-[10px] bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded">{n}</span>}
+            </button>
+          );
+        })}
         <button
           onClick={() => setTabActiva('rechazadas')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
@@ -6792,14 +6879,16 @@ Formato:
         </button>
       </div>
 
-      {tabActiva === 'buzon' && (
+      {tabActiva !== 'rechazadas' && (
         <>
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            <Metric label="Total peticiones" value={totalPet} hint="histórico del buzón" tooltip="Todas las peticiones recibidas, en cualquier estado." />
-            <Metric label="Nuevas" value={nuevas} accent={nuevas > 0 ? 'amber' : undefined} hint="sin asignar" tooltip="Peticiones recién llegadas que aún no se han evaluado ni asignado a ningún taller." />
-            <Metric label="En curso" value={enProceso} hint="en revisión o asignadas" tooltip="Peticiones que están siendo evaluadas o ya se han asignado a un taller del Plan Estratégico." />
-            <Metric label="Aprobadas" value={aprobadas} accent="emerald" hint="impactando" tooltip="Peticiones aprobadas por el comité que están en ejecución o ya implementadas." />
-          </div>
+          {tabActiva === 'todas' && (
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              <Metric label="Total peticiones" value={totalPet} hint="histórico del buzón" tooltip="Todas las peticiones recibidas, en cualquier estado." />
+              <Metric label="Nuevas" value={nuevas} accent={nuevas > 0 ? 'amber' : undefined} hint="sin asignar" tooltip="Peticiones recién llegadas que aún no se han evaluado ni asignado a ningún taller." />
+              <Metric label="En curso" value={enProceso} hint="en revisión o asignadas" tooltip="Peticiones que están siendo evaluadas o ya se han asignado a un taller del Plan Estratégico." />
+              <Metric label="Aprobadas" value={aprobadas} accent="emerald" hint="impactando" tooltip="Peticiones aprobadas por el comité que están en ejecución o ya implementadas." />
+            </div>
+          )}
 
           {creando && (
             <div className="bg-white border border-stone-300 rounded-xl p-5 mb-6">
@@ -6899,7 +6988,7 @@ Formato:
                     return (
                       <button
                         key={k}
-                        onClick={() => setNuevaTipo(k)}
+                        onClick={() => { setNuevaTipo(k); setMatchingResultados(null); }}
                         className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border-2 text-sm font-semibold transition-all text-left ${
                           active ? 'bg-navy-900 text-stone-50 border-navy-900 shadow-md' : `bg-white ${v.border} text-stone-700 hover:border-navy-700`
                         }`}
@@ -6911,6 +7000,72 @@ Formato:
                   })}
                 </div>
               </div>
+
+              {tipoEsHerramienta(nuevaTipo) && (
+                <div className="mb-4 bg-gold-50 border border-gold-200 rounded-md p-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
+                    <div className="flex items-center gap-2">
+                      <Search size={14} className="text-gold-700" />
+                      <span className="text-xs font-bold text-gold-900">Detección automática de duplicidades</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={buscarMatchesHerramientas}
+                      disabled={buscandoMatches || !nuevaDescripcion.trim()}
+                      className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
+                      title={!nuevaDescripcion.trim() ? 'Escribe primero la descripción' : 'Comprobar si ya existen herramientas que cubran esta necesidad'}
+                    >
+                      {buscandoMatches ? <Loader2 size={11} className="animate-spin" /> : <Search size={11} />}
+                      {buscandoMatches ? 'Buscando…' : 'Buscar similares'}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-gold-900">Antes de aprobar una herramienta nueva, comprueba si ya hay alguna en el catálogo que cubra esta necesidad.</p>
+
+                  {matchingResultados && (
+                    matchingResultados.matches.length === 0 ? (
+                      <div className="mt-3 bg-white border border-stone-200 rounded-md p-3 text-xs text-stone-700">
+                        <p className="font-semibold text-emerald-800 mb-1">No se han detectado herramientas similares en el catálogo.</p>
+                        {matchingResultados.razon && <p className="text-stone-600 italic">{matchingResultados.razon}</p>}
+                      </div>
+                    ) : (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-[11px] font-bold text-amber-900">Existen herramientas similares que podrían cubrir esta necesidad:</p>
+                        {matchingResultados.matches.map((m, i) => {
+                          const h = m.herramienta;
+                          const cats = (Array.isArray(h.categorias) && h.categorias.length) ? h.categorias.join(', ') : (h.categoria || '');
+                          const funcs = (h.funcionalidades || []).slice(0, 4).join(', ');
+                          const areas = (h.areas || []).join(', ');
+                          const libres = (h.licenciasContratadas || 0) - (h.licenciasActivas || 0);
+                          const nivel = Math.max(0, Math.min(100, Math.round(m.nivelCoincidencia || 0)));
+                          const colorBadge = nivel >= 70 ? 'bg-amber-100 text-amber-800 border-amber-300' : nivel >= 40 ? 'bg-stone-100 text-stone-800 border-stone-300' : 'bg-stone-50 text-stone-600 border-stone-200';
+                          return (
+                            <div key={i} className="bg-white border border-stone-200 rounded-md p-3">
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                    <p className="text-sm font-bold text-navy-900">{h.nombre}</p>
+                                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-stone-100 text-stone-700 font-semibold">{cats}</span>
+                                  </div>
+                                  <p className="text-xs text-stone-600 leading-relaxed">{h.descripcion}</p>
+                                </div>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded border ${colorBadge} flex-shrink-0`}>{nivel}% match</span>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-1 text-[11px] text-stone-600 mt-2">
+                                {funcs && <p><span className="font-semibold">Funcionalidades:</span> {funcs}</p>}
+                                {areas && <p><span className="font-semibold">Equipos:</span> {areas}</p>}
+                                <p><span className="font-semibold">Licencias libres:</span> {libres > 0 ? <span className="text-emerald-700">{libres}</span> : <span className="text-red-700">0</span>}</p>
+                              </div>
+                              {m.motivo && (
+                                <p className="text-[11px] text-amber-900 italic mt-2 bg-amber-50 px-2 py-1 rounded">{m.motivo}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
 
               <div className="mb-4">
                 <label className="text-xs uppercase tracking-wider text-navy-800 font-bold mb-2 block">Prioridad</label>
@@ -6944,23 +7099,108 @@ Formato:
             </div>
           )}
 
-          <div className="grid grid-cols-5 gap-2">
-            {Object.entries(ESTADOS_PETICION).map(([estadoKey, estadoInfo]) => {
-              const items = peticionesPorEstado[estadoKey] || [];
-              return (
-                <PeticionColumn
-                  key={estadoKey}
-                  estadoKey={estadoKey}
-                  estadoInfo={estadoInfo}
-                  items={items}
-                  personaById={personaById}
-                  tallerById={tallerById}
-                  onDropPeticion={moverEstado}
-                  onClickItem={(id) => setEvaluando(evaluando === id ? null : id)}
-                />
-              );
-            })}
-          </div>
+          {tabActiva === 'todas' && (
+            <div className="bg-white border border-stone-200 rounded-xl p-3 mb-4 flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mr-1">Filtros:</span>
+              <select value={filtroTipoBuzon} onChange={e => setFiltroTipoBuzon(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+                <option value="todos">Todos los tipos</option>
+                <option value="herramienta_nueva">Herramienta nueva</option>
+                <option value="herramienta_existente">Acceso a existente</option>
+                <option value="mejora_herramienta">Mejora de herramienta</option>
+                <option value="mejora_proceso">Mejora de proceso</option>
+                <option value="contratar_perfil">Contratar perfil</option>
+              </select>
+              <select value={filtroEquipoBuzon} onChange={e => setFiltroEquipoBuzon(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+                <option value="todos">Todos los equipos</option>
+                {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
+              </select>
+              <select value={filtroDelegacionBuzon} onChange={e => setFiltroDelegacionBuzon(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+                <option value="todas">Todas las delegaciones</option>
+                {[...new Set([...DELEGACIONES, ...peticiones.map(p => p.delegacion).filter(Boolean)])].sort().map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <select value={filtroEstadoBuzon} onChange={e => setFiltroEstadoBuzon(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+                <option value="todos">Todos los estados</option>
+                <option value="nueva">Nueva</option>
+                <option value="en_revision">En revisión</option>
+                <option value="asignada">Asignada</option>
+                <option value="aprobada">Aprobada</option>
+              </select>
+              <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold ml-2 mr-1">Orden:</span>
+              <select value={ordenBuzon} onChange={e => setOrdenBuzon(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+                <option value="fecha_desc">Fecha (más reciente)</option>
+                <option value="fecha_asc">Fecha (más antigua)</option>
+                <option value="prioridad">Prioridad</option>
+                <option value="equipo">Equipo</option>
+                <option value="estado">Estado</option>
+              </select>
+              {(filtroTipoBuzon !== 'todos' || filtroEquipoBuzon !== 'todos' || filtroDelegacionBuzon !== 'todas' || filtroEstadoBuzon !== 'todos') && (
+                <button
+                  onClick={() => {
+                    setFiltroTipoBuzon('todos'); setFiltroEquipoBuzon('todos'); setFiltroDelegacionBuzon('todas'); setFiltroEstadoBuzon('todos');
+                  }}
+                  className="text-[11px] text-stone-600 hover:text-navy-900 underline ml-1"
+                >Limpiar</button>
+              )}
+            </div>
+          )}
+
+          {(() => {
+            const tipoActivo = ['herramienta_nueva', 'herramienta_existente', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'].includes(tabActiva) ? tabActiva : null;
+            const prioridadOrden = { alta: 0, media: 1, baja: 2 };
+            const estadoOrden = { nueva: 0, en_revision: 1, asignada: 2, aprobada: 3 };
+            const peticionesVisibles = peticiones.filter(p => {
+              if (p.estado === 'rechazada') return false;
+              if (tipoActivo && p.tipoSolicitud !== tipoActivo) return false;
+              if (tabActiva === 'todas') {
+                if (filtroTipoBuzon !== 'todos' && p.tipoSolicitud !== filtroTipoBuzon) return false;
+                if (filtroEquipoBuzon !== 'todos' && p.equipo !== filtroEquipoBuzon) return false;
+                if (filtroDelegacionBuzon !== 'todas' && p.delegacion !== filtroDelegacionBuzon) return false;
+                if (filtroEstadoBuzon !== 'todos' && p.estado !== filtroEstadoBuzon) return false;
+              }
+              return true;
+            });
+            const ordenarPeticiones = (arr) => {
+              if (tabActiva !== 'todas') return arr;
+              const c = [...arr];
+              if (ordenBuzon === 'fecha_desc') c.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+              else if (ordenBuzon === 'fecha_asc') c.sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+              else if (ordenBuzon === 'prioridad') c.sort((a, b) => (prioridadOrden[a.prioridad] ?? 9) - (prioridadOrden[b.prioridad] ?? 9));
+              else if (ordenBuzon === 'equipo') c.sort((a, b) => (a.equipo || '').localeCompare(b.equipo || ''));
+              else if (ordenBuzon === 'estado') c.sort((a, b) => (estadoOrden[a.estado] ?? 9) - (estadoOrden[b.estado] ?? 9));
+              return c;
+            };
+            const estadosKanban = ['nueva', 'en_revision', 'asignada', 'aprobada'];
+            return (
+              <>
+                {peticionesVisibles.length === 0 ? (
+                  <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+                    <FileSearch size={36} className="text-stone-300 mx-auto mb-3" />
+                    <p className="text-sm text-stone-600 font-medium mb-1">No hay peticiones {tipoActivo ? `de tipo "${TIPOS_PETICION[tipoActivo].label}"` : 'que coincidan con los filtros'}</p>
+                    <p className="text-xs text-stone-400">{tipoActivo ? 'Pulsa "Nueva petición" para registrar una.' : 'Ajusta los filtros o limpia para ver todas.'}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {estadosKanban.map(estadoKey => {
+                      const estadoInfo = ESTADOS_PETICION[estadoKey];
+                      const items = ordenarPeticiones(peticionesVisibles.filter(p => p.estado === estadoKey));
+                      return (
+                        <PeticionColumn
+                          key={estadoKey}
+                          estadoKey={estadoKey}
+                          estadoInfo={estadoInfo}
+                          items={items}
+                          personaById={personaById}
+                          tallerById={tallerById}
+                          onDropPeticion={moverEstado}
+                          onClickItem={(id) => setEvaluando(evaluando === id ? null : id)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {evaluando && (() => {
             const p = peticiones.find(p => p.id === evaluando);
@@ -10243,7 +10483,7 @@ export default function Nexo() {
         {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
-        {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
+        {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} herramientas={herramientas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'solapamientos' && <SolapamientosView talleres={talleres} herramientas={herramientas} iniciativas={iniciativas} personas={personas} solapamientos={solapamientos} setSolapamientos={setSolapamientos} peticiones={peticiones} setPeticiones={setPeticiones} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} personas={personas} usuarioActualId={usuarioActualId} />}
         {active === 'tareas' && <TareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} />}
