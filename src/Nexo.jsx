@@ -49,7 +49,7 @@ const SEED_TALLERES = [
 ];
 
 const SEED_HERRAMIENTAS = [
-  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], equipos: [], todaCompaniaUsuarios: true, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, sinCosteLicencia: false, tipoLicencia: 'Suscripción anual', solicitudesLicencia: [
+  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], equipos: [], todosEquipos: true, todaCompaniaUsuarios: true, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, sinCosteLicencia: false, tipoLicencia: 'Suscripción anual', solicitudesLicencia: [
     { id: 's1-h1', personaId: 'p17', fecha: '2026-04-22T10:00:00.000Z' },
     { id: 's2-h1', personaId: 'p26', fecha: '2026-04-25T09:30:00.000Z' },
   ] },
@@ -67,7 +67,7 @@ const SEED_HERRAMIENTAS = [
     { id: 's1-h5', personaId: 'p18', fecha: '2026-04-19T12:00:00.000Z' },
     { id: 's2-h5', personaId: 'p21', fecha: '2026-04-24T10:45:00.000Z' },
   ] },
-  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: [], todaCompaniaUsuarios: true, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, sinCosteLicencia: false, tipoLicencia: 'Por firma', solicitudesLicencia: [
+  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: [], todosEquipos: true, todaCompaniaUsuarios: true, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, sinCosteLicencia: false, tipoLicencia: 'Por firma', solicitudesLicencia: [
     { id: 's1-h6', personaId: 'p13', fecha: '2026-04-21T15:00:00.000Z' },
     { id: 's2-h6', personaId: 'p20', fecha: '2026-04-23T09:15:00.000Z' },
     { id: 's3-h6', personaId: 'p22', fecha: '2026-04-25T13:30:00.000Z' },
@@ -5343,6 +5343,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
     origen: 'externa',
     funcionalidades: '',
     equipos: [],
+    todosEquipos: false,
     delegaciones: [],
     nuevaDelegacion: '',
     todasDelegaciones: false,
@@ -5436,7 +5437,7 @@ RECOMENDACIÓN: [una frase]`;
 
   const crearHerramienta = async () => {
     if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return;
-    if (nuevaHerr.equipos.length === 0) return;
+    if (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) return;
     const delegacionesFinales = nuevaHerr.todasDelegaciones ? [] : [...nuevaHerr.delegaciones];
     if (!nuevaHerr.todasDelegaciones && nuevaHerr.nuevaDelegacion.trim()) delegacionesFinales.push(nuevaHerr.nuevaDelegacion.trim());
     if (!nuevaHerr.todasDelegaciones && delegacionesFinales.length === 0) return;
@@ -5456,7 +5457,8 @@ RECOMENDACIÓN: [una frase]`;
       categoria: categoriaFinal,
       origen: nuevaHerr.origen === 'inhouse' ? 'inhouse' : 'externa',
       funcionalidades: nuevaHerr.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
-      equipos: nuevaHerr.equipos,
+      equipos: nuevaHerr.todosEquipos ? [] : nuevaHerr.equipos,
+      todosEquipos: !!nuevaHerr.todosEquipos,
       delegaciones: delegacionesFinales,
       todasDelegaciones: !!nuevaHerr.todasDelegaciones,
       todaCompaniaUsuarios: !!nuevaHerr.todaCompaniaUsuarios,
@@ -5494,6 +5496,7 @@ RECOMENDACIÓN: [una frase]`;
       origen: h.origen === 'inhouse' ? 'inhouse' : 'externa',
       funcionalidades: (h.funcionalidades || []).join(', '),
       equipos: equiposDerivados,
+      todosEquipos: !!h.todosEquipos,
       delegaciones: delegacionesDerivadas,
       nuevaDelegacion: '',
       todasDelegaciones: !!h.todasDelegaciones,
@@ -5522,7 +5525,7 @@ RECOMENDACIÓN: [una frase]`;
     const categoriaFinal = catsEdit.join(', ');
     const delegacionesFinales = edicion.todasDelegaciones ? [] : [...(edicion.delegaciones || [])];
     if (!edicion.todasDelegaciones && edicion.nuevaDelegacion && edicion.nuevaDelegacion.trim()) delegacionesFinales.push(edicion.nuevaDelegacion.trim());
-    if ((edicion.equipos || []).length === 0) return;
+    if (!edicion.todosEquipos && (edicion.equipos || []).length === 0) return;
     if (!edicion.todasDelegaciones && delegacionesFinales.length === 0) return;
     const usuariosEdit = edicion.todaCompaniaUsuarios ? 0 : (Number(edicion.licenciasContratadas) || 1);
     const costeAnualCalc = edicion.sinCosteLicencia
@@ -5534,7 +5537,8 @@ RECOMENDACIÓN: [una frase]`;
       categoria: categoriaFinal,
       origen: edicion.origen === 'inhouse' ? 'inhouse' : 'externa',
       funcionalidades: edicion.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
-      equipos: edicion.equipos,
+      equipos: edicion.todosEquipos ? [] : edicion.equipos,
+      todosEquipos: !!edicion.todosEquipos,
       delegaciones: delegacionesFinales,
       todasDelegaciones: !!edicion.todasDelegaciones,
       todaCompaniaUsuarios: !!edicion.todaCompaniaUsuarios,
@@ -5890,22 +5894,40 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
           <div className="mb-4">
             <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Equipos que utilizan la herramienta <span className="text-red-600">*</span></label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {EQUIPOS_NEGOCIO.map(eq => {
-                const sel = nuevaHerr.equipos.includes(eq);
-                return (
-                  <button
-                    key={eq}
-                    type="button"
-                    onClick={() => setNuevaHerr({ ...nuevaHerr, equipos: sel ? nuevaHerr.equipos.filter(x => x !== eq) : [...nuevaHerr.equipos, eq] })}
-                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
-                  >
-                    {sel ? '+ ' : ''}{eq}
-                  </button>
-                );
-              })}
-            </div>
-            {nuevaHerr.equipos.length > 0 && <p className="text-[10px] text-stone-500">{nuevaHerr.equipos.length} {nuevaHerr.equipos.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'}</p>}
+            <button
+              type="button"
+              onClick={() => setNuevaHerr({ ...nuevaHerr, todosEquipos: !nuevaHerr.todosEquipos })}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border mb-2 ${
+                nuevaHerr.todosEquipos ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+              }`}
+            >
+              <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                nuevaHerr.todosEquipos ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+              }`}>
+                {nuevaHerr.todosEquipos && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+              </span>
+              Todos los equipos
+            </button>
+            {!nuevaHerr.todosEquipos && (
+              <>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {EQUIPOS_NEGOCIO.map(eq => {
+                    const sel = nuevaHerr.equipos.includes(eq);
+                    return (
+                      <button
+                        key={eq}
+                        type="button"
+                        onClick={() => setNuevaHerr({ ...nuevaHerr, equipos: sel ? nuevaHerr.equipos.filter(x => x !== eq) : [...nuevaHerr.equipos, eq] })}
+                        className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                      >
+                        {sel ? '+ ' : ''}{eq}
+                      </button>
+                    );
+                  })}
+                </div>
+                {nuevaHerr.equipos.length > 0 && <p className="text-[10px] text-stone-500">{nuevaHerr.equipos.length} {nuevaHerr.equipos.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'}</p>}
+              </>
+            )}
           </div>
 
           <div className="mb-4">
@@ -6060,7 +6082,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             disabled={
               !nuevaHerr.nombre.trim() ||
               !nuevaHerr.descripcion.trim() ||
-              nuevaHerr.equipos.length === 0 ||
+              (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) ||
               (!nuevaHerr.todasDelegaciones && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) ||
               (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) ||
               (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())
@@ -6071,7 +6093,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           </button>
           {(() => {
             const faltan = [];
-            if (nuevaHerr.equipos.length === 0) faltan.push('equipos');
+            if (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) faltan.push('equipos');
             if (!nuevaHerr.todasDelegaciones && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) faltan.push('delegaciones');
             if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) faltan.push('nº usuarios');
             if (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim()) faltan.push('categoría');
@@ -6249,9 +6271,11 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
       </div>
 
       {vistaCatalogo === 'por_uso' && (() => {
-        const equiposDeH = (h) => Array.isArray(h.equipos) && h.equipos.length > 0
-          ? (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : h.equipos)
-          : (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : []);
+        const equiposDeH = (h) => h.todosEquipos
+          ? [...EQUIPOS_NEGOCIO]
+          : (Array.isArray(h.equipos) && h.equipos.length > 0
+            ? (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : h.equipos)
+            : (h.todaCompaniaUsuarios ? [...EQUIPOS_NEGOCIO] : []));
         const delegacionesDeH = (h) => h.todasDelegaciones
           ? [...DELEGACIONES]
           : (Array.isArray(h.delegaciones) && h.delegaciones.length > 0
@@ -6260,8 +6284,10 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
         const filtradas = herramientas.filter(h => {
           if (busqueda && !h.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
           if (filtroPorUsoEquipos.length > 0) {
-            const eq = equiposDeH(h);
-            if (!filtroPorUsoEquipos.some(f => eq.includes(f))) return false;
+            if (!h.todosEquipos) {
+              const eq = equiposDeH(h);
+              if (!filtroPorUsoEquipos.some(f => eq.includes(f))) return false;
+            }
           }
           if (filtroPorUsoDelegaciones.length > 0) {
             if (!h.todasDelegaciones) {
@@ -6362,8 +6388,8 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                             <p className="text-[10px] text-stone-500">{cats}{h.origen === 'inhouse' ? ' · In-house' : ''}</p>
                           </td>
                           <td className="px-4 py-3">
-                            {h.todaCompaniaUsuarios ? (
-                              <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Toda la compañía</span>
+                            {h.todosEquipos ? (
+                              <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Todos los equipos</span>
                             ) : (
                               <div className="flex flex-wrap gap-0.5">
                                 {equipos.slice(0, 3).map(e => <span key={e} className="text-[10px] bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded">{e}</span>)}
@@ -6619,21 +6645,37 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
                 <div>
                   <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Equipos que utilizan la herramienta <span className="text-red-600">*</span></label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {EQUIPOS_NEGOCIO.map(eq => {
-                      const sel = (edicion.equipos || []).includes(eq);
-                      return (
-                        <button
-                          key={eq}
-                          type="button"
-                          onClick={() => setEdicion({ ...edicion, equipos: sel ? edicion.equipos.filter(x => x !== eq) : [...(edicion.equipos || []), eq] })}
-                          className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
-                        >
-                          {sel ? '+ ' : ''}{eq}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEdicion({ ...edicion, todosEquipos: !edicion.todosEquipos })}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border mb-2 ${
+                      edicion.todosEquipos ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                    }`}
+                  >
+                    <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                      edicion.todosEquipos ? 'bg-stone-50 border-stone-50' : 'border-stone-400'
+                    }`}>
+                      {edicion.todosEquipos && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                    </span>
+                    Todos los equipos
+                  </button>
+                  {!edicion.todosEquipos && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {EQUIPOS_NEGOCIO.map(eq => {
+                        const sel = (edicion.equipos || []).includes(eq);
+                        return (
+                          <button
+                            key={eq}
+                            type="button"
+                            onClick={() => setEdicion({ ...edicion, equipos: sel ? edicion.equipos.filter(x => x !== eq) : [...(edicion.equipos || []), eq] })}
+                            className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                          >
+                            {sel ? '+ ' : ''}{eq}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -6921,7 +6963,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                   >Cancelar</button>
                   <button
                     onClick={guardarEdicion}
-                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim()) || (edicion.equipos || []).length === 0 || (!edicion.todasDelegaciones && (edicion.delegaciones || []).length === 0 && !(edicion.nuevaDelegacion || '').trim())}
+                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim()) || (!edicion.todosEquipos && (edicion.equipos || []).length === 0) || (!edicion.todasDelegaciones && (edicion.delegaciones || []).length === 0 && !(edicion.nuevaDelegacion || '').trim())}
                     className="flex items-center gap-1.5 px-4 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
                   >
                     Guardar cambios
