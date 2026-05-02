@@ -49,11 +49,11 @@ const SEED_TALLERES = [
 ];
 
 const SEED_HERRAMIENTAS = [
-  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], areas: ['Toda la compañía'], licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, solicitudesLicencia: [
+  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], areas: ['Toda la compañía'], licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, solicitudesLicencia: [
     { id: 's1-h1', personaId: 'p17', fecha: '2026-04-22T10:00:00.000Z' },
     { id: 's2-h1', personaId: 'p26', fecha: '2026-04-25T09:30:00.000Z' },
   ] },
-  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', funcionalidades: ['Asistente IA', 'Productividad'], areas: ['Arquitectura', 'Valoraciones', 'Jurídico', 'Capital'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, alerta: 'Infrautilizada', solicitudesLicencia: [
+  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], areas: ['Arquitectura', 'Valoraciones', 'Jurídico', 'Capital'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, alerta: 'Infrautilizada', solicitudesLicencia: [
     { id: 's1-h2', personaId: 'p9', fecha: '2026-04-15T08:00:00.000Z' },
     { id: 's2-h2', personaId: 'p11', fecha: '2026-04-18T14:00:00.000Z' },
     { id: 's3-h2', personaId: 'p13', fecha: '2026-04-20T09:30:00.000Z' },
@@ -61,27 +61,32 @@ const SEED_HERRAMIENTAS = [
     { id: 's5-h2', personaId: 'p17', fecha: '2026-04-26T10:00:00.000Z' },
     { id: 's6-h2', personaId: 'p25', fecha: '2026-04-28T16:30:00.000Z' },
   ] },
-  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', funcionalidades: ['Sales Intelligence', 'Networking'], areas: ['Capital'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, alerta: 'Infrautilizada' },
-  { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Valoraciones'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, alerta: 'Duplica BI Suite B' },
-  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Arquitectura', 'Valoraciones', 'Property', 'Capital'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, solicitudesLicencia: [
+  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], areas: ['Capital'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, alerta: 'Infrautilizada' },
+  { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Valoraciones'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, alerta: 'Duplica BI Suite B' },
+  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], areas: ['Arquitectura', 'Valoraciones', 'Property', 'Capital'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, solicitudesLicencia: [
     { id: 's1-h5', personaId: 'p18', fecha: '2026-04-19T12:00:00.000Z' },
     { id: 's2-h5', personaId: 'p21', fecha: '2026-04-24T10:45:00.000Z' },
   ] },
-  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', funcionalidades: ['Firma electrónica'], areas: ['Toda la compañía'], licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, solicitudesLicencia: [
+  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], areas: ['Toda la compañía'], licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, solicitudesLicencia: [
     { id: 's1-h6', personaId: 'p13', fecha: '2026-04-21T15:00:00.000Z' },
     { id: 's2-h6', personaId: 'p20', fecha: '2026-04-23T09:15:00.000Z' },
     { id: 's3-h6', personaId: 'p22', fecha: '2026-04-25T13:30:00.000Z' },
     { id: 's4-h6', personaId: 'p26', fecha: '2026-04-27T11:00:00.000Z' },
   ] },
-  { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', funcionalidades: ['Firma electrónica'], areas: ['Property'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, alerta: 'Duplica Firma Digital A' },
-  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', funcionalidades: ['Gestión documental'], areas: ['Arquitectura', 'Valoraciones'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, solicitudesLicencia: [
+  { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], areas: ['Property'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, alerta: 'Duplica Firma Digital A' },
+  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental'], areas: ['Arquitectura', 'Valoraciones'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, solicitudesLicencia: [
     { id: 's1-h8', personaId: 'p24', fecha: '2026-04-22T08:30:00.000Z' },
   ] },
-  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', funcionalidades: ['Gestión documental', 'Property'], areas: ['Property'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, solicitudesLicencia: [
+  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental', 'Property'], areas: ['Property'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, solicitudesLicencia: [
     { id: 's1-h9', personaId: 'p17', fecha: '2026-04-20T10:00:00.000Z' },
     { id: 's2-h9', personaId: 'p19', fecha: '2026-04-24T15:30:00.000Z' },
     { id: 's3-h9', personaId: 'p23', fecha: '2026-04-26T09:45:00.000Z' },
   ] },
+  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], areas: ['Property', 'Capital', 'Arquitectura'], licenciasContratadas: 50, licenciasActivas: 32, costeAnual: 0, solicitudesLicencia: [
+    { id: 's1-h10', personaId: 'p9', fecha: '2026-04-25T11:00:00.000Z' },
+    { id: 's2-h10', personaId: 'p18', fecha: '2026-04-27T14:30:00.000Z' },
+  ] },
+  { id: 'h11', nombre: 'Repositorio 360', descripcion: 'Repositorio documental 360º conectado a Plataforma Integrada. Mockup funcional construido por IT Local.', categoria: 'Documental', origen: 'inhouse', funcionalidades: ['Gestión documental', 'Property', 'Visión 360'], areas: ['Property', 'Arquitectura'], licenciasContratadas: 30, licenciasActivas: 12, costeAnual: 0 },
 ];
 
 const SEED_INICIATIVAS = [
@@ -4577,6 +4582,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [vistaAlta, setVistaAlta] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState('todas');
   const [filtroEstado, setFiltroEstado] = useState('todas');
+  const [filtroOrigen, setFiltroOrigen] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
 
   const [editandoId, setEditandoId] = useState(null);
@@ -4587,6 +4593,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
     descripcion: '',
     categorias: [],
     nuevaCategoria: '',
+    origen: 'externa',
     funcionalidades: '',
     areas: '',
     todaCompania: false,
@@ -4689,6 +4696,7 @@ RECOMENDACIÓN: [una frase]`;
       nombre: nuevaHerr.nombre.trim(),
       descripcion: nuevaHerr.descripcion.trim(),
       categoria: categoriaFinal,
+      origen: nuevaHerr.origen === 'inhouse' ? 'inhouse' : 'externa',
       funcionalidades: nuevaHerr.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
       areas: areasFinal,
       licenciasContratadas: Number(nuevaHerr.licenciasContratadas) || 1,
@@ -4714,6 +4722,7 @@ RECOMENDACIÓN: [una frase]`;
       descripcion: h.descripcion || '',
       categoriasSel: categoriasDe(h),
       nuevaCategoria: '',
+      origen: h.origen === 'inhouse' ? 'inhouse' : 'externa',
       funcionalidades: (h.funcionalidades || []).join(', '),
       areas: (h.areas || []).filter(a => a !== 'Toda la compañía').join(', '),
       todaCompania: (h.areas || []).includes('Toda la compañía'),
@@ -4743,6 +4752,7 @@ RECOMENDACIÓN: [una frase]`;
       nombre: edicion.nombre.trim(),
       descripcion: edicion.descripcion.trim(),
       categoria: categoriaFinal,
+      origen: edicion.origen === 'inhouse' ? 'inhouse' : 'externa',
       funcionalidades: edicion.funcionalidades.split(',').map(f => f.trim()).filter(Boolean),
       areas: areasFinal,
       licenciasContratadas: Number(edicion.licenciasContratadas) || 1,
@@ -4768,16 +4778,18 @@ RECOMENDACIÓN: [una frase]`;
 
   const personaById = Object.fromEntries((personas || []).map(p => [p.id, p]));
 
-  const solicitarLicencia = async (herramientaId, personaId) => {
-    if (!personaId) return;
+  const solicitarLicencia = async (herramientaId, { personaId, nombre } = {}) => {
+    const nombreLimpio = (nombre || '').trim();
+    if (!personaId && !nombreLimpio) return;
     const nuevas = herramientas.map(h => {
       if (h.id !== herramientaId) return h;
       const sols = h.solicitudesLicencia || [];
-      if (sols.some(s => s.personaId === personaId)) return h;
-      return {
-        ...h,
-        solicitudesLicencia: [...sols, { id: `s-${Date.now()}`, personaId, fecha: new Date().toISOString() }],
-      };
+      if (personaId && sols.some(s => s.personaId === personaId)) return h;
+      if (!personaId && nombreLimpio && sols.some(s => (s.nombre || '').toLowerCase() === nombreLimpio.toLowerCase())) return h;
+      const nueva = { id: `s-${Date.now()}`, fecha: new Date().toISOString() };
+      if (personaId) nueva.personaId = personaId;
+      else nueva.nombre = nombreLimpio;
+      return { ...h, solicitudesLicencia: [...sols, nueva] };
     });
     await setHerramientas(nuevas);
   };
@@ -4817,10 +4829,13 @@ RECOMENDACIÓN: [una frase]`;
     setBorrandoCategoria({ cat, soloEsta, tienenOtras, destino: '' });
   };
 
+  const origenDe = (h) => h.origen === 'inhouse' ? 'inhouse' : 'externa';
+
   const herramientasFiltradas = herramientas.filter(h => {
     if (filtroCategoria !== 'todas' && !categoriasDe(h).includes(filtroCategoria)) return false;
     if (filtroEstado === 'alertas' && !h.alerta) return false;
     if (filtroEstado === 'ok' && h.alerta) return false;
+    if (filtroOrigen !== 'todos' && origenDe(h) !== filtroOrigen) return false;
     if (busqueda && !h.nombre.toLowerCase().includes(busqueda.toLowerCase()) && !(h.descripcion || '').toLowerCase().includes(busqueda.toLowerCase())) return false;
     return true;
   });
@@ -4922,6 +4937,24 @@ RECOMENDACIÓN: [una frase]`;
             rows={2}
             className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
           />
+
+          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Origen</label>
+          <div className="flex gap-1 mb-3">
+            {[
+              { v: 'externa', l: 'Externa', d: 'Software contratado a un tercero' },
+              { v: 'inhouse', l: 'In-house', d: 'Desarrollada internamente por la compañía' },
+            ].map(opt => (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => setNuevaHerr({ ...nuevaHerr, origen: opt.v })}
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all border ${
+                  nuevaHerr.origen === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+                }`}
+                title={opt.d}
+              >{opt.l}</button>
+            ))}
+          </div>
 
           <div className="mb-4">
             <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(una herramienta puede pertenecer a varias)</span></label>
@@ -5168,6 +5201,11 @@ RECOMENDACIÓN: [una frase]`;
           <option value="ok">Sin alertas</option>
           <option value="alertas">Con alertas</option>
         </select>
+        <select value={filtroOrigen} onChange={e => setFiltroOrigen(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none" title="Creada por">
+          <option value="todos">Creada por: todas</option>
+          <option value="externa">Externa</option>
+          <option value="inhouse">In-house</option>
+        </select>
         <span className="ml-auto text-xs text-stone-500">{herramientasFiltradas.length} herramientas</span>
       </div>
 
@@ -5232,9 +5270,12 @@ RECOMENDACIÓN: [una frase]`;
                         onClick={() => abrirDetalle(h)}
                         className={`text-left bg-white border border-stone-200 ${accent} border-l-4 rounded-lg p-3 hover:shadow-md hover:border-navy-700 transition-all w-full`}
                       >
-                        <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-start justify-between gap-2 mb-1">
                           <p className="text-sm font-semibold text-navy-900 leading-tight line-clamp-2 flex-1">{h.nombre}</p>
                           <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold flex-shrink-0 ${badge}`}>{u.label}</span>
+                        </div>
+                        <div className="flex items-center gap-1 mb-2">
+                          <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold ${origenDe(h) === 'inhouse' ? 'bg-navy-100 text-navy-800' : 'bg-stone-100 text-stone-700'}`}>{origenDe(h) === 'inhouse' ? 'In-house' : 'Externa'}</span>
                         </div>
 
                         <div className="flex items-center gap-1.5 mb-2">
@@ -5304,6 +5345,26 @@ RECOMENDACIÓN: [una frase]`;
                     rows={2}
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none"
                   />
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Origen</label>
+                  <div className="flex gap-1">
+                    {[
+                      { v: 'externa', l: 'Externa', d: 'Software contratado a un tercero' },
+                      { v: 'inhouse', l: 'In-house', d: 'Desarrollada internamente por la compañía' },
+                    ].map(opt => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setEdicion({ ...edicion, origen: opt.v })}
+                        className={`flex-1 py-2 rounded-md text-sm font-medium transition-all border ${
+                          edicion.origen === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+                        }`}
+                        title={opt.d}
+                      >{opt.l}</button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
@@ -5426,7 +5487,15 @@ RECOMENDACIÓN: [una frase]`;
                 {(() => {
                   const sols = herramientaOriginal?.solicitudesLicencia || [];
                   const yaSolicitada = usuarioActualId && sols.some(s => s.personaId === usuarioActualId);
-                  const personasSinLicencia = (personas || []).filter(p => p.id !== usuarioActualId && !sols.some(s => s.personaId === p.id));
+                  const datalistId = `personas-solicitar-${editandoId}`;
+                  const submitOtraPersona = () => {
+                    const valor = (solicitarDesdePersona || '').trim();
+                    if (!valor) return;
+                    const match = (personas || []).find(p => p.nombre.toLowerCase() === valor.toLowerCase());
+                    if (match) solicitarLicencia(editandoId, { personaId: match.id });
+                    else solicitarLicencia(editandoId, { nombre: valor });
+                    setSolicitarDesdePersona('');
+                  };
                   return (
                     <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
                       <div className="flex items-center justify-between mb-3">
@@ -5444,15 +5513,20 @@ RECOMENDACIÓN: [una frase]`;
                       ) : (
                         <ul className="space-y-1.5 mb-3 max-h-40 overflow-y-auto">
                           {sols.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).map(s => {
-                            const p = personaById[s.personaId];
-                            const inic = p ? p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() : '?';
+                            const p = s.personaId ? personaById[s.personaId] : null;
+                            const nombreMostrado = p?.nombre || s.nombre || 'Persona desconocida';
+                            const equipoMostrado = p ? getEquipo(p) : (s.nombre ? 'No registrado en el sistema' : '');
+                            const inic = nombreMostrado !== 'Persona desconocida'
+                              ? nombreMostrado.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
+                              : '?';
                             const fechaRel = s.fecha ? formatFecha(s.fecha, true) : '';
+                            const externa = !p && s.nombre;
                             return (
                               <li key={s.id} className="flex items-center gap-2 bg-white border border-stone-200 rounded-md px-2 py-1.5">
-                                <div className="w-5 h-5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[9px] flex-shrink-0">{inic}</div>
+                                <div className={`w-5 h-5 rounded-full text-stone-50 flex items-center justify-center font-semibold text-[9px] flex-shrink-0 ${externa ? 'bg-stone-500' : 'bg-navy-900'}`}>{inic}</div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-stone-800 truncate">{p?.nombre || 'Persona desconocida'}</p>
-                                  {p && <p className="text-[10px] text-stone-500 truncate">{getEquipo(p)}</p>}
+                                  <p className="text-xs font-semibold text-stone-800 truncate">{nombreMostrado}</p>
+                                  {equipoMostrado && <p className="text-[10px] text-stone-500 truncate italic">{equipoMostrado}</p>}
                                 </div>
                                 <span className="text-[10px] text-stone-500 flex-shrink-0">{fechaRel}</span>
                                 <button
@@ -5480,36 +5554,33 @@ RECOMENDACIÓN: [una frase]`;
                             >Cancelar mi solicitud</button>
                           ) : (
                             <button
-                              onClick={() => solicitarLicencia(editandoId, usuarioActualId)}
+                              onClick={() => solicitarLicencia(editandoId, { personaId: usuarioActualId })}
                               className="text-xs px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md font-medium transition-colors"
                             >Solicitar licencia para mí</button>
                           )
                         )}
-                        {personasSinLicencia.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <select
-                              value={solicitarDesdePersona}
-                              onChange={e => setSolicitarDesdePersona(e.target.value)}
-                              className="text-xs bg-white border border-stone-200 rounded-md px-2 py-1.5 outline-none focus:border-navy-700"
-                            >
-                              <option value="">— Solicitar para otra persona —</option>
-                              {personasSinLicencia.map(p => (
-                                <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>
-                              ))}
-                            </select>
-                            <button
-                              onClick={() => {
-                                if (solicitarDesdePersona) {
-                                  solicitarLicencia(editandoId, solicitarDesdePersona);
-                                  setSolicitarDesdePersona('');
-                                }
-                              }}
-                              disabled={!solicitarDesdePersona}
-                              className="text-xs px-2 py-1.5 bg-stone-200 hover:bg-stone-300 disabled:opacity-40 text-stone-800 rounded-md font-medium transition-colors"
-                            >Añadir</button>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1 flex-1 min-w-[240px]">
+                          <input
+                            list={datalistId}
+                            value={solicitarDesdePersona}
+                            onChange={e => setSolicitarDesdePersona(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitOtraPersona(); } }}
+                            placeholder="Solicitar para otra persona (escribe el nombre)…"
+                            className="flex-1 text-xs bg-white border border-stone-200 rounded-md px-2 py-1.5 outline-none focus:border-navy-700"
+                          />
+                          <datalist id={datalistId}>
+                            {(personas || []).filter(p => !sols.some(s => s.personaId === p.id)).map(p => (
+                              <option key={p.id} value={p.nombre}>{getEquipo(p)}</option>
+                            ))}
+                          </datalist>
+                          <button
+                            onClick={submitOtraPersona}
+                            disabled={!solicitarDesdePersona.trim()}
+                            className="text-xs px-2 py-1.5 bg-stone-200 hover:bg-stone-300 disabled:opacity-40 text-stone-800 rounded-md font-medium transition-colors"
+                          >Añadir</button>
+                        </div>
                       </div>
+                      <p className="text-[10px] text-stone-500 mt-2 italic">Si la persona no está registrada en el sistema, IT verá la solicitud con el nombre que escribas.</p>
                     </div>
                   );
                 })()}
