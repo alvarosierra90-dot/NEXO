@@ -3892,12 +3892,54 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   };
 
   const toggleObjetivo = async (objId) => {
-    await guardarObjetivos(objetivos.map(o => o.id === objId ? { ...o, estado: o.estado === 'completado' ? 'pendiente' : 'completado' } : o));
+    const obj = objetivos.find(o => o.id === objId);
+    if (!obj) return;
+    const nuevoEstado = obj.estado === 'completado' ? 'pendiente' : 'completado';
+    let eventoCumplimientoId = obj.eventoCumplimientoId || null;
+
+    if (nuevoEstado === 'completado') {
+      const nuevoEvento = {
+        id: `e-obj-${Date.now()}`,
+        tallerId: taller.id,
+        fecha: new Date().toISOString().slice(0, 10),
+        tipo: 'hito',
+        titulo: `Objetivo cumplido: ${obj.titulo}`,
+        descripcion: `Objetivo "${obj.titulo}" del taller marcado como completado.`,
+        autorId: usuarioActualId || null,
+        objetivoId: obj.id,
+      };
+      if (setHistorico && historico) {
+        await setHistorico([...historico, nuevoEvento]);
+      }
+      eventoCumplimientoId = nuevoEvento.id;
+    } else {
+      if (eventoCumplimientoId && setHistorico && historico) {
+        await setHistorico(historico.filter(e => e.id !== eventoCumplimientoId));
+      }
+      eventoCumplimientoId = null;
+    }
+
+    await guardarObjetivos(objetivos.map(o => o.id === objId ? { ...o, estado: nuevoEstado, eventoCumplimientoId } : o));
   };
 
   const eliminarObjetivo = async (objId) => {
     if (!confirm('¿Eliminar este objetivo?')) return;
+    const obj = objetivos.find(o => o.id === objId);
+    if (obj?.eventoCumplimientoId && setHistorico && historico) {
+      await setHistorico(historico.filter(e => e.id !== obj.eventoCumplimientoId));
+    }
     await guardarObjetivos(objetivos.filter(o => o.id !== objId));
+  };
+
+  const [objetivoActivoId, setObjetivoActivoId] = useState(null);
+
+  const toggleReunionEnObjetivo = async (objId, reunionId) => {
+    await guardarObjetivos(objetivos.map(o => {
+      if (o.id !== objId) return o;
+      const linked = o.reunionIds || [];
+      const yaVinculada = linked.includes(reunionId);
+      return { ...o, reunionIds: yaVinculada ? linked.filter(id => id !== reunionId) : [...linked, reunionId] };
+    }));
   };
 
   // Documentos
@@ -4076,6 +4118,138 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           <Settings size={12} /> Editar taller
         </button>
       </div>
+
+      {objetivoActivoId && (() => {
+        const obj = objetivos.find(o => o.id === objetivoActivoId);
+        if (!obj) return null;
+        const reunionesDelTaller = (reuniones || []).filter(r => (r.tallerIds || []).includes(taller.id));
+        const linkedIds = obj.reunionIds || [];
+        const reunionesVinculadas = reunionesDelTaller.filter(r => linkedIds.includes(r.id));
+        const reunionesDisponibles = reunionesDelTaller.filter(r => !linkedIds.includes(r.id));
+        const personasUnicas = [...new Set(reunionesVinculadas.flatMap(r => r.asistentes || []))]
+          .map(id => personas.find(p => p.id === id))
+          .filter(Boolean);
+        const completado = obj.estado === 'completado';
+        return (
+          <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setObjetivoActivoId(null)}>
+            <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+              <div className="p-6 border-b border-stone-200 flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${completado ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-700'}`}>
+                      {completado ? '✓ Cumplido' : 'Pendiente'}
+                    </span>
+                    <span className="text-xs text-stone-500 flex items-center gap-1">
+                      <Calendar size={11} /> {formatFecha(obj.fecha)}
+                    </span>
+                  </div>
+                  <h2 className="font-serif text-2xl text-navy-900">{obj.titulo}</h2>
+                </div>
+                <button onClick={() => setObjetivoActivoId(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto p-6 space-y-5">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Personas con las que te has reunido <span className="normal-case text-stone-400 font-normal">· {personasUnicas.length}</span></p>
+                  {personasUnicas.length === 0 ? (
+                    <p className="text-xs text-stone-500 italic">Aún no hay reuniones vinculadas a este objetivo. Marca abajo qué reuniones del taller están relacionadas.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {personasUnicas.map(p => {
+                        const inic = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                        return (
+                          <div key={p.id} className="flex items-center gap-1.5 bg-stone-50 border border-stone-200 rounded-md px-2 py-1">
+                            <div className="w-6 h-6 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[10px]">{inic}</div>
+                            <div className="text-xs">
+                              <p className="font-semibold text-stone-800 leading-tight">{p.nombre}</p>
+                              <p className="text-[10px] text-stone-500 leading-tight">{getEquipo(p)}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Reuniones vinculadas a este objetivo <span className="normal-case text-stone-400 font-normal">· {reunionesVinculadas.length}</span></p>
+                  {reunionesVinculadas.length === 0 ? (
+                    <p className="text-xs text-stone-500 italic">Ninguna todavía.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {reunionesVinculadas.map(r => {
+                        const asistentes = (r.asistentes || []).map(id => personas.find(p => p.id === id)).filter(Boolean);
+                        return (
+                          <div key={r.id} className="bg-emerald-50 border border-emerald-200 rounded-md p-3">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Mic size={12} className="text-emerald-700 flex-shrink-0" />
+                                  <p className="text-sm font-bold text-navy-900">{r.titulo}</p>
+                                </div>
+                                <p className="text-[11px] text-stone-600 mt-0.5">{r.fecha ? formatFecha(r.fecha) : 'Sin fecha'} · {asistentes.length} {asistentes.length === 1 ? 'asistente' : 'asistentes'}</p>
+                              </div>
+                              <button
+                                onClick={() => toggleReunionEnObjetivo(obj.id, r.id)}
+                                className="text-[11px] text-emerald-700 hover:text-emerald-900 underline flex-shrink-0"
+                              >Desvincular</button>
+                            </div>
+                            {asistentes.length > 0 && (
+                              <div className="flex items-center gap-1 mt-2 flex-wrap">
+                                {asistentes.map(p => (
+                                  <span key={p.id} className="text-[10px] bg-white border border-stone-200 text-stone-700 px-1.5 py-0.5 rounded">{p.nombre}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {reunionesDisponibles.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Otras reuniones del taller <span className="normal-case text-stone-400 font-normal">· vincula las que estén relacionadas</span></p>
+                    <div className="space-y-2">
+                      {reunionesDisponibles.map(r => {
+                        const asistentes = (r.asistentes || []).map(id => personas.find(p => p.id === id)).filter(Boolean);
+                        return (
+                          <div key={r.id} className="bg-white border border-stone-200 rounded-md p-3 flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Mic size={12} className="text-stone-500 flex-shrink-0" />
+                                <p className="text-sm font-semibold text-stone-800">{r.titulo}</p>
+                              </div>
+                              <p className="text-[11px] text-stone-500 mt-0.5">{r.fecha ? formatFecha(r.fecha) : 'Sin fecha'} · {asistentes.length} {asistentes.length === 1 ? 'asistente' : 'asistentes'}</p>
+                            </div>
+                            <button
+                              onClick={() => toggleReunionEnObjetivo(obj.id, r.id)}
+                              className="text-[11px] px-2 py-1 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded font-semibold transition-colors flex-shrink-0"
+                            >Vincular</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {reunionesDelTaller.length === 0 && (
+                  <div className="bg-stone-50 border border-stone-200 rounded-md p-4 text-xs text-stone-600">
+                    Este taller todavía no tiene reuniones registradas. Crea una desde la pestaña <span className="font-semibold">Reuniones</span> y vincúlala a este taller para que aparezca aquí.
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 border-t border-stone-200 flex items-center justify-end">
+                <button onClick={() => setObjetivoActivoId(null)} className="px-4 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium transition-colors">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {editandoTaller && (
         <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setEditandoTaller(false)}>
@@ -4462,8 +4636,18 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                   >
                     {completado && <CheckCircle2 size={14} className="text-white" />}
                   </button>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{obj.titulo}</p>
+                  <button
+                    onClick={() => setObjetivoActivoId(obj.id)}
+                    className="flex-1 min-w-0 text-left hover:bg-white/60 rounded px-1 py-0.5 transition-colors group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900 group-hover:text-navy-950'}`}>{obj.titulo}</p>
+                      {(obj.reunionIds || []).length > 0 && (
+                        <span className="flex items-center gap-0.5 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-navy-100 text-navy-800 font-bold flex-shrink-0">
+                          <Mic size={9} /> {(obj.reunionIds || []).length}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-3 text-xs mt-1 flex-wrap">
                       <span className={`flex items-center gap-1 font-medium ${completado ? 'text-stone-400' : vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-600'}`}>
                         <Calendar size={11} /> {formatFecha(obj.fecha)}
@@ -4474,8 +4658,9 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                         </span>
                       )}
                       {completado && <span className="text-emerald-700 font-bold">✓ Completado</span>}
+                      <span className="ml-auto text-[10px] text-stone-500 opacity-0 group-hover:opacity-100 transition-opacity">Pulsa para ver reuniones →</span>
                     </div>
-                  </div>
+                  </button>
                   <button onClick={() => eliminarObjetivo(obj.id)} className="text-stone-400 hover:text-red-700 transition-colors p-1" title="Eliminar">
                     <X size={14} />
                   </button>
