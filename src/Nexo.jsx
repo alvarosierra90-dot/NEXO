@@ -5325,6 +5325,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [subTabEquiposAlta, setSubTabEquiposAlta] = useState('transaccional');
   const [subTabEquiposEdicion, setSubTabEquiposEdicion] = useState('transaccional');
   const [subTabEquiposPorUso, setSubTabEquiposPorUso] = useState('transaccional');
+  const [requierenAtencionAbierto, setRequierenAtencionAbierto] = useState(false);
   const [filtroPorUsoEquipos, setFiltroPorUsoEquipos] = useState([]);
   const [filtroPorUsoDelegaciones, setFiltroPorUsoDelegaciones] = useState([]);
   const [filtroPorUsoCategorias, setFiltroPorUsoCategorias] = useState([]);
@@ -6279,16 +6280,21 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
         </div>
       </div>
 
-      {/* Lista compacta de las que requieren atención */}
+      {/* Lista compacta de las que requieren atención (colapsable) */}
       {requierenAtencion.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <button
+            onClick={() => setRequierenAtencionAbierto(!requierenAtencionAbierto)}
+            className="w-full flex items-center justify-between mb-3 flex-wrap gap-2 text-left hover:bg-stone-50 -mx-2 px-2 py-1 rounded transition-colors"
+          >
             <div className="flex items-center gap-2">
+              <ChevronRight size={14} className={`text-red-700 transition-transform ${requierenAtencionAbierto ? 'rotate-90' : ''}`} />
               <p className="eyebrow text-red-700">Requieren acción</p>
               <span className="text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">{requierenAtencion.length}</span>
             </div>
-            <p className="text-xs text-stone-500 font-medium">Click para revisar cada herramienta</p>
-          </div>
+            <p className="text-xs text-stone-500 font-medium">{requierenAtencionAbierto ? 'Pulsa para ocultar' : 'Pulsa para ver el detalle'}</p>
+          </button>
+          {requierenAtencionAbierto && (
           <div className="bg-white border border-stone-200 rounded-2xl divide-y divide-stone-100 overflow-hidden">
             {requierenAtencion.map(h => {
               const u = h.usoEstado;
@@ -6334,6 +6340,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               );
             })}
           </div>
+          )}
         </div>
       )}
 
