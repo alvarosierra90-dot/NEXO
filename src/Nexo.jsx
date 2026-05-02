@@ -49,11 +49,11 @@ const SEED_TALLERES = [
 ];
 
 const SEED_HERRAMIENTAS = [
-  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], equipos: [], todosEquipos: true, todaCompaniaUsuarios: true, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, sinCosteLicencia: false, tipoLicencia: 'Suscripción anual', solicitudesLicencia: [
+  { id: 'h1', nombre: 'CRM corporativo', descripcion: 'CRM principal de la compañía. Pipeline comercial, gestión de cuentas y facturación integrada.', categoria: 'CRM', origen: 'externa', funcionalidades: ['CRM', 'Pipeline', 'Facturación'], equipos: [], todosEquipos: true, todaCompaniaUsuarios: true, numeroUsuarios: 0, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 200, licenciasActivas: 175, costeAnual: 50000, sinCosteLicencia: false, tipoLicencia: 'Suscripción anual', solicitudesLicencia: [
     { id: 's1-h1', personaId: 'p17', fecha: '2026-04-22T10:00:00.000Z' },
     { id: 's2-h1', personaId: 'p26', fecha: '2026-04-25T09:30:00.000Z' },
   ] },
-  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], equipos: ['Arquitectura', 'Valoraciones', 'Capital Markets', 'Financiero'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/mes', alerta: 'Infrautilizada', solicitudesLicencia: [
+  { id: 'h2', nombre: 'Asistente IA productividad', descripcion: 'Asistente de IA generativa integrado en la suite ofimática. Borradores, resúmenes, análisis de documentos.', categoria: 'IA', origen: 'externa', funcionalidades: ['Asistente IA', 'Productividad'], equipos: ['Arquitectura', 'Valoraciones', 'Capital Markets', 'Financiero'], todaCompaniaUsuarios: false, numeroUsuarios: 120, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 100, licenciasActivas: 60, costeAnual: 30000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/mes', alerta: 'Infrautilizada', solicitudesLicencia: [
     { id: 's1-h2', personaId: 'p9', fecha: '2026-04-15T08:00:00.000Z' },
     { id: 's2-h2', personaId: 'p11', fecha: '2026-04-18T14:00:00.000Z' },
     { id: 's3-h2', personaId: 'p13', fecha: '2026-04-20T09:30:00.000Z' },
@@ -61,32 +61,32 @@ const SEED_HERRAMIENTAS = [
     { id: 's5-h2', personaId: 'p17', fecha: '2026-04-26T10:00:00.000Z' },
     { id: 's6-h2', personaId: 'p25', fecha: '2026-04-28T16:30:00.000Z' },
   ] },
-  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], equipos: ['Capital Markets', 'Desarrollo de Negocio'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Infrautilizada' },
-  { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Valoraciones'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Duplica BI Suite B' },
-  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Arquitectura', 'Valoraciones', 'Property Management', 'Capital Markets'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona', 'Valencia'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
+  { id: 'h3', nombre: 'Sales Intelligence', descripcion: 'Herramienta de inteligencia comercial: networking, contactos, oportunidades cruzadas.', categoria: 'Sales Intelligence', origen: 'externa', funcionalidades: ['Sales Intelligence', 'Networking'], equipos: ['Capital Markets', 'Desarrollo de Negocio'], todaCompaniaUsuarios: false, numeroUsuarios: 45, delegaciones: ['Madrid'], licenciasContratadas: 40, licenciasActivas: 15, costeAnual: 18000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Infrautilizada' },
+  { id: 'h4', nombre: 'BI Suite A', descripcion: 'Herramienta BI legacy en el área de Valoraciones. Dashboards y reporting.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Valoraciones'], todaCompaniaUsuarios: false, numeroUsuarios: 22, delegaciones: ['Madrid'], licenciasContratadas: 20, licenciasActivas: 8, costeAnual: 12000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', alerta: 'Duplica BI Suite B' },
+  { id: 'h5', nombre: 'BI Suite B', descripcion: 'Herramienta BI estándar de la compañía. Dashboards, reporting e integración con CRM.', categoria: 'BI', origen: 'externa', funcionalidades: ['BI', 'Reporting', 'Dashboards'], equipos: ['Arquitectura', 'Valoraciones', 'Property Management', 'Capital Markets'], todaCompaniaUsuarios: false, numeroUsuarios: 110, delegaciones: ['Madrid', 'Barcelona', 'Valencia'], licenciasContratadas: 100, licenciasActivas: 90, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h5', personaId: 'p18', fecha: '2026-04-19T12:00:00.000Z' },
     { id: 's2-h5', personaId: 'p21', fecha: '2026-04-24T10:45:00.000Z' },
   ] },
-  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: [], todosEquipos: true, todaCompaniaUsuarios: true, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, sinCosteLicencia: false, tipoLicencia: 'Por firma', solicitudesLicencia: [
+  { id: 'h6', nombre: 'Firma Digital A', descripcion: 'Plataforma estándar de firma electrónica corporativa.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: [], todosEquipos: true, todaCompaniaUsuarios: true, numeroUsuarios: 0, delegaciones: [], todasDelegaciones: true, licenciasContratadas: 60, licenciasActivas: 55, costeAnual: 9000, sinCosteLicencia: false, tipoLicencia: 'Por firma', solicitudesLicencia: [
     { id: 's1-h6', personaId: 'p13', fecha: '2026-04-21T15:00:00.000Z' },
     { id: 's2-h6', personaId: 'p20', fecha: '2026-04-23T09:15:00.000Z' },
     { id: 's3-h6', personaId: 'p22', fecha: '2026-04-25T13:30:00.000Z' },
     { id: 's4-h6', personaId: 'p26', fecha: '2026-04-27T11:00:00.000Z' },
   ] },
-  { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: ['Property Management'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, sinCosteLicencia: false, tipoLicencia: 'Por firma', alerta: 'Duplica Firma Digital A' },
-  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental'], equipos: ['Arquitectura', 'Valoraciones'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
+  { id: 'h7', nombre: 'Firma Digital B', descripcion: 'Plataforma alternativa de firma electrónica activa solo en Property.', categoria: 'Firma', origen: 'externa', funcionalidades: ['Firma electrónica'], equipos: ['Property Management'], todaCompaniaUsuarios: false, numeroUsuarios: 12, delegaciones: ['Madrid'], licenciasContratadas: 10, licenciasActivas: 3, costeAnual: 6000, sinCosteLicencia: false, tipoLicencia: 'Por firma', alerta: 'Duplica Firma Digital A' },
+  { id: 'h8', nombre: 'Repositorio documental', descripcion: 'Gestor documental corporativo para áreas técnicas.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental'], equipos: ['Arquitectura', 'Valoraciones'], todaCompaniaUsuarios: false, numeroUsuarios: 95, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 80, licenciasActivas: 70, costeAnual: 20000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h8', personaId: 'p24', fecha: '2026-04-22T08:30:00.000Z' },
   ] },
-  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental', 'Property'], equipos: ['Property Management'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona', 'Valencia', 'Sevilla'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
+  { id: 'h9', nombre: 'Doc Manager Property', descripcion: 'Gestor documental específico de Property Management implantado en primera oleada.', categoria: 'Documental', origen: 'externa', funcionalidades: ['Gestión documental', 'Property'], equipos: ['Property Management'], todaCompaniaUsuarios: false, numeroUsuarios: 28, delegaciones: ['Madrid', 'Barcelona', 'Valencia', 'Sevilla'], licenciasContratadas: 25, licenciasActivas: 24, costeAnual: 15000, sinCosteLicencia: false, tipoLicencia: 'Por usuario/año', solicitudesLicencia: [
     { id: 's1-h9', personaId: 'p17', fecha: '2026-04-20T10:00:00.000Z' },
     { id: 's2-h9', personaId: 'p19', fecha: '2026-04-24T15:30:00.000Z' },
     { id: 's3-h9', personaId: 'p23', fecha: '2026-04-26T09:45:00.000Z' },
   ] },
-  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], equipos: ['Property Management', 'Capital Markets', 'Arquitectura', 'IT'], todaCompaniaUsuarios: false, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 50, licenciasActivas: 32, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '', solicitudesLicencia: [
+  { id: 'h10', nombre: 'Plataforma Integrada', descripcion: 'Plataforma interna end-to-end que conecta equipos, activos y propietarios. Integración con CRM corporativo y Data Lake. Desarrollada por el equipo de IT Local.', categoria: 'Property Database', origen: 'inhouse', funcionalidades: ['Property', 'Pipeline', 'Integración CRM', 'Data Lake'], equipos: ['Property Management', 'Capital Markets', 'Arquitectura', 'IT'], todaCompaniaUsuarios: false, numeroUsuarios: 60, delegaciones: ['Madrid', 'Barcelona'], licenciasContratadas: 0, licenciasActivas: 0, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '', solicitudesLicencia: [
     { id: 's1-h10', personaId: 'p9', fecha: '2026-04-25T11:00:00.000Z' },
     { id: 's2-h10', personaId: 'p18', fecha: '2026-04-27T14:30:00.000Z' },
   ] },
-  { id: 'h11', nombre: 'Repositorio 360', descripcion: 'Repositorio documental 360º conectado a Plataforma Integrada. Mockup funcional construido por IT Local.', categoria: 'Documental', origen: 'inhouse', funcionalidades: ['Gestión documental', 'Property', 'Visión 360'], equipos: ['Property Management', 'Arquitectura'], todaCompaniaUsuarios: false, delegaciones: ['Madrid'], licenciasContratadas: 30, licenciasActivas: 12, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '' },
+  { id: 'h11', nombre: 'Repositorio 360', descripcion: 'Repositorio documental 360º conectado a Plataforma Integrada. Mockup funcional construido por IT Local.', categoria: 'Documental', origen: 'inhouse', funcionalidades: ['Gestión documental', 'Property', 'Visión 360'], equipos: ['Property Management', 'Arquitectura'], todaCompaniaUsuarios: false, numeroUsuarios: 35, delegaciones: ['Madrid'], licenciasContratadas: 0, licenciasActivas: 0, costeAnual: 0, sinCosteLicencia: true, tipoLicencia: '' },
 ];
 
 const SEED_INICIATIVAS = [
@@ -5348,6 +5348,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
     nuevaDelegacion: '',
     todasDelegaciones: false,
     todaCompaniaUsuarios: false,
+    numeroUsuarios: 1,
     sinCosteLicencia: false,
     tipoLicencia: '',
     licenciasContratadas: 1,
@@ -5441,15 +5442,16 @@ RECOMENDACIÓN: [una frase]`;
     const delegacionesFinales = nuevaHerr.todasDelegaciones ? [] : [...nuevaHerr.delegaciones];
     if (!nuevaHerr.todasDelegaciones && nuevaHerr.nuevaDelegacion.trim()) delegacionesFinales.push(nuevaHerr.nuevaDelegacion.trim());
     if (!nuevaHerr.todasDelegaciones && delegacionesFinales.length === 0) return;
-    if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) return;
+    if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.numeroUsuarios || Number(nuevaHerr.numeroUsuarios) <= 0)) return;
     const cats = [...nuevaHerr.categorias];
     if (nuevaHerr.nuevaCategoria.trim()) cats.push(nuevaHerr.nuevaCategoria.trim());
     if (cats.length === 0) return;
-    const categoriaFinal = cats.join(', ');
-    const usuarios = nuevaHerr.todaCompaniaUsuarios ? 0 : (Number(nuevaHerr.licenciasContratadas) || 1);
+    const usuariosNum = nuevaHerr.todaCompaniaUsuarios ? 0 : (Number(nuevaHerr.numeroUsuarios) || 1);
+    const licContratadas = nuevaHerr.sinCosteLicencia ? 0 : Math.max(Number(nuevaHerr.licenciasContratadas) || 0, 0);
     const costeAnualCalc = nuevaHerr.sinCosteLicencia
       ? 0
-      : (Number(nuevaHerr.costePorLicencia) || 0) * 12 * Math.max(usuarios, 1);
+      : (Number(nuevaHerr.costePorLicencia) || 0) * 12 * licContratadas;
+    const categoriaFinal = cats.join(', ');
     const item = {
       id: `h-${Date.now()}`,
       nombre: nuevaHerr.nombre.trim(),
@@ -5462,8 +5464,9 @@ RECOMENDACIÓN: [una frase]`;
       delegaciones: delegacionesFinales,
       todasDelegaciones: !!nuevaHerr.todasDelegaciones,
       todaCompaniaUsuarios: !!nuevaHerr.todaCompaniaUsuarios,
-      licenciasContratadas: usuarios,
-      licenciasActivas: Number(nuevaHerr.licenciasActivas) || 0,
+      numeroUsuarios: usuariosNum,
+      licenciasContratadas: licContratadas,
+      licenciasActivas: nuevaHerr.sinCosteLicencia ? 0 : Math.max(Number(nuevaHerr.licenciasActivas) || 0, 0),
       sinCosteLicencia: !!nuevaHerr.sinCosteLicencia,
       tipoLicencia: nuevaHerr.tipoLicencia.trim(),
       costeAnual: costeAnualCalc,
@@ -5501,9 +5504,10 @@ RECOMENDACIÓN: [una frase]`;
       nuevaDelegacion: '',
       todasDelegaciones: !!h.todasDelegaciones,
       todaCompaniaUsuarios: todaCompaniaDerivada,
+      numeroUsuarios: h.numeroUsuarios != null ? h.numeroUsuarios : (h.licenciasContratadas || 1),
       sinCosteLicencia: !!h.sinCosteLicencia || (h.costeAnual === 0 && h.origen === 'inhouse'),
       tipoLicencia: h.tipoLicencia || '',
-      licenciasContratadas: h.licenciasContratadas || 1,
+      licenciasContratadas: h.licenciasContratadas || 0,
       licenciasActivas: h.licenciasActivas || 0,
       costePorLicencia: Math.round(costePorLicenciaDe(h) / 12),
       alerta: h.alerta || '',
@@ -5527,10 +5531,11 @@ RECOMENDACIÓN: [una frase]`;
     if (!edicion.todasDelegaciones && edicion.nuevaDelegacion && edicion.nuevaDelegacion.trim()) delegacionesFinales.push(edicion.nuevaDelegacion.trim());
     if (!edicion.todosEquipos && (edicion.equipos || []).length === 0) return;
     if (!edicion.todasDelegaciones && delegacionesFinales.length === 0) return;
-    const usuariosEdit = edicion.todaCompaniaUsuarios ? 0 : (Number(edicion.licenciasContratadas) || 1);
+    const usuariosEdit = edicion.todaCompaniaUsuarios ? 0 : (Number(edicion.numeroUsuarios) || 1);
+    const licContratadasEdit = edicion.sinCosteLicencia ? 0 : Math.max(Number(edicion.licenciasContratadas) || 0, 0);
     const costeAnualCalc = edicion.sinCosteLicencia
       ? 0
-      : (Number(edicion.costePorLicencia) || 0) * 12 * Math.max(usuariosEdit, 1);
+      : (Number(edicion.costePorLicencia) || 0) * 12 * licContratadasEdit;
     const updates = {
       nombre: edicion.nombre.trim(),
       descripcion: edicion.descripcion.trim(),
@@ -5542,8 +5547,9 @@ RECOMENDACIÓN: [una frase]`;
       delegaciones: delegacionesFinales,
       todasDelegaciones: !!edicion.todasDelegaciones,
       todaCompaniaUsuarios: !!edicion.todaCompaniaUsuarios,
-      licenciasContratadas: usuariosEdit,
-      licenciasActivas: Number(edicion.licenciasActivas) || 0,
+      numeroUsuarios: usuariosEdit,
+      licenciasContratadas: licContratadasEdit,
+      licenciasActivas: edicion.sinCosteLicencia ? 0 : Math.max(Number(edicion.licenciasActivas) || 0, 0),
       sinCosteLicencia: !!edicion.sinCosteLicencia,
       tipoLicencia: (edicion.tipoLicencia || '').trim(),
       costeAnual: costeAnualCalc,
@@ -5993,6 +5999,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 mb-3">
             <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Número de usuarios <span className="text-red-600">*</span></p>
+            <p className="text-[10px] text-stone-500 mb-2 italic">Personas que potencialmente la usan. Independiente de las licencias.</p>
             <button
               type="button"
               onClick={() => setNuevaHerr({ ...nuevaHerr, todaCompaniaUsuarios: !nuevaHerr.todaCompaniaUsuarios })}
@@ -6008,33 +6015,21 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               Toda la compañía
             </button>
             {!nuevaHerr.todaCompaniaUsuarios && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nº aproximado de usuarios</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={nuevaHerr.licenciasContratadas}
-                    onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasContratadas: e.target.value })}
-                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">De los cuales activos</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={nuevaHerr.licenciasActivas}
-                    onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasActivas: e.target.value })}
-                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                  />
-                </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nº aproximado de usuarios</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={nuevaHerr.numeroUsuarios}
+                  onChange={e => setNuevaHerr({ ...nuevaHerr, numeroUsuarios: e.target.value })}
+                  className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                />
               </div>
             )}
           </div>
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 mb-4">
-            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Coste de licencia</p>
+            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Coste de licencias</p>
             <button
               type="button"
               onClick={() => setNuevaHerr({ ...nuevaHerr, sinCosteLicencia: !nuevaHerr.sinCosteLicencia })}
@@ -6047,34 +6042,73 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               }`}>
                 {nuevaHerr.sinCosteLicencia && <span className="text-emerald-700 text-[10px] leading-none">✓</span>}
               </span>
-              Sin coste de licencia (in-house, free, etc.)
+              Sin coste de licencia
             </button>
-            {!nuevaHerr.sinCosteLicencia && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por usuario (€/mes)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={nuevaHerr.costePorLicencia}
-                    onChange={e => setNuevaHerr({ ...nuevaHerr, costePorLicencia: e.target.value })}
-                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                  />
-                  {!nuevaHerr.todaCompaniaUsuarios && (
-                    <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(nuevaHerr.costePorLicencia) || 0) * 12 * (Number(nuevaHerr.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
-                  )}
-                </div>
-                <div>
+            {!nuevaHerr.sinCosteLicencia && (() => {
+              const cl = Number(nuevaHerr.costePorLicencia) || 0;
+              const lc = Number(nuevaHerr.licenciasContratadas) || 0;
+              const la = Number(nuevaHerr.licenciasActivas) || 0;
+              const mensual = cl * lc;
+              const anual = mensual * 12;
+              const usoPct = lc > 0 ? Math.round((la / lc) * 100) : 0;
+              return (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <div>
+                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por licencia (€/mes)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={nuevaHerr.costePorLicencia}
+                        onChange={e => setNuevaHerr({ ...nuevaHerr, costePorLicencia: e.target.value })}
+                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. contratadas</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={nuevaHerr.licenciasContratadas}
+                        onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasContratadas: e.target.value })}
+                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. activas</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={nuevaHerr.licenciasActivas}
+                        onChange={e => setNuevaHerr({ ...nuevaHerr, licenciasActivas: e.target.value })}
+                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mb-3 bg-white border border-stone-200 rounded-md p-2.5">
+                    <div className="text-center border-r border-stone-200">
+                      <p className="text-[9px] uppercase tracking-wider text-stone-500">Coste mensual</p>
+                      <p className="text-base font-bold text-navy-900 tabular-nums">{mensual.toLocaleString()}€</p>
+                    </div>
+                    <div className="text-center border-r border-stone-200">
+                      <p className="text-[9px] uppercase tracking-wider text-stone-500">Coste anual</p>
+                      <p className="text-base font-bold text-navy-900 tabular-nums">{anual.toLocaleString()}€</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[9px] uppercase tracking-wider text-stone-500">Uso licencias</p>
+                      <p className={`text-base font-bold tabular-nums ${usoPct >= 80 ? 'text-emerald-700' : usoPct >= 50 ? 'text-navy-900' : usoPct >= 20 ? 'text-gold-700' : 'text-red-700'}`}>{usoPct}%</p>
+                    </div>
+                  </div>
                   <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Tipo de licencia <span className="normal-case text-stone-400">(opcional)</span></label>
                   <input
                     value={nuevaHerr.tipoLicencia}
                     onChange={e => setNuevaHerr({ ...nuevaHerr, tipoLicencia: e.target.value })}
-                    placeholder="Suscripción anual, por usuario/mes, perpetua…"
+                    placeholder="Suscripción anual, perpetua, por usuario/mes…"
                     className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
                   />
-                </div>
-              </div>
-            )}
+                </>
+              );
+            })()}
           </div>
 
           <button
@@ -6084,7 +6118,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               !nuevaHerr.descripcion.trim() ||
               (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) ||
               (!nuevaHerr.todasDelegaciones && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) ||
-              (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) ||
+              (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.numeroUsuarios || Number(nuevaHerr.numeroUsuarios) <= 0)) ||
               (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())
             }
             className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
@@ -6095,7 +6129,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             const faltan = [];
             if (!nuevaHerr.todosEquipos && nuevaHerr.equipos.length === 0) faltan.push('equipos');
             if (!nuevaHerr.todasDelegaciones && nuevaHerr.delegaciones.length === 0 && !nuevaHerr.nuevaDelegacion.trim()) faltan.push('delegaciones');
-            if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.licenciasContratadas || Number(nuevaHerr.licenciasContratadas) <= 0)) faltan.push('nº usuarios');
+            if (!nuevaHerr.todaCompaniaUsuarios && (!nuevaHerr.numeroUsuarios || Number(nuevaHerr.numeroUsuarios) <= 0)) faltan.push('nº usuarios');
             if (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim()) faltan.push('categoría');
             if (faltan.length === 0) return null;
             if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return null;
@@ -6413,7 +6447,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                             {h.todaCompaniaUsuarios ? (
                               <span className="text-xs font-bold text-stone-700">Toda la compañía</span>
                             ) : (
-                              <span className="text-sm font-bold text-stone-900 tabular-nums">{h.licenciasContratadas || 0}</span>
+                              <span className="text-sm font-bold text-stone-900 tabular-nums">{h.numeroUsuarios || h.licenciasContratadas || 0}</span>
                             )}
                           </td>
                           <td className="px-4 py-3 text-right">
@@ -6743,6 +6777,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
 
                 <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
                   <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Número de usuarios</p>
+                  <p className="text-[10px] text-stone-500 mb-2 italic">Personas que potencialmente la usan. Independiente de las licencias.</p>
                   <button
                     type="button"
                     onClick={() => setEdicion({ ...edicion, todaCompaniaUsuarios: !edicion.todaCompaniaUsuarios })}
@@ -6758,42 +6793,21 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     Toda la compañía
                   </button>
                   {!edicion.todaCompaniaUsuarios && (
-                    <>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] uppercase tracking-wider text-stone-500">Uso</span>
-                        <span className="text-xs font-medium text-stone-900">{edicion.licenciasActivas}<span className="text-stone-400">/{edicion.licenciasContratadas}</span> · {pctUsoEdit}%</span>
-                      </div>
-                      <div className="h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
-                        <div className={`h-full transition-all ${colorBarraEdit}`} style={{ width: `${Math.max(2, pctUsoEdit)}%` }}></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nº aproximado</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={edicion.licenciasContratadas}
-                            onChange={e => setEdicion({ ...edicion, licenciasContratadas: e.target.value })}
-                            className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Activos</label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={edicion.licenciasActivas}
-                            onChange={e => setEdicion({ ...edicion, licenciasActivas: e.target.value })}
-                            className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                          />
-                        </div>
-                      </div>
-                    </>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nº aproximado de usuarios</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={edicion.numeroUsuarios || ''}
+                        onChange={e => setEdicion({ ...edicion, numeroUsuarios: e.target.value })}
+                        className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                      />
+                    </div>
                   )}
                 </div>
 
                 <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
-                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Coste de licencia</p>
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Coste de licencias</p>
                   <button
                     type="button"
                     onClick={() => setEdicion({ ...edicion, sinCosteLicencia: !edicion.sinCosteLicencia })}
@@ -6808,32 +6822,74 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     </span>
                     Sin coste de licencia
                   </button>
-                  {!edicion.sinCosteLicencia && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste por usuario (€/mes)</label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={edicion.costePorLicencia}
-                          onChange={e => setEdicion({ ...edicion, costePorLicencia: e.target.value })}
-                          className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-                        />
-                        {!edicion.todaCompaniaUsuarios && (
-                          <p className="text-[10px] text-stone-500 mt-1">Total anual: <span className="font-bold text-navy-800">{((Number(edicion.costePorLicencia) || 0) * 12 * (Number(edicion.licenciasContratadas) || 0)).toLocaleString()}€</span></p>
-                        )}
-                      </div>
-                      <div>
+                  {!edicion.sinCosteLicencia && (() => {
+                    const cl = Number(edicion.costePorLicencia) || 0;
+                    const lc = Number(edicion.licenciasContratadas) || 0;
+                    const la = Number(edicion.licenciasActivas) || 0;
+                    const mensual = cl * lc;
+                    const anual = mensual * 12;
+                    const usoPct = lc > 0 ? Math.round((la / lc) * 100) : 0;
+                    return (
+                      <>
+                        <div className="grid grid-cols-3 gap-3 mb-3">
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Coste / lic (€/mes)</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={edicion.costePorLicencia}
+                              onChange={e => setEdicion({ ...edicion, costePorLicencia: e.target.value })}
+                              className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. contratadas</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={edicion.licenciasContratadas}
+                              onChange={e => setEdicion({ ...edicion, licenciasContratadas: e.target.value })}
+                              className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Lic. activas</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={edicion.licenciasActivas}
+                              onChange={e => setEdicion({ ...edicion, licenciasActivas: e.target.value })}
+                              className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 mb-3 bg-white border border-stone-200 rounded-md p-2.5">
+                          <div className="text-center border-r border-stone-200">
+                            <p className="text-[9px] uppercase tracking-wider text-stone-500">Mensual</p>
+                            <p className="text-base font-bold text-navy-900 tabular-nums">{mensual.toLocaleString()}€</p>
+                          </div>
+                          <div className="text-center border-r border-stone-200">
+                            <p className="text-[9px] uppercase tracking-wider text-stone-500">Anual</p>
+                            <p className="text-base font-bold text-navy-900 tabular-nums">{anual.toLocaleString()}€</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[9px] uppercase tracking-wider text-stone-500">Uso lic.</p>
+                            <p className={`text-base font-bold tabular-nums ${usoPct >= 80 ? 'text-emerald-700' : usoPct >= 50 ? 'text-navy-900' : usoPct >= 20 ? 'text-gold-700' : 'text-red-700'}`}>{usoPct}%</p>
+                          </div>
+                        </div>
+                        <div className="h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
+                          <div className={`h-full transition-all ${colorBarraEdit}`} style={{ width: `${Math.max(2, usoPct)}%` }}></div>
+                        </div>
                         <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Tipo de licencia <span className="normal-case text-stone-400">(opcional)</span></label>
                         <input
                           value={edicion.tipoLicencia || ''}
                           onChange={e => setEdicion({ ...edicion, tipoLicencia: e.target.value })}
-                          placeholder="Suscripción anual, por usuario/mes…"
+                          placeholder="Suscripción anual, perpetua, por usuario/mes…"
                           className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
                         />
-                      </div>
-                    </div>
-                  )}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 <div>
