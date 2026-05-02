@@ -4526,6 +4526,25 @@ const CATEGORIAS_HERRAMIENTAS_PREDEFINIDAS = [
   'Valoraciones',
 ];
 
+const CATEGORIAS_DESCRIPCIONES = {
+  'BI': 'Análisis de datos, dashboards y reporting de negocio.',
+  'CRM': 'Gestión comercial: pipeline, cuentas, contactos y oportunidades.',
+  'Ciberseguridad': 'Protección de datos, control de accesos y cumplimiento normativo.',
+  'Comunicación': 'Mensajería interna, videollamadas y colaboración (Slack, Teams).',
+  'Datos de mercado': 'Fuentes externas de datos inmobiliarios y de mercado (Idealista, Fotocasa, MSCI RCA, CoStar).',
+  'Documental': 'Gestión y almacenamiento de documentos corporativos.',
+  'ERP / Finanzas': 'Contabilidad, facturación, tesorería y gestión financiera.',
+  'Firma': 'Firma electrónica de contratos y documentos.',
+  'IA': 'Inteligencia artificial generativa, asistentes y automatización con LLMs.',
+  'Marketing': 'Captación, branding, comunicación externa y campañas.',
+  'Productividad': 'Suite ofimática y herramientas de trabajo diario (Microsoft 365, Google Workspace).',
+  'Project Management': 'Gestión de proyectos, tareas y planificación (Asana, Trello, Jira).',
+  'Property Database': 'Base de datos interna de activos, propietarios y carteras.',
+  'Research': 'Estudios de mercado, análisis sectorial y prospectiva.',
+  'Sales Intelligence': 'Inteligencia comercial: networking, contactos y cuentas objetivo.',
+  'Valoraciones': 'Tasaciones y valoración de activos inmobiliarios.',
+};
+
 function HerramientasView({ herramientas, setHerramientas }) {
   const [solicitud, setSolicitud] = useState('');
   const [analizando, setAnalizando] = useState(false);
@@ -4636,7 +4655,8 @@ RECOMENDACIÓN: [una frase]`;
     if (!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()) return;
     const cats = [...nuevaHerr.categorias];
     if (nuevaHerr.nuevaCategoria.trim()) cats.push(nuevaHerr.nuevaCategoria.trim());
-    const categoriaFinal = cats.length > 0 ? cats.join(', ') : 'Sin categoría';
+    if (cats.length === 0) return;
+    const categoriaFinal = cats.join(', ');
     const areasFinal = nuevaHerr.todaCompania
       ? ['Toda la compañía']
       : nuevaHerr.areas.split(',').map(a => a.trim()).filter(Boolean);
@@ -4689,7 +4709,8 @@ RECOMENDACIÓN: [una frase]`;
     if (!edicion.nombre.trim() || !edicion.descripcion.trim()) return;
     const catsEdit = [...(edicion.categoriasSel || [])];
     if (edicion.nuevaCategoria && edicion.nuevaCategoria.trim()) catsEdit.push(edicion.nuevaCategoria.trim());
-    const categoriaFinal = catsEdit.length > 0 ? catsEdit.join(', ') : 'Sin categoría';
+    if (catsEdit.length === 0) return;
+    const categoriaFinal = catsEdit.join(', ');
     const areasFinal = edicion.todaCompania
       ? ['Toda la compañía']
       : edicion.areas.split(',').map(a => a.trim()).filter(Boolean);
@@ -4717,6 +4738,35 @@ RECOMENDACIÓN: [una frase]`;
     cerrarDetalle();
   };
 
+  const [borrandoCategoria, setBorrandoCategoria] = useState(null);
+
+  const aplicarBorradoCategoria = async (cat, destino) => {
+    const nuevas = herramientas.map(h => {
+      const cats = categoriasDe(h);
+      if (!cats.includes(cat)) return h;
+      let nuevasCats = cats.filter(c => c !== cat);
+      if (nuevasCats.length === 0 && destino) nuevasCats = [destino];
+      return { ...h, categoria: nuevasCats.join(', '), categorias: nuevasCats };
+    });
+    await setHerramientas(nuevas);
+    setBorrandoCategoria(null);
+  };
+
+  const iniciarBorradoCategoria = (cat) => {
+    const afectadas = herramientas.filter(h => categoriasDe(h).includes(cat));
+    const soloEsta = afectadas.filter(h => categoriasDe(h).length === 1);
+    const tienenOtras = afectadas.filter(h => categoriasDe(h).length > 1);
+    if (soloEsta.length === 0) {
+      const msg = tienenOtras.length === 0
+        ? `¿Eliminar la categoría "${cat}"? No hay herramientas asignadas a ella.`
+        : `¿Eliminar la categoría "${cat}"? Se quitará de ${tienenOtras.length} ${tienenOtras.length === 1 ? 'herramienta' : 'herramientas'} (las herramientas no se borran).`;
+      if (!confirm(msg)) return;
+      aplicarBorradoCategoria(cat, null);
+      return;
+    }
+    setBorrandoCategoria({ cat, soloEsta, tienenOtras, destino: '' });
+  };
+
   const herramientasFiltradas = herramientas.filter(h => {
     if (filtroCategoria !== 'todas' && !categoriasDe(h).includes(filtroCategoria)) return false;
     if (filtroEstado === 'alertas' && !h.alerta) return false;
@@ -4728,11 +4778,6 @@ RECOMENDACIÓN: [una frase]`;
   const herramientasPorCategoria = {};
   herramientasFiltradas.forEach(h => {
     const cats = categoriasDe(h);
-    if (cats.length === 0) {
-      if (!herramientasPorCategoria['Sin categoría']) herramientasPorCategoria['Sin categoría'] = [];
-      herramientasPorCategoria['Sin categoría'].push(h);
-      return;
-    }
     cats.forEach(cat => {
       if (!herramientasPorCategoria[cat]) herramientasPorCategoria[cat] = [];
       herramientasPorCategoria[cat].push(h);
@@ -4929,11 +4974,14 @@ RECOMENDACIÓN: [una frase]`;
 
           <button
             onClick={crearHerramienta}
-            disabled={!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim()}
+            disabled={!nuevaHerr.nombre.trim() || !nuevaHerr.descripcion.trim() || (nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim())}
             className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
           >
             <Plus size={14} /> Añadir al catálogo
           </button>
+          {nuevaHerr.categorias.length === 0 && !nuevaHerr.nuevaCategoria.trim() && nuevaHerr.nombre.trim() && nuevaHerr.descripcion.trim() && (
+            <p className="text-[11px] text-stone-500 italic mt-2">Selecciona al menos una categoría.</p>
+          )}
         </div>
       )}
 
@@ -5085,12 +5133,22 @@ RECOMENDACIÓN: [una frase]`;
             const itemsConUso = items.map(h => ({ ...h, usoEstado: calcularUsoEstado(h) }));
             const totalAlertas = itemsConUso.filter(h => h.usoEstado.key === 'sin_uso' || h.usoEstado.key === 'infrautilizada' || (h.alerta || '').includes('Duplica')).length;
             return (
-              <div key={categoria} className="bg-stone-50/60 border border-stone-200 rounded-2xl overflow-hidden flex flex-col">
+              <div key={categoria} className="bg-stone-50/60 border border-stone-200 rounded-2xl overflow-hidden flex flex-col group">
                 <div className="flex items-center gap-2 px-4 py-3 bg-white border-b border-stone-200">
                   <Icon size={15} className="text-navy-700" />
-                  <h3 className="text-sm font-bold text-navy-900 tracking-tight flex-1">{categoria}</h3>
+                  <h3
+                    className="text-sm font-bold text-navy-900 tracking-tight flex-1 cursor-help"
+                    title={CATEGORIAS_DESCRIPCIONES[categoria] || 'Categoría personalizada'}
+                  >{categoria}</h3>
                   <span className="text-xs font-bold text-navy-900 bg-stone-100 px-2 py-0.5 rounded">{items.length}</span>
                   {totalAlertas > 0 && <span className="text-xs font-bold text-gold-800 bg-gold-100 px-2 py-0.5 rounded" title={`${totalAlertas} con alerta`}>!{totalAlertas}</span>}
+                  <button
+                    onClick={() => iniciarBorradoCategoria(categoria)}
+                    className="text-stone-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title={`Eliminar categoría "${categoria}"`}
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
                 <div className="p-2 space-y-2 flex-1">
                   {itemsConUso.map(h => {
@@ -5330,7 +5388,7 @@ RECOMENDACIÓN: [una frase]`;
                   >Cancelar</button>
                   <button
                     onClick={guardarEdicion}
-                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim()}
+                    disabled={!edicion.nombre.trim() || !edicion.descripcion.trim() || ((edicion.categoriasSel || []).length === 0 && !(edicion.nuevaCategoria || '').trim())}
                     className="flex items-center gap-1.5 px-4 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
                   >
                     Guardar cambios
@@ -5341,6 +5399,42 @@ RECOMENDACIÓN: [una frase]`;
           </div>
         );
       })()}
+
+      {borrandoCategoria && (
+        <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setBorrandoCategoria(null)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-navy-900 mb-2">Eliminar categoría "{borrandoCategoria.cat}"</h3>
+            <p className="text-sm text-stone-700 mb-4">
+              <span className="font-semibold">{borrandoCategoria.soloEsta.length}</span> {borrandoCategoria.soloEsta.length === 1 ? 'herramienta tiene' : 'herramientas tienen'} solo esta categoría. Selecciona a dónde reasignarla{borrandoCategoria.soloEsta.length === 1 ? '' : 's'}:
+            </p>
+            <ul className="text-xs text-stone-600 mb-4 max-h-32 overflow-y-auto bg-stone-50 rounded-md p-2 space-y-1 border border-stone-200">
+              {borrandoCategoria.soloEsta.map(h => <li key={h.id}>· {h.nombre}</li>)}
+            </ul>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Categoría destino</label>
+            <select
+              value={borrandoCategoria.destino}
+              onChange={e => setBorrandoCategoria({ ...borrandoCategoria, destino: e.target.value })}
+              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 mb-4"
+            >
+              <option value="">— Selecciona categoría —</option>
+              {categorias.filter(c => c !== borrandoCategoria.cat).map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {borrandoCategoria.tienenOtras.length > 0 && (
+              <p className="text-[11px] text-stone-500 mb-3">Las otras {borrandoCategoria.tienenOtras.length} {borrandoCategoria.tienenOtras.length === 1 ? 'herramienta' : 'herramientas'} con esta categoría conservarán las demás categorías.</p>
+            )}
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setBorrandoCategoria(null)} className="px-3 py-2 text-sm text-stone-600 hover:text-stone-900">Cancelar</button>
+              <button
+                onClick={() => aplicarBorradoCategoria(borrandoCategoria.cat, borrandoCategoria.destino)}
+                disabled={!borrandoCategoria.destino}
+                className="px-4 py-2 bg-red-700 hover:bg-red-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
+              >
+                Eliminar y reasignar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
