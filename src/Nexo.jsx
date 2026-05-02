@@ -11901,7 +11901,9 @@ export default function Nexo() {
 
   const { session, profile, loading: authLoading, signOut, updateProfile, refreshProfile } = useAuth();
   const isAuth = !!session?.user;
-  const supabaseEnabled = !demoMode && isAuth;
+  // Supabase activo cuando el usuario haya entrado, sea autenticado o como demo.
+  // En modo demo se usa con el cliente anónimo (RLS abierta, datos compartidos).
+  const supabaseEnabled = isAuth || demoMode;
 
   // Datos en Supabase (modo real)
   const [talleresSb, setTalleresSb] = useSupabaseTable('talleres', { enabled: supabaseEnabled });
@@ -11941,40 +11943,41 @@ export default function Nexo() {
     if (isAuth) await signOut();
   };
 
-  // Selección de fuente de datos según modo
-  const talleres = demoMode ? talleresLs : talleresSb;
-  const setTalleres = demoMode ? setTalleresLs : setTalleresSb;
-  const herramientas = demoMode ? herramientasLs : herramientasSb;
-  const setHerramientas = demoMode ? setHerramientasLs : setHerramientasSb;
-  const iniciativas = demoMode ? iniciativasLs : iniciativasSb;
-  const setIniciativas = demoMode ? setIniciativasLs : setIniciativasSb;
-  const tareas = demoMode ? tareasLs : tareasSb;
-  const setTareas = demoMode ? setTareasLs : setTareasSb;
-  const historico = demoMode ? historicoLs : historicoSb;
-  const setHistorico = demoMode ? setHistoricoLs : setHistoricoSb;
-  const reuniones = demoMode ? reunionesLs : reunionesSb;
-  const setReuniones = demoMode ? setReunionesLs : setReunionesSb;
-  const convocatorias = demoMode ? convocatoriasLs : convocatoriasSb;
-  const setConvocatorias = demoMode ? setConvocatoriasLs : setConvocatoriasSb;
-  const solapamientos = demoMode ? solapamientosLs : solapamientosSb;
-  const setSolapamientos = demoMode ? setSolapamientosLs : setSolapamientosSb;
-  const peticiones = demoMode ? peticionesLs : peticionesSb;
-  const setPeticiones = demoMode ? setPeticionesLs : setPeticionesSb;
+  // Selección de fuente de datos: ahora siempre Supabase si hay sesión o demo
+  const useSb = supabaseEnabled;
+  const talleres = useSb ? talleresSb : talleresLs;
+  const setTalleres = useSb ? setTalleresSb : setTalleresLs;
+  const herramientas = useSb ? herramientasSb : herramientasLs;
+  const setHerramientas = useSb ? setHerramientasSb : setHerramientasLs;
+  const iniciativas = useSb ? iniciativasSb : iniciativasLs;
+  const setIniciativas = useSb ? setIniciativasSb : setIniciativasLs;
+  const tareas = useSb ? tareasSb : tareasLs;
+  const setTareas = useSb ? setTareasSb : setTareasLs;
+  const historico = useSb ? historicoSb : historicoLs;
+  const setHistorico = useSb ? setHistoricoSb : setHistoricoLs;
+  const reuniones = useSb ? reunionesSb : reunionesLs;
+  const setReuniones = useSb ? setReunionesSb : setReunionesLs;
+  const convocatorias = useSb ? convocatoriasSb : convocatoriasLs;
+  const setConvocatorias = useSb ? setConvocatoriasSb : setConvocatoriasLs;
+  const solapamientos = useSb ? solapamientosSb : solapamientosLs;
+  const setSolapamientos = useSb ? setSolapamientosSb : setSolapamientosLs;
+  const peticiones = useSb ? peticionesSb : peticionesLs;
+  const setPeticiones = useSb ? setPeticionesSb : setPeticionesLs;
 
-  // Personas: en demo viene del SEED, en real se mapea de profiles
-  const personas = demoMode
-    ? personasLs
-    : profilesRaw.map(p => ({
+  // Personas: si hay perfiles en Supabase, los usa. Si no (Supabase vacío),
+  // cae al SEED de personas para que la app no se quede sin gente.
+  const personas = useSb && profilesRaw.length > 0
+    ? profilesRaw.map(p => ({
         ...p,
         nombre: [p.nombre, p.apellidos].filter(Boolean).join(' ') || p.email || 'Sin nombre',
         equipo: p.equipo || 'Sin equipo',
         nivel: p.nivel || 2,
         talleres: p.talleres || [],
-      }));
+      }))
+    : personasLs;
 
-  const setPersonas = demoMode
-    ? setPersonasLs
-    : async (next) => {
+  const setPersonas = useSb && profilesRaw.length > 0
+    ? async (next) => {
         const newList = typeof next === 'function' ? next(personas) : next;
         const oldById = Object.fromEntries(profilesRaw.map(p => [p.id, p]));
         const updates = [];
@@ -11994,7 +11997,8 @@ export default function Nexo() {
           const u = updates.find(x => x.id === p.id);
           return u || p;
         }));
-      };
+      }
+    : setPersonasLs;
 
   const usuarioActualId = demoMode ? 'p16' : (session?.user?.id || null);
 
