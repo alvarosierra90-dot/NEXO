@@ -4709,9 +4709,11 @@ RECOMENDACIÓN: [una frase]`;
     await setHerramientas([...herramientas, item]);
     setNuevaHerr({
       nombre: '', descripcion: '', categorias: [], nuevaCategoria: '',
+      origen: 'externa',
       funcionalidades: '', areas: '', todaCompania: false,
       licenciasContratadas: 1, licenciasActivas: 0, costePorLicencia: 0,
     });
+    setSugerenciaRazon(null);
     setVistaAlta(false);
   };
 
@@ -4736,6 +4738,7 @@ RECOMENDACIÓN: [una frase]`;
   const cerrarDetalle = () => {
     setEditandoId(null);
     setEdicion(null);
+    setSugerenciaRazon(null);
   };
 
   const guardarEdicion = async () => {
@@ -4775,6 +4778,48 @@ RECOMENDACIÓN: [una frase]`;
 
   const [borrandoCategoria, setBorrandoCategoria] = useState(null);
   const [solicitarDesdePersona, setSolicitarDesdePersona] = useState('');
+  const [sugiriendoCategorias, setSugiriendoCategorias] = useState(false);
+  const [sugerenciaRazon, setSugerenciaRazon] = useState(null);
+
+  const sugerirCategorias = async (modo) => {
+    const nombre = (modo === 'alta' ? nuevaHerr.nombre : edicion?.nombre || '').trim();
+    const descripcion = (modo === 'alta' ? nuevaHerr.descripcion : edicion?.descripcion || '').trim();
+    if (!descripcion) return;
+    setSugiriendoCategorias(true);
+    setSugerenciaRazon(null);
+    const lista = categorias.map(c => `- ${c}: ${CATEGORIAS_DESCRIPCIONES[c] || 'Categoría personalizada.'}`).join('\n');
+    const userMessage = `Clasifica esta herramienta en una o varias categorías.
+
+Nombre: ${nombre || '(sin nombre)'}
+Descripción: ${descripcion}
+
+Categorías disponibles:
+${lista}
+
+Devuelve SOLO JSON válido, sin markdown:
+{"categorias":["...","..."],"razon":"1-2 frases explicando por qué"}
+
+Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si no encaja en ninguna, devuelve "categorias":[] y explica por qué en "razon".`;
+    const respuesta = await callClaude(
+      'Eres un experto en clasificación de herramientas digitales para una consultora inmobiliaria. Respondes solo JSON válido, sin texto extra ni markdown.',
+      userMessage,
+    );
+    try {
+      const jsonMatch = respuesta && respuesta.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[0]);
+        const cats = (data.categorias || []).filter(c => categorias.includes(c));
+        if (modo === 'alta') setNuevaHerr(prev => ({ ...prev, categorias: cats }));
+        else setEdicion(prev => prev ? ({ ...prev, categoriasSel: cats }) : prev);
+        setSugerenciaRazon({ modo, razon: data.razon || '', categorias: cats });
+      } else {
+        setSugerenciaRazon({ modo, razon: 'No se pudo interpretar la respuesta de la IA.', error: true });
+      }
+    } catch (e) {
+      setSugerenciaRazon({ modo, razon: 'No se pudo interpretar la respuesta de la IA.', error: true });
+    }
+    setSugiriendoCategorias(false);
+  };
 
   const personaById = Object.fromEntries((personas || []).map(p => [p.id, p]));
 
@@ -4957,22 +5002,45 @@ RECOMENDACIÓN: [una frase]`;
           </div>
 
           <div className="mb-4">
-            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(una herramienta puede pertenecer a varias)</span></label>
+            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(una herramienta puede pertenecer a varias)</span></label>
+              <button
+                type="button"
+                onClick={() => sugerirCategorias('alta')}
+                disabled={sugiriendoCategorias || !nuevaHerr.descripcion.trim()}
+                className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
+                title={!nuevaHerr.descripcion.trim() ? 'Escribe primero la descripción' : 'Pide a la IA que sugiera categorías a partir de la descripción'}
+              >
+                {sugiriendoCategorias && sugerenciaRazon?.modo !== 'edicion' ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                {sugiriendoCategorias && sugerenciaRazon?.modo !== 'edicion' ? 'Analizando…' : 'Sugerir con IA'}
+              </button>
+            </div>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {categorias.map(c => {
                 const sel = nuevaHerr.categorias.includes(c);
+                const sugerida = sugerenciaRazon?.modo === 'alta' && sugerenciaRazon.categorias?.includes(c);
                 return (
                   <button
                     key={c}
                     type="button"
                     onClick={() => setNuevaHerr({ ...nuevaHerr, categorias: sel ? nuevaHerr.categorias.filter(x => x !== c) : [...nuevaHerr.categorias, c] })}
-                    className={`text-xs px-2.5 py-1.5 rounded-md font-semibold transition-colors border-2 ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                    className={`text-xs px-2.5 py-1.5 rounded-md font-semibold transition-colors border-2 ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : sugerida ? 'bg-gold-50 text-gold-900 border-gold-300' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
                   >
-                    {sel ? '✓ ' : ''}{c}
+                    {sel ? '✓ ' : sugerida ? '✨ ' : ''}{c}
                   </button>
                 );
               })}
             </div>
+            {sugerenciaRazon?.modo === 'alta' && sugerenciaRazon.razon && (
+              <div className={`mb-2 px-3 py-2 rounded-md text-[11px] flex items-start gap-2 ${sugerenciaRazon.error ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-navy-50 text-navy-900 border border-navy-200'}`}>
+                <Sparkles size={12} className="flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold mb-0.5">Sugerencia de la IA</p>
+                  <p>{sugerenciaRazon.razon}</p>
+                </div>
+                <button onClick={() => setSugerenciaRazon(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0"><X size={12} /></button>
+              </div>
+            )}
             <input
               value={nuevaHerr.nuevaCategoria}
               onChange={e => setNuevaHerr({ ...nuevaHerr, nuevaCategoria: e.target.value })}
@@ -5369,18 +5437,41 @@ RECOMENDACIÓN: [una frase]`;
 
                 <div>
                   <div className="mb-4">
-                    <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(puede pertenecer a varias)</span></label>
+                    <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                      <label className="text-[10px] uppercase tracking-wider text-stone-500 block font-semibold">Categorías <span className="normal-case text-stone-400 font-normal">(puede pertenecer a varias)</span></label>
+                      <button
+                        type="button"
+                        onClick={() => sugerirCategorias('edicion')}
+                        disabled={sugiriendoCategorias || !edicion.descripcion?.trim()}
+                        className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-stone-50 rounded-md font-semibold transition-colors"
+                        title={!edicion.descripcion?.trim() ? 'Escribe primero la descripción' : 'Pide a la IA que sugiera categorías a partir de la descripción'}
+                      >
+                        {sugiriendoCategorias && sugerenciaRazon?.modo === 'edicion' ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                        {sugiriendoCategorias && sugerenciaRazon?.modo === 'edicion' ? 'Analizando…' : 'Sugerir con IA'}
+                      </button>
+                    </div>
+                    {sugerenciaRazon?.modo === 'edicion' && sugerenciaRazon.razon && (
+                      <div className={`mb-2 px-3 py-2 rounded-md text-[11px] flex items-start gap-2 ${sugerenciaRazon.error ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-navy-50 text-navy-900 border border-navy-200'}`}>
+                        <Sparkles size={12} className="flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-semibold mb-0.5">Sugerencia de la IA</p>
+                          <p>{sugerenciaRazon.razon}</p>
+                        </div>
+                        <button onClick={() => setSugerenciaRazon(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0"><X size={12} /></button>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-1.5 mb-2">
                       {categorias.map(c => {
                         const sel = (edicion.categoriasSel || []).includes(c);
+                        const sugerida = sugerenciaRazon?.modo === 'edicion' && sugerenciaRazon.categorias?.includes(c);
                         return (
                           <button
                             key={c}
                             type="button"
                             onClick={() => setEdicion({ ...edicion, categoriasSel: sel ? edicion.categoriasSel.filter(x => x !== c) : [...(edicion.categoriasSel || []), c] })}
-                            className={`text-xs px-2.5 py-1.5 rounded-md font-semibold transition-colors border-2 ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                            className={`text-xs px-2.5 py-1.5 rounded-md font-semibold transition-colors border-2 ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : sugerida ? 'bg-gold-50 text-gold-900 border-gold-300' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
                           >
-                            {sel ? '✓ ' : ''}{c}
+                            {sel ? '✓ ' : sugerida ? '✨ ' : ''}{c}
                           </button>
                         );
                       })}
