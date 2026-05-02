@@ -5330,6 +5330,7 @@ function HerramientasView({ herramientas, setHerramientas, personas = [], usuari
   const [vistaCatalogo, setVistaCatalogo] = useState('catalogo');
   const [filtroPorUsoEquipos, setFiltroPorUsoEquipos] = useState([]);
   const [filtroPorUsoDelegaciones, setFiltroPorUsoDelegaciones] = useState([]);
+  const [filtroPorUsoCategorias, setFiltroPorUsoCategorias] = useState([]);
   const [filtroPorUsoCoste, setFiltroPorUsoCoste] = useState('todos');
   const [filtroPorUsoOrigen, setFiltroPorUsoOrigen] = useState('todos');
 
@@ -6336,12 +6337,32 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
             const origen = h.origen === 'inhouse' ? 'inhouse' : 'externa';
             if (origen !== filtroPorUsoOrigen) return false;
           }
+          if (filtroPorUsoCategorias.length > 0) {
+            const cats = categoriasDe(h);
+            if (!filtroPorUsoCategorias.some(f => cats.includes(f))) return false;
+          }
           return true;
         });
         const todasLasDelegaciones = [...new Set([...DELEGACIONES, ...herramientas.flatMap(h => delegacionesDeH(h))])].sort();
         return (
           <div>
             <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4 space-y-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Categorías <span className="normal-case text-stone-400">{filtroPorUsoCategorias.length > 0 ? `· ${filtroPorUsoCategorias.length} seleccionadas` : '· ninguna (muestra todas)'}</span></p>
+                <div className="flex flex-wrap gap-1">
+                  {categorias.map(c => {
+                    const sel = filtroPorUsoCategorias.includes(c);
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setFiltroPorUsoCategorias(sel ? filtroPorUsoCategorias.filter(x => x !== c) : [...filtroPorUsoCategorias, c])}
+                        className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                      >{c}</button>
+                    );
+                  })}
+                </div>
+              </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Equipos <span className="normal-case text-stone-400">{filtroPorUsoEquipos.length > 0 ? `· ${filtroPorUsoEquipos.length} seleccionados` : '· ninguno (muestra todos)'}</span></p>
                 <div className="flex flex-wrap gap-1">
@@ -6401,9 +6422,9 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${filtroPorUsoOrigen === opt.v ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
                   >{opt.l}</button>
                 ))}
-                {(filtroPorUsoEquipos.length > 0 || filtroPorUsoDelegaciones.length > 0 || filtroPorUsoCoste !== 'todos' || filtroPorUsoOrigen !== 'todos') && (
+                {(filtroPorUsoEquipos.length > 0 || filtroPorUsoDelegaciones.length > 0 || filtroPorUsoCategorias.length > 0 || filtroPorUsoCoste !== 'todos' || filtroPorUsoOrigen !== 'todos') && (
                   <button
-                    onClick={() => { setFiltroPorUsoEquipos([]); setFiltroPorUsoDelegaciones([]); setFiltroPorUsoCoste('todos'); setFiltroPorUsoOrigen('todos'); }}
+                    onClick={() => { setFiltroPorUsoEquipos([]); setFiltroPorUsoDelegaciones([]); setFiltroPorUsoCategorias([]); setFiltroPorUsoCoste('todos'); setFiltroPorUsoOrigen('todos'); }}
                     className="text-[11px] text-stone-600 hover:text-navy-900 underline ml-auto"
                   >Limpiar filtros</button>
                 )}
