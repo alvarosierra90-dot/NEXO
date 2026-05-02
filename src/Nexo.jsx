@@ -3299,7 +3299,7 @@ Formato:
   );
 }
 
-function TalleresView({ talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, tallerInicialId, onCerrarTaller, usuarioActualId, demoMode }) {
+function TalleresView({ talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, tallerInicialId, onCerrarTaller, usuarioActualId, demoMode }) {
   const [tallerActivoId, setTallerActivoId] = useState(tallerInicialId || null);
 
   useEffect(() => {
@@ -3318,6 +3318,8 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
       personas={personas}
       setPersonas={setPersonas}
       tareas={tareas}
+      reuniones={reuniones}
+      setReuniones={setReuniones}
       usuarioActualId={usuarioActualId}
       demoMode={demoMode}
       onBack={() => { setTallerActivoId(null); onCerrarTaller && onCerrarTaller(); }}
@@ -3552,7 +3554,7 @@ const TIPOS_EVENTO = {
   bloqueo: { label: 'Bloqueo', color: 'red', icon: AlertTriangle },
 };
 
-function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, onBack, usuarioActualId, demoMode }) {
+function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, onBack, usuarioActualId, demoMode }) {
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [nuevoTipo, setNuevoTipo] = useState('avance');
   const [nuevoTitulo, setNuevoTitulo] = useState('');
@@ -3563,6 +3565,7 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   const [generandoResumen, setGenerandoResumen] = useState(false);
   const [editandoEventoId, setEditandoEventoId] = useState(null);
   const [gestionandoMiembros, setGestionandoMiembros] = useState(false);
+  const [tabEvolucion, setTabEvolucion] = useState('historico');
 
   // Objetivos
   const [nuevoObjTitulo, setNuevoObjTitulo] = useState('');
@@ -4333,17 +4336,41 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
         <h2 className="font-serif text-xl text-stone-900">Evolución del taller</h2>
-        <button
-          onClick={() => setAñadiendo(!añadiendo)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-xs transition-colors"
-        >
-          <Plus size={12} /> Nuevo evento
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-stone-100 rounded-md p-0.5">
+            <button
+              onClick={() => setTabEvolucion('historico')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${tabEvolucion === 'historico' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+            >
+              <Activity size={12} />
+              Histórico
+            </button>
+            <button
+              onClick={() => setTabEvolucion('reuniones')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${tabEvolucion === 'reuniones' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+            >
+              <Mic size={12} />
+              Reuniones
+              {(() => {
+                const n = (reuniones || []).filter(r => (r.tallerIds || []).includes(taller.id)).length;
+                return n > 0 ? <span className="text-[10px] bg-navy-900 text-stone-50 px-1.5 py-0.5 rounded">{n}</span> : null;
+              })()}
+            </button>
+          </div>
+          {tabEvolucion === 'historico' && (
+            <button
+              onClick={() => setAñadiendo(!añadiendo)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-xs transition-colors"
+            >
+              <Plus size={12} /> Nuevo evento
+            </button>
+          )}
+        </div>
       </div>
 
-      {añadiendo && (
+      {tabEvolucion === 'historico' && añadiendo && (
         <div className="bg-white border border-stone-300 rounded-xl p-5 mb-4">
           <div className="grid grid-cols-3 gap-2 mb-2">
             <select
@@ -4405,6 +4432,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         </div>
       )}
 
+      {tabEvolucion === 'historico' && (
       <div className="bg-white border border-stone-200 rounded-xl p-2 mb-4 flex items-center gap-1 flex-wrap">
         <button
           onClick={() => setFiltroTipo('todos')}
@@ -4422,7 +4450,9 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           >{val.label} {conteoTipos[key] ? `(${conteoTipos[key]})` : ''}</button>
         ))}
       </div>
+      )}
 
+      {tabEvolucion === 'historico' && (
       <div className="relative">
         <div className="absolute left-[15px] top-2 bottom-2 w-px bg-stone-200"></div>
         <div className="space-y-3">
@@ -4532,6 +4562,55 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           })}
         </div>
       </div>
+      )}
+
+      {tabEvolucion === 'reuniones' && (() => {
+        const reunionesTaller = (reuniones || [])
+          .filter(r => (r.tallerIds || []).includes(taller.id))
+          .slice()
+          .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+        if (reunionesTaller.length === 0) {
+          return (
+            <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+              <Mic size={36} className="text-stone-300 mx-auto mb-3" />
+              <p className="text-sm text-stone-600 font-medium mb-1">No hay reuniones vinculadas a este taller</p>
+              <p className="text-xs text-stone-500">Cuando hagas un "Resumen express" en Reuniones y lo vincules a este taller, aparecerá aquí.</p>
+            </div>
+          );
+        }
+        return (
+          <div className="space-y-3">
+            {reunionesTaller.map(r => {
+              const asistentesObj = (r.asistentes || []).map(id => personaById[id]).filter(Boolean);
+              return (
+                <div key={r.id} className="bg-white border border-stone-200 rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Mic size={14} className="text-navy-700" />
+                      <h3 className="text-sm font-bold text-navy-900">{r.titulo}</h3>
+                      {r.fuente === 'resumen_express' && (
+                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gold-100 text-gold-800 font-bold">Resumen IA</span>
+                      )}
+                    </div>
+                    <span className="text-xs text-stone-500 flex-shrink-0">{r.fecha ? formatFecha(r.fecha) : 'Sin fecha'}</span>
+                  </div>
+                  {asistentesObj.length > 0 && (
+                    <div className="flex items-center gap-1 mb-2 flex-wrap">
+                      <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mr-1">Asistentes:</span>
+                      {asistentesObj.map(p => (
+                        <span key={p.id} className="text-[11px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded">{p.nombre}</span>
+                      ))}
+                    </div>
+                  )}
+                  {r.notas && (
+                    <p className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap line-clamp-6">{r.notas}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -6284,6 +6363,7 @@ const ESTADOS_PETICION = {
 
 const TIPOS_PETICION = {
   herramienta_nueva: { label: 'Herramienta nueva', icon: Wrench, color: 'text-navy-700', bg: 'bg-navy-50', border: 'border-navy-200' },
+  herramienta_existente: { label: 'Acceso a herramienta existente', icon: User, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
   mejora_herramienta: { label: 'Mejora de herramienta existente', icon: Settings, color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
   mejora_proceso: { label: 'Mejora de proceso', icon: Workflow, color: 'text-violet-700', bg: 'bg-violet-50', border: 'border-violet-200' },
   contratar_perfil: { label: 'Contratar nuevo perfil', icon: User, color: 'text-gold-700', bg: 'bg-gold-50', border: 'border-gold-200' },
@@ -6426,10 +6506,6 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
   const [nuevaTipo, setNuevaTipo] = useState('herramienta_nueva');
   const [nuevaPrioridad, setNuevaPrioridad] = useState('media');
 
-  const [entrevista, setEntrevista] = useState('');
-  const [mapa, setMapa] = useState(null);
-  const [mapeando, setMapeando] = useState(false);
-
   const personaById = Object.fromEntries(personas.map(p => [p.id, p]));
   const tallerById = Object.fromEntries(talleres.map(t => [t.id, t]));
 
@@ -6441,6 +6517,7 @@ function ProcesosView({ peticiones, setPeticiones, talleres, personas, usuarioAc
     setSugiriendoPeticion(true);
     setSugerenciaPeticion(null);
     const tiposDescritos = `- herramienta_nueva: Solicitar una herramienta o software nuevo que la compañía no tiene aún.
+- herramienta_existente: Solicitar acceso o licencia para una herramienta que la compañía ya tiene contratada (no se compra nada nuevo, solo se da acceso a alguien).
 - mejora_herramienta: Mejorar una herramienta ya existente (nueva funcionalidad, integración, fix).
 - mejora_proceso: Mejorar o automatizar un proceso de trabajo, sin cambiar de herramienta.
 - contratar_perfil: Solicitar contratar a una persona con un perfil específico.`;
@@ -6465,7 +6542,7 @@ Reglas: usa exactamente uno de los 4 tipos listados. La prioridad debe ser alta,
       const jsonMatch = respuesta && respuesta.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const data = JSON.parse(jsonMatch[0]);
-        const tiposValidos = ['herramienta_nueva', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'];
+        const tiposValidos = ['herramienta_nueva', 'herramienta_existente', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'];
         const prioridadesValidas = ['alta', 'media', 'baja'];
         if (tiposValidos.includes(data.tipoSolicitud)) setNuevaTipo(data.tipoSolicitud);
         if (prioridadesValidas.includes(data.prioridad)) setNuevaPrioridad(data.prioridad);
@@ -6595,27 +6672,6 @@ Formato:
     setAnalizandoIA(false);
   };
 
-  const mapearProceso = async () => {
-    if (!entrevista.trim()) return;
-    setMapeando(true);
-    setMapa(null);
-    const prompt = `Analiza esta transcripción de entrevista con un área de la compañía y construye un mapa de proceso AS-IS. Identifica:
-
-1. PASOS DEL PROCESO (lista numerada)
-2. ACTORES Y SISTEMAS implicados
-3. DOLORES Y CUELLOS DE BOTELLA detectados
-4. QUICK WINS propuestos (cambios rápidos de alto impacto)
-5. PROPUESTAS TO-BE (mejoras estructurales)
-
-Responde en español, conciso y accionable.
-
-TRANSCRIPCIÓN:
-${entrevista}`;
-    const respuesta = await callClaude('Eres consultor experto en mejora de procesos para la compañía. Trabajas en el taller de Mejora de Procesos del Plan Estratégico.', prompt);
-    setMapa(respuesta);
-    setMapeando(false);
-  };
-
   const peticionesPorEstado = {
     nueva: peticiones.filter(p => p.estado === 'nueva'),
     en_revision: peticiones.filter(p => p.estado === 'en_revision'),
@@ -6629,22 +6685,13 @@ ${entrevista}`;
   const enProceso = peticionesPorEstado.en_revision.length + peticionesPorEstado.asignada.length;
   const aprobadas = peticionesPorEstado.aprobada.length;
 
-  const areas = [
-    { nombre: 'Property', estado: '1ª oleada', color: 'emerald', detalle: 'Doc Manager Property implantada' },
-    { nombre: 'Jurídico', estado: '1ª oleada', color: 'emerald', detalle: 'Acordado con Líder Jurídico' },
-    { nombre: 'Arquitectura', estado: 'Pendiente', color: 'stone', detalle: 'Alto riesgo' },
-    { nombre: 'Valoraciones', estado: 'Pendiente', color: 'stone', detalle: 'Alto riesgo' },
-    { nombre: 'Property Mgmt', estado: 'Alto riesgo', color: 'stone', detalle: 'Operacional' },
-    { nombre: 'Financiero', estado: 'Soporte', color: 'stone', detalle: 'Crítico' },
-  ];
-
   return (
     <div className="p-8 w-full">
       <header className="mb-6 flex items-center justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-2">Buzón del comité</p>
           <h1 className="display-1 text-navy-900">Peticiones</h1>
-          <p className="text-sm text-stone-600 mt-1">Buzón de peticiones de los equipos y mapeo de procesos AS-IS</p>
+          <p className="text-sm text-stone-600 mt-1">Buzón de peticiones de los equipos. Las rechazadas quedan archivadas con su motivo.</p>
         </div>
         {tabActiva === 'buzon' && (
           <button
@@ -6670,22 +6717,17 @@ ${entrevista}`;
           {nuevas > 0 && <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">{nuevas} nuevas</span>}
         </button>
         <button
-          onClick={() => setTabActiva('mapeador')}
+          onClick={() => setTabActiva('rechazadas')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-            tabActiva === 'mapeador' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
+            tabActiva === 'rechazadas' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
           }`}
         >
-          <Workflow size={12} />
-          Mapeador AS-IS
-        </button>
-        <button
-          onClick={() => setTabActiva('areas')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-            tabActiva === 'areas' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
-          }`}
-        >
-          <Layers size={12} />
-          Estado por áreas
+          <X size={12} />
+          Rechazadas
+          {(() => {
+            const n = peticiones.filter(p => p.estado === 'rechazada').length;
+            return n > 0 ? <span className="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded">{n}</span> : null;
+          })()}
         </button>
       </div>
 
@@ -6778,8 +6820,8 @@ ${entrevista}`;
 
               <div className="mb-4">
                 <label className="text-xs uppercase tracking-wider text-navy-800 font-bold mb-2 block">Tipo de petición</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {['herramienta_nueva', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'].map(k => {
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                  {['herramienta_nueva', 'herramienta_existente', 'mejora_herramienta', 'mejora_proceso', 'contratar_perfil'].map(k => {
                     const v = TIPOS_PETICION[k];
                     const I = v.icon;
                     const active = nuevaTipo === k;
@@ -7012,56 +7054,64 @@ ${entrevista}`;
         </>
       )}
 
-      {tabActiva === 'mapeador' && (
-        <div className="bg-white border border-stone-200 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-stone-900 mb-3 flex items-center gap-2">
-            <Workflow size={15} />
-            Mapeador AS-IS
-          </h3>
-          <p className="text-xs text-stone-600 mb-3">Pega una entrevista o transcripción con un área. Nexo extrae pasos, dolores y quick wins.</p>
-          <textarea
-            value={entrevista}
-            onChange={e => setEntrevista(e.target.value)}
-            placeholder="Pega aquí la transcripción de la entrevista..."
-            rows={6}
-            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
-          />
-          <button
-            onClick={mapearProceso}
-            disabled={mapeando || !entrevista.trim()}
-            className="flex items-center gap-2 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm transition-colors"
-          >
-            {mapeando ? <Loader2 size={14} className="animate-spin" /> : <Workflow size={14} />}
-            Mapear proceso
-          </button>
-
-          {mapa && (
-            <div className="mt-4 bg-stone-50 border border-stone-200 rounded-md p-4">
-              <p className="text-xs text-stone-500 mb-2 uppercase tracking-wider">Mapa generado</p>
-              <p className="text-sm text-stone-800 whitespace-pre-wrap leading-relaxed">{mapa}</p>
+      {tabActiva === 'rechazadas' && (() => {
+        const rechazadas = peticiones
+          .filter(p => p.estado === 'rechazada')
+          .slice()
+          .sort((a, b) => (b.fechaRechazo || b.fecha || '').localeCompare(a.fechaRechazo || a.fecha || ''));
+        if (rechazadas.length === 0) {
+          return (
+            <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+              <X size={36} className="text-stone-300 mx-auto mb-3" />
+              <p className="text-sm text-stone-600 font-medium mb-1">No hay peticiones rechazadas</p>
+              <p className="text-xs text-stone-400">Aquí aparecerá el histórico de peticiones que el comité haya rechazado, con el motivo del rechazo.</p>
             </div>
-          )}
-        </div>
-      )}
-
-      {tabActiva === 'areas' && (
-        <div>
-          <p className="text-xs text-stone-600 mb-3">Plan 16+16 semanas. Estado de implantación por área.</p>
-          <div className="grid grid-cols-3 gap-3">
-            {areas.map(a => (
-              <div key={a.nombre} className={`p-4 rounded-xl border ${
-                a.color === 'emerald' ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-stone-200'
-              }`}>
-                <p className="text-sm font-medium text-stone-900">{a.nombre}</p>
-                <p className="text-xs text-stone-500 mt-1">{a.detalle}</p>
-                <span className={`inline-block mt-2 text-[10px] px-2 py-0.5 rounded ${
-                  a.color === 'emerald' ? 'bg-emerald-200 text-emerald-900' : 'bg-stone-100 text-stone-700'
-                }`}>{a.estado}</span>
-              </div>
-            ))}
+          );
+        }
+        return (
+          <div className="space-y-3">
+            <p className="text-xs text-stone-600">{rechazadas.length} {rechazadas.length === 1 ? 'petición rechazada' : 'peticiones rechazadas'}. Pincha en una para ver el motivo y el detalle.</p>
+            {rechazadas.map(p => {
+              const tipo = TIPOS_PETICION[p.tipoSolicitud] || TIPOS_PETICION.herramienta;
+              const TipoIcon = tipo.icon;
+              const solicitante = personaById[p.solicitanteId];
+              const solicitanteLabel = solicitante?.nombre || p.solicitanteNombre || null;
+              const rechazadoPor = personaById[p.rechazadoPorId];
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setEvaluando(p.id)}
+                  className="w-full text-left bg-white border border-stone-200 hover:border-red-300 rounded-xl p-4 transition-all group"
+                >
+                  <div className="flex items-start gap-3">
+                    <TipoIcon size={16} className="text-stone-500 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <h3 className="text-sm font-bold text-navy-900">{p.titulo}</h3>
+                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-red-100 text-red-800 font-bold">Rechazada</span>
+                        <span className="text-[10px] text-stone-500">{tipo.label}</span>
+                      </div>
+                      <p className="text-xs text-stone-600 mb-2">
+                        {p.equipo}
+                        {solicitanteLabel && ` · ${solicitanteLabel}`}
+                        {p.fechaRechazo && ` · rechazada ${formatFecha(p.fechaRechazo, true)}`}
+                        {rechazadoPor && ` por ${rechazadoPor.nombre}`}
+                      </p>
+                      {p.motivoRechazo && (
+                        <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                          <p className="text-[10px] uppercase tracking-wider text-red-700 font-bold mb-0.5">Motivo del rechazo</p>
+                          <p className="text-sm text-stone-800 leading-relaxed">{p.motivoRechazo}</p>
+                        </div>
+                      )}
+                    </div>
+                    <ChevronRight size={14} className="text-stone-400 group-hover:text-stone-700 mt-0.5 flex-shrink-0" />
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {rechazando && (() => {
         const peticion = peticiones.find(p => p.id === rechazando.id);
@@ -8109,6 +8159,12 @@ function ReunionesView({ reuniones, setReuniones, talleres, personas, historico,
   const [tabActiva, setTabActiva] = useState('todas');
   const [sinFecha, setSinFecha] = useState(false);
 
+  const [transcripcion, setTranscripcion] = useState('');
+  const [resumenIA, setResumenIA] = useState(null);
+  const [resumiendo, setResumiendo] = useState(false);
+  const [resumenForm, setResumenForm] = useState({ titulo: '', fecha: '', tallerId: '', asistentes: [], guardarComoReunion: true });
+  const [resumenGuardado, setResumenGuardado] = useState(null);
+
   const calcularEstadoReunion = (r) => {
     if (!r.fecha) return 'por_programar';
     if (r.estado === 'procesada') return 'finalizada';
@@ -8131,6 +8187,7 @@ function ReunionesView({ reuniones, setReuniones, talleres, personas, historico,
     programadas: { label: 'Programadas', icon: Calendar, color: 'text-navy-700' },
     por_programar: { label: 'Por programar', icon: Clock, color: 'text-gold-700' },
     finalizadas: { label: 'Finalizadas', icon: CheckCircle2, color: 'text-emerald-700' },
+    resumen: { label: 'Resumen express', icon: Sparkles, color: 'text-gold-700' },
   };
 
   const personaById = Object.fromEntries(personas.map(p => [p.id, p]));
@@ -8212,6 +8269,114 @@ Devuelve SOLO un array JSON, sin explicación ni markdown. Formato:
 
   const toggleAsistente = (id) => {
     setAsistentesSel(asistentesSel.includes(id) ? asistentesSel.filter(a => a !== id) : [...asistentesSel, id]);
+  };
+
+  const resumirTranscripcion = async () => {
+    if (!transcripcion.trim()) return;
+    setResumiendo(true);
+    setResumenIA(null);
+    setResumenGuardado(null);
+    const personasContexto = personas.map(p => p.nombre).join(', ');
+    const talleresContexto = talleres.map(t => `${t.nombre} (id ${t.id}): ${t.descripcion || ''}`).join('\n');
+    const prompt = `Resume esta transcripción de reunión y devuelve los datos estructurados.
+
+PERSONAS DEL EQUIPO (busca matches por nombre):
+${personasContexto}
+
+TALLERES DEL PLAN ESTRATÉGICO (sugiere uno si encaja):
+${talleresContexto}
+
+TRANSCRIPCIÓN:
+${transcripcion}
+
+Devuelve SOLO JSON válido, sin markdown:
+{
+  "titulo": "título corto y descriptivo de la reunión",
+  "asistentes": ["Nombre exacto si está en la lista"],
+  "fecha": "YYYY-MM-DD si se menciona, sino null",
+  "tallerSugeridoId": "id del taller que mejor encaja, o null",
+  "temas": ["tema tratado 1", "tema 2"],
+  "decisiones": ["decisión tomada"],
+  "acciones": ["acción acordada (con responsable si se menciona)"],
+  "resumen": "2-3 frases ejecutivas con lo más importante"
+}`;
+    const respuesta = await callClaude('Eres asistente del comité del Plan Estratégico. Resumes y estructuras transcripciones de reuniones. Devuelves SOLO JSON válido.', prompt);
+    try {
+      const json = respuesta && respuesta.match(/\{[\s\S]*\}/);
+      if (json) {
+        const data = JSON.parse(json[0]);
+        const asistentesIds = (data.asistentes || [])
+          .map(n => personas.find(p => p.nombre.toLowerCase() === String(n).toLowerCase())?.id)
+          .filter(Boolean);
+        setResumenIA(data);
+        setResumenForm({
+          titulo: data.titulo || '',
+          fecha: data.fecha || new Date().toISOString().slice(0, 10),
+          tallerId: talleres.find(t => t.id === data.tallerSugeridoId) ? data.tallerSugeridoId : '',
+          asistentes: asistentesIds,
+          guardarComoReunion: true,
+        });
+      } else {
+        setResumenIA({ error: 'No se pudo interpretar la respuesta de la IA.' });
+      }
+    } catch (e) {
+      setResumenIA({ error: 'No se pudo interpretar la respuesta de la IA.' });
+    }
+    setResumiendo(false);
+  };
+
+  const guardarResumen = async () => {
+    if (!resumenIA || resumenIA.error) return;
+    if (!resumenForm.guardarComoReunion && !resumenForm.tallerId) return;
+    if (!resumenForm.titulo.trim()) return;
+    const notasResumen = [
+      resumenIA.resumen ? `RESUMEN:\n${resumenIA.resumen}` : '',
+      resumenIA.temas?.length ? `TEMAS:\n${resumenIA.temas.map(t => `• ${t}`).join('\n')}` : '',
+      resumenIA.decisiones?.length ? `DECISIONES:\n${resumenIA.decisiones.map(d => `• ${d}`).join('\n')}` : '',
+      resumenIA.acciones?.length ? `ACCIONES:\n${resumenIA.acciones.map(a => `• ${a}`).join('\n')}` : '',
+    ].filter(Boolean).join('\n\n');
+    const reunionId = `r-${Date.now()}`;
+    let creoReunion = false;
+    let creoEvento = false;
+
+    if (resumenForm.guardarComoReunion) {
+      const nueva = {
+        id: reunionId,
+        titulo: resumenForm.titulo.trim(),
+        fecha: resumenForm.fecha || null,
+        asistentes: resumenForm.asistentes,
+        estado: 'procesada',
+        notas: notasResumen,
+        agenda: resumenIA.temas || [],
+        ideas: [],
+        tallerIds: resumenForm.tallerId ? [resumenForm.tallerId] : [],
+        fuente: 'resumen_express',
+      };
+      await setReuniones([...reuniones, nueva]);
+      creoReunion = true;
+    }
+
+    if (resumenForm.tallerId && setHistorico && historico) {
+      const nuevoEvento = {
+        id: `e-${Date.now()}`,
+        tallerId: resumenForm.tallerId,
+        fecha: resumenForm.fecha || new Date().toISOString().slice(0, 10),
+        tipo: 'avance',
+        titulo: `Reunión: ${resumenForm.titulo.trim()}`,
+        descripcion: resumenIA.resumen || notasResumen,
+        autorId: null,
+        reunionId: resumenForm.guardarComoReunion ? reunionId : null,
+      };
+      await setHistorico([...historico, nuevoEvento]);
+      creoEvento = true;
+    }
+
+    setResumenGuardado({
+      reunion: creoReunion,
+      taller: creoEvento ? talleres.find(t => t.id === resumenForm.tallerId)?.nombre : null,
+    });
+    setTranscripcion('');
+    setResumenIA(null);
   };
 
   if (reunionActiva) {
@@ -8336,12 +8501,181 @@ Devuelve SOLO un array JSON, sin explicación ni markdown. Formato:
             >
               <Icon size={14} className={active ? 'text-gold-400' : cfg.color} />
               {cfg.label}
-              <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${active ? 'bg-gold-400 text-navy-900' : 'bg-stone-100 text-stone-700'}`}>{count}</span>
+              {k !== 'resumen' && (
+                <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${active ? 'bg-gold-400 text-navy-900' : 'bg-stone-100 text-stone-700'}`}>{count}</span>
+              )}
             </button>
           );
         })}
       </div>
 
+      {tabActiva === 'resumen' ? (
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
+          <h2 className="font-serif text-2xl text-navy-900 mb-2 flex items-center gap-2">
+            <Sparkles size={20} className="text-gold-600" />
+            Resumen express con IA
+          </h2>
+          <p className="text-sm text-stone-600 mb-5">Pega la transcripción de una reunión y la IA generará un resumen estructurado. Después podrás guardarla como reunión y/o vincularla a un taller para que aparezca en su evolución.</p>
+
+          {resumenGuardado && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-md px-4 py-3 mb-4 flex items-start gap-2">
+              <CheckCircle2 size={16} className="text-emerald-700 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 text-sm text-emerald-900">
+                <p className="font-semibold">Guardado correctamente</p>
+                <p className="text-xs mt-0.5">
+                  {resumenGuardado.reunion && 'Aparece en el listado de reuniones.'}
+                  {resumenGuardado.reunion && resumenGuardado.taller && ' '}
+                  {resumenGuardado.taller && `Vinculada al taller "${resumenGuardado.taller}".`}
+                </p>
+              </div>
+              <button onClick={() => setResumenGuardado(null)} className="text-emerald-700 hover:text-emerald-900 flex-shrink-0"><X size={14} /></button>
+            </div>
+          )}
+
+          {!resumenIA ? (
+            <>
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block font-semibold">Transcripción de la reunión</label>
+              <textarea
+                value={transcripcion}
+                onChange={e => setTranscripcion(e.target.value)}
+                placeholder="Pega aquí la transcripción, las notas o el audio transcrito de la reunión…"
+                rows={10}
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-3"
+              />
+              <button
+                onClick={resumirTranscripcion}
+                disabled={resumiendo || !transcripcion.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
+              >
+                {resumiendo ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                {resumiendo ? 'Resumiendo…' : 'Resumir con IA'}
+              </button>
+            </>
+          ) : resumenIA.error ? (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <p className="text-sm text-red-800 mb-2">{resumenIA.error}</p>
+              <button onClick={() => setResumenIA(null)} className="text-xs text-red-700 hover:text-red-900 underline">Volver a intentar</button>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
+                <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Resumen generado</p>
+                {resumenIA.resumen && <p className="text-sm text-stone-800 leading-relaxed mb-3">{resumenIA.resumen}</p>}
+                {resumenIA.temas?.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Temas tratados</p>
+                    <ul className="text-sm text-stone-700 space-y-0.5">{resumenIA.temas.map((t, i) => <li key={i}>• {t}</li>)}</ul>
+                  </div>
+                )}
+                {resumenIA.decisiones?.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Decisiones</p>
+                    <ul className="text-sm text-stone-700 space-y-0.5">{resumenIA.decisiones.map((d, i) => <li key={i}>• {d}</li>)}</ul>
+                  </div>
+                )}
+                {resumenIA.acciones?.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Acciones acordadas</p>
+                    <ul className="text-sm text-stone-700 space-y-0.5">{resumenIA.acciones.map((a, i) => <li key={i}>• {a}</li>)}</ul>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block font-semibold">Título</label>
+                  <input
+                    value={resumenForm.titulo}
+                    onChange={e => setResumenForm({ ...resumenForm, titulo: e.target.value })}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block font-semibold">Fecha</label>
+                  <input
+                    type="date"
+                    value={resumenForm.fecha}
+                    onChange={e => setResumenForm({ ...resumenForm, fecha: e.target.value })}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5 block font-semibold">Asistentes detectados <span className="normal-case text-stone-400 font-normal">(toca para ajustar)</span></label>
+                <div className="flex flex-wrap gap-1">
+                  {personas.map(p => {
+                    const sel = resumenForm.asistentes.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => setResumenForm({
+                          ...resumenForm,
+                          asistentes: sel ? resumenForm.asistentes.filter(id => id !== p.id) : [...resumenForm.asistentes, p.id],
+                        })}
+                        className={`text-[11px] px-2 py-0.5 rounded transition-colors ${sel ? 'bg-navy-900 text-stone-50' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                      >{p.nombre}</button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${resumenForm.guardarComoReunion ? 'border-navy-700 bg-navy-50' : 'border-stone-200 bg-white hover:border-stone-400'}`}
+                  onClick={() => setResumenForm({ ...resumenForm, guardarComoReunion: !resumenForm.guardarComoReunion })}
+                >
+                  <div className="flex items-start gap-2">
+                    <div className={`w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center mt-0.5 ${resumenForm.guardarComoReunion ? 'bg-navy-900 border-navy-900' : 'border-stone-400'}`}>
+                      {resumenForm.guardarComoReunion && <span className="text-stone-50 text-[10px] leading-none">✓</span>}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-navy-900 mb-0.5">Guardar como reunión</p>
+                      <p className="text-[11px] text-stone-600">Aparece en el listado de reuniones para revisar más tarde.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`border-2 rounded-xl p-4 transition-all ${resumenForm.tallerId ? 'border-navy-700 bg-navy-50' : 'border-stone-200 bg-white'}`}>
+                  <div className="flex items-start gap-2 mb-2">
+                    <div className={`w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center mt-0.5 ${resumenForm.tallerId ? 'bg-navy-900 border-navy-900' : 'border-stone-400'}`}>
+                      {resumenForm.tallerId && <span className="text-stone-50 text-[10px] leading-none">✓</span>}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-navy-900 mb-0.5">Vincular a un taller</p>
+                      <p className="text-[11px] text-stone-600">Se añade como evento en la evolución del taller.</p>
+                    </div>
+                  </div>
+                  <select
+                    value={resumenForm.tallerId}
+                    onChange={e => setResumenForm({ ...resumenForm, tallerId: e.target.value })}
+                    className="w-full bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                  >
+                    <option value="">— No vincular —</option>
+                    {talleres.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={guardarResumen}
+                  disabled={!resumenForm.titulo.trim() || (!resumenForm.guardarComoReunion && !resumenForm.tallerId)}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium transition-colors"
+                >
+                  <Plus size={14} /> Guardar
+                </button>
+                <button
+                  onClick={() => { setResumenIA(null); setTranscripcion(''); }}
+                  className="px-3 py-2 text-stone-600 hover:text-stone-900 text-sm"
+                >Empezar de nuevo</button>
+                {(!resumenForm.guardarComoReunion && !resumenForm.tallerId) && (
+                  <p className="text-[11px] text-stone-500 italic">Selecciona al menos una opción.</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {(reunionesPorEstado[tabActiva] || []).length === 0 && (
           <div className="lg:col-span-2 bg-white border border-dashed border-stone-300 rounded-2xl p-12 text-center">
@@ -8451,6 +8785,7 @@ Devuelve SOLO un array JSON, sin explicación ni markdown. Formato:
           );
         })}
       </div>
+      )}
     </div>
   );
 }
@@ -9830,7 +10165,7 @@ export default function Nexo() {
         {active === 'dashboard' && <Dashboard talleres={talleres} herramientas={herramientas} setHerramientas={setHerramientas} tareas={tareas} setTareas={setTareas} iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} historico={historico} setHistorico={setHistorico} solapamientos={solapamientos} convocatorias={convocatorias} setConvocatorias={setConvocatorias} peticiones={peticiones} setPeticiones={setPeticiones} reuniones={reuniones} usuarioActualId={usuarioActualId} setActive={setActive} irATaller={irATaller} session={sessionForUI} active={active} />}
         {active === 'mis-tareas' && <MisTareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'reuniones' && <ReunionesView reuniones={reuniones} setReuniones={setReuniones} talleres={talleres} personas={personas} historico={historico} setHistorico={setHistorico} setActive={setActive} />}
-        {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
+        {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
