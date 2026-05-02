@@ -3330,6 +3330,7 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
       objetivos: [],
       documentos: [],
       updatedAt: new Date().toISOString(),
+      updatedBy: usuarioActualId || null,
     };
     await setTalleres([...talleres, nuevo]);
     setNuevoTallerForm({ nombre: '', descripcion: '', area: '', estado: 'Planificado', lider: '' });
@@ -3870,6 +3871,7 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
       lider: editTallerForm.lider.trim(),
       diaADia: editTallerForm.diaADia.trim(),
       updatedAt: new Date().toISOString(),
+      updatedBy: usuarioActualId || null,
     } : t);
     await setTalleres(actualizados);
     setEditandoTaller(false);
@@ -4075,6 +4077,18 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   const totalEventos = historico.filter(e => e.tallerId === taller.id).length;
   const tareasTaller = tareas.filter(t => t.tallerId === taller.id);
   const tareasAbiertas = tareasTaller.filter(t => t.estado === 'pendiente').length;
+
+  const ultimaModificacion = (() => {
+    const candidatos = [];
+    if (taller.updatedAt) candidatos.push({ ts: new Date(taller.updatedAt).getTime(), autorId: taller.updatedBy, accion: 'editó la información del taller' });
+    historico.filter(e => e.tallerId === taller.id && e.fecha).forEach(e => {
+      const tipoLabel = TIPOS_EVENTO[e.tipo]?.label || 'evento';
+      candidatos.push({ ts: new Date(e.fecha).getTime(), autorId: e.autorId, accion: `añadió ${tipoLabel.toLowerCase()}: "${e.titulo || ''}"` });
+    });
+    if (candidatos.length === 0) return null;
+    return candidatos.reduce((acc, c) => (c.ts > acc.ts ? c : acc));
+  })();
+  const ultimaPersona = ultimaModificacion?.autorId ? personaById[ultimaModificacion.autorId] : null;
 
   const conteoTipos = {};
   historico.filter(e => e.tallerId === taller.id).forEach(e => {
@@ -4436,11 +4450,27 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
               {taller.diaADia && <> · día a día <span className="text-navy-900 font-bold">{taller.diaADia}</span></>}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs uppercase tracking-wider font-semibold text-navy-800 bg-navy-50 border border-navy-100 px-3 py-1.5 rounded-md">{taller.estado}</span>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-md">
-              <RadioTower size={11} /> En vivo
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-wider font-semibold text-navy-800 bg-navy-50 border border-navy-100 px-3 py-1.5 rounded-md">{taller.estado}</span>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-md">
+                <RadioTower size={11} /> En vivo
+              </div>
             </div>
+            {ultimaModificacion && (
+              <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-md px-3 py-1.5" title={ultimaModificacion.accion}>
+                <div className={`w-6 h-6 rounded-full text-stone-50 flex items-center justify-center font-semibold text-[10px] flex-shrink-0 ${ultimaPersona ? 'bg-navy-900' : 'bg-stone-400'}`}>
+                  {ultimaPersona ? ultimaPersona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() : '?'}
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 leading-none">Última modificación</p>
+                  <p className="text-xs font-semibold text-stone-800 leading-tight mt-0.5">
+                    {ultimaPersona?.nombre || 'Desconocido'}
+                    <span className="text-stone-500 font-normal"> · {formatFecha(new Date(ultimaModificacion.ts).toISOString(), true)}</span>
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <p className="text-base text-stone-700 leading-relaxed max-w-3xl">{taller.descripcion}</p>
