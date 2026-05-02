@@ -2674,6 +2674,29 @@ function SolapamientosView({ talleres, herramientas, iniciativas, personas, sola
 
   const tallerById = Object.fromEntries(talleres.map(t => [t.id, t]));
   const personaById = Object.fromEntries(personas.map(p => [p.id, p]));
+  const herramientasByName = Object.fromEntries((herramientas || []).map(h => [h.nombre.toLowerCase(), h]));
+
+  // Detecta herramientas mencionadas en el título o el campo herramientas_implicadas.
+  // Para titulos tipo "BI Suite B ↔ BI Suite A en Valoraciones" extrae los nombres.
+  const herramientasDelConflicto = (s) => {
+    const out = [];
+    const ids = s.herramientasImplicadas || [];
+    ids.forEach(id => {
+      const h = (herramientas || []).find(x => x.id === id);
+      if (h) out.push(h);
+    });
+    if (out.length === 0 && s.titulo) {
+      // Buscar nombres separados por ↔, vs, ↗ o /
+      const parts = s.titulo.split(/[↔↗]|\bvs\b|\sentre\s/i);
+      parts.forEach(p => {
+        const candidato = p.replace(/\s+en\s+\w+/i, '').replace(/^[:\s,.]+|[:\s,.]+$/g, '').trim();
+        if (!candidato) return;
+        const h = herramientasByName[candidato.toLowerCase()];
+        if (h && !out.find(x => x.id === h.id)) out.push(h);
+      });
+    }
+    return out;
+  };
 
   const peticionesHerramienta = (peticiones || []).filter(p =>
     ['herramienta', 'herramienta_nueva', 'mejora_herramienta'].includes(p.tipoSolicitud) && p.estado !== 'rechazada'
@@ -3126,29 +3149,69 @@ Formato:
                   </div>
 
                   <h3 className="font-display text-2xl text-navy-900 leading-tight mb-2">{s.titulo}</h3>
-                  <p className="text-sm text-stone-700 leading-relaxed mb-3 line-clamp-2">{s.descripcion}</p>
+                  <div className="mb-3">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-1">Descripción del conflicto</p>
+                    <p className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">{s.descripcion}</p>
+                  </div>
+
+                  {(() => {
+                    const hsConflicto = herramientasDelConflicto(s);
+                    if (hsConflicto.length === 0) return null;
+                    return (
+                      <div className="mb-3 bg-red-50 border border-red-200 rounded-md p-3">
+                        <p className="text-[10px] uppercase tracking-wider text-red-800 font-bold mb-2 flex items-center gap-1">
+                          <AlertTriangle size={11} /> Herramientas que se solapan · {hsConflicto.length}
+                        </p>
+                        <div className="space-y-1.5">
+                          {hsConflicto.map(h => {
+                            const cats = (Array.isArray(h.categorias) && h.categorias.length) ? h.categorias.join(', ') : (h.categoria || 'Sin categoría');
+                            const funcs = (h.funcionalidades || []).slice(0, 4).join(', ');
+                            return (
+                              <button
+                                key={h.id}
+                                onClick={() => setActive('herramientas')}
+                                className="w-full text-left bg-white border border-red-200 hover:border-navy-700 rounded p-2 transition-colors"
+                              >
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm font-bold text-navy-900">{h.nombre}</span>
+                                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-stone-100 text-stone-700 font-semibold">{cats}</span>
+                                  </div>
+                                  <span className="text-[11px] text-stone-600 tabular-nums">{(h.costeAnual || 0).toLocaleString()}€/año · {h.licenciasActivas || 0}/{h.licenciasContratadas || 0} lic.</span>
+                                </div>
+                                {funcs && <p className="text-[11px] text-stone-600 mt-0.5">Funcionalidades: <span className="font-medium text-stone-800">{funcs}</span></p>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {(s.talleresImplicados || []).length > 0 && (
-                    <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-                      {(s.talleresImplicados || []).slice(0, 3).map(tid => {
-                        const t = tallerById[tid];
-                        return t ? (
-                          <button
-                            key={tid}
-                            onClick={() => setActive('talleres')}
-                            className="text-xs bg-navy-50 text-navy-800 border border-navy-100 hover:bg-navy-100 hover:border-navy-300 rounded-md px-2 py-0.5 font-medium transition-colors"
-                          >{t.nombre}</button>
-                        ) : null;
-                      })}
-                      {(s.talleresImplicados || []).length > 3 && (
-                        <span className="text-xs text-stone-500 font-medium">+{(s.talleresImplicados || []).length - 3}</span>
-                      )}
+                    <div className="mb-3">
+                      <p className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-1">Talleres implicados</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {(s.talleresImplicados || []).map(tid => {
+                          const t = tallerById[tid];
+                          return t ? (
+                            <button
+                              key={tid}
+                              onClick={() => setActive('talleres')}
+                              className="text-xs bg-navy-50 text-navy-800 border border-navy-100 hover:bg-navy-100 hover:border-navy-300 rounded-md px-2 py-0.5 font-medium transition-colors"
+                            >{t.nombre}</button>
+                          ) : (
+                            <span key={tid} className="text-xs text-stone-400 italic">{tid}</span>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
                   {s.recomendacion && (
                     <div className={`relative pl-3 mb-3 border-l-2 ${c.accent.replace('bg-', 'border-')}`}>
-                      <p className="text-sm text-stone-800 leading-snug line-clamp-2"><span className="font-semibold text-navy-900">→ </span>{s.recomendacion}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-0.5">Recomendación</p>
+                      <p className="text-sm text-stone-800 leading-snug whitespace-pre-wrap"><span className="font-semibold text-navy-900">→ </span>{s.recomendacion}</p>
                     </div>
                   )}
 
@@ -5446,6 +5509,13 @@ RECOMENDACIÓN: [una frase]`;
   const sinUsoH = herramientasConUso.filter(h => h.usoEstado.key === 'sin_uso');
   const duplicadas = herramientasConUso.filter(h => (h.alerta || '').includes('Duplica'));
 
+  // Si la alerta empieza por "Duplica X", devuelve la herramienta X.
+  const herramientaDuplicadaDe = (h) => {
+    if (!h.alerta || !h.alerta.startsWith('Duplica ')) return null;
+    const nombreOtra = h.alerta.replace(/^Duplica\s+/, '').trim();
+    return herramientas.find(x => x.nombre.toLowerCase() === nombreOtra.toLowerCase()) || null;
+  };
+
   const requierenAtencion = [
     ...sinUsoH,
     ...infrautilizadas,
@@ -6715,11 +6785,24 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                           <span className="font-medium">{h.licenciasActivas}/{h.licenciasContratadas} lic.</span>
                           <span className="font-bold text-navy-800 tabular-nums" title={`${(h.costeAnual || 0).toLocaleString()}€/año total · ${costePorLicenciaDe(h).toLocaleString()}€/año por licencia`}>{Math.round(costePorLicenciaDe(h) / 12).toLocaleString()}€/mes·lic</span>
                         </div>
-                        {esDuplicada && (
-                          <p className="text-[10px] text-red-700 font-semibold mt-1.5 flex items-center gap-1">
-                            <AlertTriangle size={10} /> Duplicidad
-                          </p>
-                        )}
+                        {esDuplicada && (() => {
+                          const otra = herramientaDuplicadaDe(h);
+                          return (
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (otra) abrirDetalle(otra);
+                              }}
+                              onKeyDown={(e) => { if (e.key === 'Enter' && otra) { e.stopPropagation(); abrirDetalle(otra); } }}
+                              className="text-[10px] text-red-700 font-semibold mt-1.5 flex items-center gap-1 hover:underline cursor-pointer"
+                              title={otra ? `Pulsa para ver ${otra.nombre}` : 'Pulsa para ver la herramienta duplicada'}
+                            >
+                              <AlertTriangle size={10} /> Duplica con <span className="underline">{otra?.nombre || '…'}</span>
+                            </span>
+                          );
+                        })()}
                       </button>
                     );
                   })}
@@ -6754,6 +6837,56 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
               </div>
 
               <div className="p-6 space-y-4">
+                {(() => {
+                  const otra = herramientaOriginal ? herramientaDuplicadaDe(herramientaOriginal) : null;
+                  if (!otra) return null;
+                  const funcsActuales = herramientaOriginal.funcionalidades || [];
+                  const funcsOtra = otra.funcionalidades || [];
+                  const comunes = funcsActuales.filter(f => funcsOtra.includes(f));
+                  const costeActual = herramientaOriginal.costeAnual || 0;
+                  const costeOtra = otra.costeAnual || 0;
+                  return (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                      <div className="flex items-start gap-2 mb-2">
+                        <AlertTriangle size={16} className="text-red-700 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-red-900 mb-0.5">Posible duplicidad detectada</p>
+                          <p className="text-xs text-red-800">Esta herramienta cubre funcionalidades que ya están en otra del catálogo.</p>
+                        </div>
+                      </div>
+                      <div className="bg-white border border-red-200 rounded-md p-3 mb-2">
+                        <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-bold">Duplica con</p>
+                            <p className="text-base font-bold text-navy-900">{otra.nombre}</p>
+                          </div>
+                          <button
+                            onClick={() => abrirDetalle(otra)}
+                            className="text-xs px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md font-semibold transition-colors flex items-center gap-1"
+                          >Ver {otra.nombre} <ChevronRight size={11} /></button>
+                        </div>
+                        {comunes.length > 0 && (
+                          <div className="mb-2">
+                            <p className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-1">Funcionalidades comunes</p>
+                            <div className="flex flex-wrap gap-1">
+                              {comunes.map(f => <span key={f} className="text-[11px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">{f}</span>)}
+                            </div>
+                          </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="bg-stone-50 rounded px-2 py-1">
+                            <span className="text-stone-500">Esta:</span> <span className="font-bold text-navy-900">{costeActual.toLocaleString()}€/año</span>
+                          </div>
+                          <div className="bg-stone-50 rounded px-2 py-1">
+                            <span className="text-stone-500">{otra.nombre}:</span> <span className="font-bold text-navy-900">{costeOtra.toLocaleString()}€/año</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-red-800 italic">Recomendación: consolidar a una sola herramienta y dar de baja la que tenga menor uso para reducir coste.</p>
+                    </div>
+                  );
+                })()}
+
                 <div>
                   <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block">Nombre</label>
                   <input
