@@ -314,7 +314,6 @@ function Sidebar({ active, setActive, usuarioActualId, setUsuarioActualId, perso
     { id: 'reuniones', label: 'Reuniones', icon: Mic },
     { id: 'mis-tareas', label: 'Mis Tareas', icon: User, badge: misTareasCount },
     { id: 'herramientas', label: 'Herramientas', icon: Wrench },
-    { id: 'flujos', label: 'Flujos', icon: GitBranch },
     { id: 'peticiones', label: 'Peticiones', icon: Workflow },
     { id: 'solapamientos', label: 'Conflictos', icon: AlertTriangle },
     { id: 'tareas', label: 'Tareas', icon: CheckSquare },
@@ -5468,7 +5467,7 @@ const CATEGORIAS_DESCRIPCIONES = {
   'Valoraciones': 'Tasaciones y valoración de activos inmobiliarios.',
 };
 
-function HerramientasView({ herramientas, setHerramientas, personas = [], usuarioActualId }) {
+function HerramientasView({ herramientas, setHerramientas, personas = [], usuarioActualId, flujos = [], setFlujos, setActive }) {
   const [solicitud, setSolicitud] = useState('');
   const [analizando, setAnalizando] = useState(false);
   const [alternativas, setAlternativas] = useState(null);
@@ -5959,6 +5958,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
         </div>
       </header>
 
+      {vistaCatalogo !== 'flujos' && (<>
       <div className="grid grid-cols-4 gap-3 mb-6">
         <Metric
           label="Inventario"
@@ -6507,8 +6507,9 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           )}
         </div>
       )}
+      </>)}
 
-      <div className="flex items-center gap-2 mb-5">
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
         <button
           onClick={() => setVistaCatalogo('catalogo')}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all border-2 ${
@@ -6531,8 +6532,24 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           <Filter size={16} className={vistaCatalogo === 'por_uso' ? 'text-gold-400' : ''} />
           Herramientas por uso
         </button>
+        <button
+          onClick={() => setVistaCatalogo('flujos')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all border-2 ${
+            vistaCatalogo === 'flujos'
+              ? 'bg-navy-900 text-stone-50 border-navy-900 shadow-md'
+              : 'bg-white text-stone-700 border-stone-300 hover:border-navy-700 hover:text-navy-900'
+          }`}
+        >
+          <GitBranch size={16} className={vistaCatalogo === 'flujos' ? 'text-gold-400' : ''} />
+          Flujos
+        </button>
       </div>
 
+      {vistaCatalogo === 'flujos' && setFlujos && (
+        <FlujosView flujos={flujos} setFlujos={setFlujos} herramientas={herramientas} setHerramientas={setHerramientas} setActive={setActive} />
+      )}
+
+      {vistaCatalogo !== 'flujos' && (<>
       <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4 flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-1 min-w-[200px]">
           <Search size={13} className="text-stone-500" />
@@ -6886,6 +6903,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           })}
         </div>
       ) : null}
+      </>)}
 
       {editandoId && edicion && (() => {
         const herramientaOriginal = herramientas.find(h => h.id === editandoId);
@@ -11840,6 +11858,9 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
   const [editandoFase, setEditandoFase] = useState(null); // { lineaId, flujoId, faseId }
   const [creandoFlujoEnLinea, setCreandoFlujoEnLinea] = useState(null);
   const [nuevoFlujoNombre, setNuevoFlujoNombre] = useState('');
+  const [modoComparador, setModoComparador] = useState(false);
+  const [lineasComparar, setLineasComparar] = useState([]);
+  const [flujoComparar, setFlujoComparar] = useState('Oferta / Mandato');
 
   const lineaActual = flujos.find(l => l.lineaNegocio === lineaSeleccionada);
   const grupoActual = todasLasLineas.find(l => l.nombre === lineaSeleccionada)?.grupo || 'transaccional';
@@ -11957,16 +11978,169 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
   const fasesConHerramientas = fasesDeLinea.filter(fa => (fa.herramientaIds || []).length > 0).length;
   const fasesSinHerramientas = totalFases - fasesConHerramientas;
 
-  return (
-    <div className="p-8 w-full">
-      <header className="mb-6 flex items-end justify-between gap-3 flex-wrap">
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-2">Mapa de procesos</p>
-          <h1 className="display-1 text-navy-900">Flujos de negocio y herramientas</h1>
-          <p className="text-sm text-stone-600 mt-1">Qué herramientas usa cada línea de negocio en cada fase de sus procesos.</p>
-        </div>
-      </header>
+  // Todos los nombres de flujos únicos en el sistema (para el comparador)
+  const todosLosFlujos = [...new Set(flujos.flatMap(l => (l.flujos || []).map(f => f.nombre)))].sort();
 
+  return (
+    <div className="w-full">
+      <div className="flex items-center gap-1 mb-4 bg-stone-100 rounded-md p-0.5 w-fit">
+        <button
+          onClick={() => setModoComparador(false)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${!modoComparador ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+        >
+          <GitBranch size={12} /> Vista por línea
+        </button>
+        <button
+          onClick={() => setModoComparador(true)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors ${modoComparador ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+        >
+          <Layers size={12} /> Comparar entre líneas
+        </button>
+      </div>
+
+      {modoComparador ? (
+        <div>
+          <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4">
+            <div className="mb-3">
+              <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Líneas a comparar <span className="normal-case text-stone-400">· {lineasComparar.length} seleccionadas</span></p>
+              <div className="flex flex-wrap gap-1">
+                {todasLasLineas.map(({ nombre }) => {
+                  const sel = lineasComparar.includes(nombre);
+                  return (
+                    <button
+                      key={nombre}
+                      type="button"
+                      onClick={() => setLineasComparar(sel ? lineasComparar.filter(x => x !== nombre) : [...lineasComparar, nombre])}
+                      className={`text-[11px] px-2 py-0.5 rounded font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                    >{nombre}</button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Flujo a comparar:</span>
+              <select
+                value={flujoComparar}
+                onChange={e => setFlujoComparar(e.target.value)}
+                className="text-sm font-bold bg-stone-50 border border-stone-300 rounded-md px-3 py-1.5 outline-none focus:border-navy-700"
+              >
+                {todosLosFlujos.length === 0 && <option value="">— Sin flujos disponibles —</option>}
+                {todosLosFlujos.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+              <div className="ml-auto flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Zoom</span>
+                <button onClick={() => setZoom(Math.max(40, zoom - 10))} className="w-7 h-7 rounded-md bg-white border border-stone-300 hover:border-navy-700 text-stone-700 hover:text-navy-900 font-bold transition-colors flex items-center justify-center">−</button>
+                <span className="text-xs font-bold text-navy-900 tabular-nums w-12 text-center">{zoom}%</span>
+                <button onClick={() => setZoom(Math.min(150, zoom + 10))} className="w-7 h-7 rounded-md bg-white border border-stone-300 hover:border-navy-700 text-stone-700 hover:text-navy-900 font-bold transition-colors flex items-center justify-center">+</button>
+              </div>
+            </div>
+          </div>
+
+          {lineasComparar.length === 0 ? (
+            <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+              <Layers size={36} className="text-stone-300 mx-auto mb-3" />
+              <p className="text-sm text-stone-600 font-medium mb-1">Selecciona al menos dos líneas para comparar.</p>
+              <p className="text-xs text-stone-400">Por ejemplo: Oficinas + Retail para ver diferencias en el flujo de Oferta / Mandato.</p>
+            </div>
+          ) : (
+            <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 320px)' }}>
+              <div className="space-y-4 origin-top-left transition-transform" style={{ transform: `scale(${zoom / 100})`, width: `${10000 / zoom}%`, transformOrigin: 'top left' }}>
+                {lineasComparar.map(nombreLinea => {
+                  const linea = flujos.find(l => l.lineaNegocio === nombreLinea);
+                  const flujo = linea?.flujos.find(f => f.nombre === flujoComparar);
+                  return (
+                    <div key={nombreLinea} className="bg-white border border-stone-200 rounded-2xl p-4">
+                      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                        <h3 className="font-serif text-lg font-bold text-navy-900 flex items-center gap-2">
+                          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-stone-100 text-stone-700">{nombreLinea}</span>
+                          {flujo && <span className="text-stone-400">·</span>}
+                          {flujo && <span className="text-stone-700">{flujo.nombre}</span>}
+                        </h3>
+                        {!flujo && <span className="text-[11px] text-amber-700 italic">No tiene este flujo definido</span>}
+                      </div>
+                      {flujo && (flujo.fases || []).length > 0 ? (
+                        <div className="overflow-x-auto pb-2">
+                          <div className="flex items-start gap-0 min-w-max pt-1">
+                            {flujo.fases.map((fase, idx) => {
+                              const herrs = (fase.herramientaIds || []).map(id => herramientaById[id]).filter(Boolean);
+                              const fuentes = fase.fuentesExternas || [];
+                              const sinAsignaciones = herrs.length === 0 && fuentes.length === 0;
+                              return (
+                                <React.Fragment key={fase.id}>
+                                  <div className="relative w-[200px] flex-shrink-0">
+                                    <div
+                                      className="bg-stone-100 border-2 border-stone-300 rounded-xl px-3 py-2.5 shadow-sm hover:shadow-md hover:border-stone-500 cursor-pointer transition-all"
+                                      onClick={() => setEditandoFase({ lineaId: linea.id, flujoId: flujo.id, faseId: fase.id })}
+                                    >
+                                      <span className="text-[9px] uppercase tracking-wider text-stone-600 font-bold bg-white border border-stone-200 px-1.5 py-0.5 rounded">Fase {idx + 1}</span>
+                                      <p className="text-sm font-bold text-stone-900 leading-snug line-clamp-2 min-h-[2.4rem] mt-1">{fase.nombre}</p>
+                                    </div>
+                                    <div className="flex flex-col items-center pt-1">
+                                      {!sinAsignaciones && <div className="w-px h-3 bg-stone-300"></div>}
+                                      <div className="w-full space-y-1.5">
+                                        {sinAsignaciones && (
+                                          <div className="bg-amber-50 border border-amber-200 border-dashed rounded-md px-2 py-1 text-center mt-1">
+                                            <p className="text-[10px] text-amber-700 font-semibold">Sin herramientas</p>
+                                          </div>
+                                        )}
+                                        {herrs.map(h => (
+                                          <div key={h.id} className="bg-white border border-stone-300 rounded-md px-2 py-1.5">
+                                            <div className="flex items-center gap-1.5">
+                                              <Wrench size={10} className="text-navy-700 flex-shrink-0" />
+                                              <p className="text-[11px] font-bold text-navy-900 truncate">{h.nombre}</p>
+                                            </div>
+                                          </div>
+                                        ))}
+                                        {fuentes.map(f => (
+                                          <div key={f} className="bg-emerald-50 border border-emerald-200 rounded-md px-2 py-1">
+                                            <div className="flex items-center gap-1.5">
+                                              <span className="text-emerald-700 text-[10px]">↗</span>
+                                              <p className="text-[11px] font-semibold text-emerald-900 italic truncate">{f}</p>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {idx < flujo.fases.length - 1 && (
+                                    <div className="flex items-start pt-3 px-0.5 flex-shrink-0">
+                                      <ChevronRight size={22} className="text-stone-400" />
+                                    </div>
+                                  )}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : flujo ? (
+                        <p className="text-xs text-stone-500 italic text-center py-4 bg-stone-50 rounded-lg">Este flujo no tiene fases todavía.</p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {editandoFase && (() => {
+            const linea = flujos.find(l => l.id === editandoFase.lineaId);
+            const flujo = linea?.flujos.find(f => f.id === editandoFase.flujoId);
+            const fase = flujo?.fases.find(fa => fa.id === editandoFase.faseId);
+            if (!fase) return null;
+            return (
+              <FaseEditModal
+                fase={fase}
+                herramientas={herramientas}
+                setHerramientas={setHerramientas}
+                onSave={(updates) => guardarFase(editandoFase.lineaId, editandoFase.flujoId, editandoFase.faseId, updates)}
+                onDelete={() => eliminarFase(editandoFase.lineaId, editandoFase.flujoId, editandoFase.faseId)}
+                onClose={() => setEditandoFase(null)}
+              />
+            );
+          })()}
+        </div>
+      ) : (
+      <div>
       <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4">
         <div className="flex items-center gap-3 flex-wrap mb-3">
           <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Línea de negocio:</span>
@@ -12074,19 +12248,19 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
                           <div className={`relative w-[200px] flex-shrink-0 transition-opacity ${!matches ? 'opacity-30' : ''}`}>
                             {/* CARD DE LA FASE */}
                             <div
-                              className={`bg-navy-900 text-stone-50 border-2 border-navy-900 rounded-xl px-3 py-2.5 shadow-md hover:shadow-lg hover:bg-navy-800 cursor-pointer transition-all group`}
+                              className={`bg-stone-100 text-stone-900 border-2 border-stone-300 rounded-xl px-3 py-2.5 shadow-sm hover:shadow-md hover:border-stone-500 hover:bg-stone-50 cursor-pointer transition-all group`}
                               onClick={() => setEditandoFase({ lineaId: lineaActual.id, flujoId: flujo.id, faseId: fase.id })}
                             >
                               <div className="flex items-start justify-between gap-1 mb-1">
-                                <span className="text-[9px] uppercase tracking-wider text-gold-400 font-bold bg-navy-800 px-1.5 py-0.5 rounded">Fase {idx + 1}</span>
+                                <span className="text-[9px] uppercase tracking-wider text-stone-600 font-bold bg-white border border-stone-200 px-1.5 py-0.5 rounded">Fase {idx + 1}</span>
                                 <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
-                                  <button onClick={(e) => { e.stopPropagation(); moverFase(lineaActual.id, flujo.id, fase.id, 'left'); }} className="text-stone-300 hover:text-stone-50 px-0.5" title="Mover a la izquierda">←</button>
-                                  <button onClick={(e) => { e.stopPropagation(); moverFase(lineaActual.id, flujo.id, fase.id, 'right'); }} className="text-stone-300 hover:text-stone-50 px-0.5" title="Mover a la derecha">→</button>
+                                  <button onClick={(e) => { e.stopPropagation(); moverFase(lineaActual.id, flujo.id, fase.id, 'left'); }} className="text-stone-500 hover:text-stone-900 px-0.5" title="Mover a la izquierda">←</button>
+                                  <button onClick={(e) => { e.stopPropagation(); moverFase(lineaActual.id, flujo.id, fase.id, 'right'); }} className="text-stone-500 hover:text-stone-900 px-0.5" title="Mover a la derecha">→</button>
                                 </div>
                               </div>
-                              <p className="text-sm font-bold text-stone-50 leading-snug line-clamp-2 min-h-[2.4rem]">{fase.nombre}</p>
+                              <p className="text-sm font-bold text-stone-900 leading-snug line-clamp-2 min-h-[2.4rem]">{fase.nombre}</p>
                               {fase.notas && (
-                                <p className="text-[10px] text-stone-400 italic mt-1 line-clamp-1">📝 {fase.notas}</p>
+                                <p className="text-[10px] text-stone-600 italic mt-1 line-clamp-1">📝 {fase.notas}</p>
                               )}
                             </div>
 
@@ -12190,6 +12364,8 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
           />
         );
       })()}
+      </div>
+      )}
     </div>
   );
 }
@@ -12982,10 +13158,9 @@ export default function Nexo() {
         {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
-        {active === 'flujos' && <FlujosView flujos={flujosNegocio} setFlujos={setFlujosNegocio} herramientas={herramientas} setHerramientas={setHerramientas} setActive={setActive} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} herramientas={herramientas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'solapamientos' && <SolapamientosView talleres={talleres} herramientas={herramientas} iniciativas={iniciativas} personas={personas} solapamientos={solapamientos} setSolapamientos={setSolapamientos} peticiones={peticiones} setPeticiones={setPeticiones} usuarioActualId={usuarioActualId} setActive={setActive} />}
-        {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} personas={personas} usuarioActualId={usuarioActualId} />}
+        {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} personas={personas} usuarioActualId={usuarioActualId} flujos={flujosNegocio} setFlujos={setFlujosNegocio} setActive={setActive} />}
         {active === 'tareas' && <TareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} />}
         {active === 'chat' && <ChatView personas={personas} talleres={talleres} usuarioActualId={usuarioActualId} demoMode={demoMode} mensajesLocal={mensajesLs} setMensajesLocal={setMensajesLs} tareas={tareas} setTareas={setTareas} peticiones={peticiones} setPeticiones={setPeticiones} reuniones={reuniones} setReuniones={setReuniones} historico={historico} setHistorico={setHistorico} setActive={setActive} irATaller={irATaller} />}
       </main>
