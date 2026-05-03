@@ -11862,6 +11862,9 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
   const [modoComparador, setModoComparador] = useState(false);
   const [lineasComparar, setLineasComparar] = useState([]);
   const [flujoComparar, setFlujoComparar] = useState('Oferta / Mandato');
+  const [analisisIA, setAnalisisIA] = useState(null);
+  const [analizandoIA, setAnalizandoIA] = useState(false);
+  const [errorIA, setErrorIA] = useState('');
 
   const lineaActual = flujos.find(l => l.lineaNegocio === lineaSeleccionada);
   const grupoActual = todasLasLineas.find(l => l.nombre === lineaSeleccionada)?.grupo || 'transaccional';
@@ -11870,6 +11873,51 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
 
   const guardarLineas = async (nuevas) => {
     await setFlujos(nuevas);
+  };
+
+  const ejecutarAnalisisIA = async () => {
+    if (lineasComparar.length < 2 || !flujoComparar) return;
+    setAnalizandoIA(true);
+    setErrorIA('');
+    setAnalisisIA(null);
+    const datos = lineasComparar.map(nombreLinea => {
+      const linea = flujos.find(l => l.lineaNegocio === nombreLinea);
+      const flujo = linea?.flujos.find(f => f.nombre === flujoComparar);
+      const fases = (flujo?.fases || []).map(fa => ({
+        nombre: fa.nombre,
+        manual: !!fa.procesoManual,
+        herramientas: (fa.herramientaIds || []).map(id => herramientaById[id]?.nombre).filter(Boolean),
+        fuentesExternas: fa.fuentesExternas || [],
+      }));
+      return { linea: nombreLinea, tieneFlujo: !!flujo, fases };
+    });
+    const prompt = `Estás comparando el mismo flujo de negocio ("${flujoComparar}") entre varias líneas de negocio de una consultora inmobiliaria.
+
+DATOS:
+${JSON.stringify(datos, null, 2)}
+
+Analiza:
+1. COINCIDENCIAS: fases que aparecen en TODAS o casi todas las líneas (con nombre similar aunque no idéntico). Indica también si las herramientas usadas coinciden o no.
+2. DIFERENCIAS: fases únicas de una línea o que faltan en alguna. Especifica en qué línea está y en cuál no.
+3. INCONSISTENCIAS DE HERRAMIENTAS: cuando la misma fase usa herramientas distintas en distintas líneas (posible oportunidad de unificación).
+4. RECOMENDACIONES: 2-3 acciones concretas (unificar X, replicar Y de línea A a línea B, etc.).
+
+Devuelve SOLO un JSON válido con esta estructura exacta:
+{
+  "coincidencias": [{"fase": "Nombre", "lineas": ["Oficinas","Retail"], "herramientasComunes": ["X"], "nota": "breve"}],
+  "diferencias": [{"fase": "Nombre", "presenteEn": ["Oficinas"], "ausenteEn": ["Retail"], "nota": "breve"}],
+  "inconsistenciasHerramientas": [{"fase": "Nombre", "detalle": "Oficinas usa X, Retail usa Y"}],
+  "recomendaciones": ["Acción 1", "Acción 2"]
+}`;
+    const resp = await callClaude('Eres analista de procesos de negocio en una consultora inmobiliaria. Devuelves SOLO JSON válido sin markdown ni explicación.', prompt);
+    try {
+      const limpio = resp.replace(/```json\s*|\s*```/g, '').trim();
+      const json = JSON.parse(limpio);
+      setAnalisisIA(json);
+    } catch (e) {
+      setErrorIA('No he podido procesar la respuesta. Inténtalo de nuevo.');
+    }
+    setAnalizandoIA(false);
   };
 
   const asegurarLinea = () => {
@@ -12029,6 +12077,16 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
                 {todosLosFlujos.length === 0 && <option value="">— Sin flujos disponibles —</option>}
                 {todosLosFlujos.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
+              <button
+                type="button"
+                disabled={lineasComparar.length < 2 || analizandoIA}
+                onClick={ejecutarAnalisisIA}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                title={lineasComparar.length < 2 ? 'Selecciona al menos 2 líneas' : 'Analizar coincidencias y diferencias con IA'}
+              >
+                {analizandoIA ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                {analizandoIA ? 'Analizando…' : 'Analizar con IA'}
+              </button>
               <div className="ml-auto flex items-center gap-2">
                 <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Zoom</span>
                 <button onClick={() => setZoom(Math.max(40, zoom - 10))} className="w-7 h-7 rounded-md bg-white border border-stone-300 hover:border-navy-700 text-stone-700 hover:text-navy-900 font-bold transition-colors flex items-center justify-center">−</button>
@@ -12037,6 +12095,77 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
               </div>
             </div>
           </div>
+
+          {errorIA && (
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 mb-4 text-sm text-rose-800">{errorIA}</div>
+          )}
+          {analisisIA && (
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={14} className="text-purple-700" />
+                  <h4 className="font-serif text-sm font-bold text-navy-900">Análisis IA · {flujoComparar}</h4>
+                  <span className="text-[10px] text-stone-500">comparando {lineasComparar.join(' · ')}</span>
+                </div>
+                <button onClick={() => setAnalisisIA(null)} className="text-stone-400 hover:text-stone-700"><X size={14} /></button>
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                {analisisIA.coincidencias?.length > 0 && (
+                  <div className="bg-white border border-emerald-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-2 flex items-center gap-1"><CheckCircle2 size={11} /> Coincidencias ({analisisIA.coincidencias.length})</p>
+                    <ul className="space-y-2">
+                      {analisisIA.coincidencias.map((c, i) => (
+                        <li key={i} className="text-xs">
+                          <p className="font-bold text-stone-900">{c.fase}</p>
+                          <p className="text-stone-500 text-[11px]">En: {(c.lineas || []).join(', ')}</p>
+                          {c.herramientasComunes?.length > 0 && <p className="text-emerald-700 text-[11px]">Herramientas comunes: {c.herramientasComunes.join(', ')}</p>}
+                          {c.nota && <p className="text-stone-600 text-[11px] italic mt-0.5">{c.nota}</p>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {analisisIA.diferencias?.length > 0 && (
+                  <div className="bg-white border border-amber-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-2 flex items-center gap-1"><AlertTriangle size={11} /> Diferencias ({analisisIA.diferencias.length})</p>
+                    <ul className="space-y-2">
+                      {analisisIA.diferencias.map((d, i) => (
+                        <li key={i} className="text-xs">
+                          <p className="font-bold text-stone-900">{d.fase}</p>
+                          <p className="text-emerald-700 text-[11px]">Presente en: {(d.presenteEn || []).join(', ')}</p>
+                          <p className="text-rose-700 text-[11px]">Ausente en: {(d.ausenteEn || []).join(', ')}</p>
+                          {d.nota && <p className="text-stone-600 text-[11px] italic mt-0.5">{d.nota}</p>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {analisisIA.inconsistenciasHerramientas?.length > 0 && (
+                  <div className="bg-white border border-orange-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-orange-700 font-bold mb-2 flex items-center gap-1"><Wrench size={11} /> Inconsistencias de herramientas ({analisisIA.inconsistenciasHerramientas.length})</p>
+                    <ul className="space-y-2">
+                      {analisisIA.inconsistenciasHerramientas.map((h, i) => (
+                        <li key={i} className="text-xs">
+                          <p className="font-bold text-stone-900">{h.fase}</p>
+                          <p className="text-stone-600 text-[11px]">{h.detalle}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {analisisIA.recomendaciones?.length > 0 && (
+                  <div className="bg-white border border-indigo-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-indigo-700 font-bold mb-2 flex items-center gap-1"><Lightbulb size={11} /> Recomendaciones</p>
+                    <ul className="space-y-1.5">
+                      {analisisIA.recomendaciones.map((r, i) => (
+                        <li key={i} className="text-xs text-stone-700 flex gap-2"><span className="text-indigo-700 font-bold">{i + 1}.</span> {r}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {lineasComparar.length === 0 ? (
             <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
