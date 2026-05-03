@@ -13475,10 +13475,21 @@ export default function Nexo() {
   const [flujosNegocio, setFlujosNegocio] = useStored(STORAGE_KEYS.flujosNegocio, SEED_FLUJOS_NEGOCIO);
 
   useEffect(() => {
-    if (!Array.isArray(flujosNegocio) || flujosNegocio.length === 0) return;
+    if (!Array.isArray(flujosNegocio)) return;
+    const seedByLinea = Object.fromEntries(SEED_FLUJOS_NEGOCIO.map(l => [l.lineaNegocio, l]));
     const lineasExistentes = new Set(flujosNegocio.map(l => l.lineaNegocio));
+    let cambios = false;
+    const reparado = flujosNegocio.map(l => {
+      const seed = seedByLinea[l.lineaNegocio];
+      if (seed && (!Array.isArray(l.flujos) || l.flujos.length === 0)) {
+        cambios = true;
+        return { ...l, flujos: seed.flujos };
+      }
+      return l;
+    });
     const faltantes = SEED_FLUJOS_NEGOCIO.filter(l => !lineasExistentes.has(l.lineaNegocio));
-    if (faltantes.length > 0) setFlujosNegocio([...flujosNegocio, ...faltantes]);
+    if (faltantes.length > 0) cambios = true;
+    if (cambios) setFlujosNegocio([...reparado, ...faltantes]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flujosNegocio.length]);
 
