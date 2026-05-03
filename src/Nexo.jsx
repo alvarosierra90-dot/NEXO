@@ -180,61 +180,78 @@ const SEED_HISTORICO = [
   { id: 'e15', tallerId: 't6', fecha: '2026-03-25', tipo: 'avance', titulo: 'Diseño de Repositorio 360 iniciado', descripcion: 'Evolución de Repositorio Doc hacia visión 360 alineada con Plataforma Integrada. Mockup funcional construido.', autorId: 'p16' },
 ];
 
+const _flujoTransaccional = (linea, slug) => {
+  const fase = (n, nombre, fuentes = [], equiposExtra = []) => ({
+    id: `fa-${slug}-${n}`,
+    nombre,
+    herramientaIds: [],
+    fuentesExternas: fuentes,
+    equipos: [linea, ...equiposExtra],
+    delegaciones: [],
+    todasDelegaciones: false,
+    todasDelegacionesEspana: true,
+    notas: '',
+  });
+  return [
+    {
+      id: `flu-${slug}-1`,
+      nombre: 'Oferta / Mandato',
+      fases: [
+        fase('1-1', 'Captación de activo'),
+        fase('1-2', 'Pitch'),
+        fase('1-3', 'Adjudicación'),
+        fase('1-4', 'Creación de mandato'),
+        fase('1-5', 'Alta del activo'),
+        fase('1-6', 'Estrategia comercial'),
+        fase('1-7', 'Activación en mercado', ['Idealista', 'LinkedIn', 'Web propia']),
+      ],
+    },
+    {
+      id: `flu-${slug}-2`,
+      nombre: 'Demanda / Cliente',
+      fases: [
+        fase('2-1', 'Entrada de demanda', ['Idealista', 'LinkedIn', 'Email', 'Llamadas', 'Referidos', 'Web corporativa']),
+        fase('2-2', 'Cualificación'),
+        fase('2-3', 'Definición de requisitos'),
+        fase('2-4', 'Búsqueda de activos'),
+        fase('2-5', 'Shortlist'),
+        fase('2-6', 'Presentación al cliente'),
+      ],
+    },
+    {
+      id: `flu-${slug}-3`,
+      nombre: 'Transacción / Negociación',
+      fases: [
+        fase('3-1', 'Visitas'),
+        fase('3-2', 'Feedback'),
+        fase('3-3', 'Negociación'),
+        fase('3-4', 'Cierre'),
+        fase('3-5', 'Firma'),
+        fase('3-6', 'Facturación', [], ['Financiero']),
+      ],
+    },
+    {
+      id: `flu-${slug}-4`,
+      nombre: 'Reporting / Gobierno',
+      fases: [
+        fase('4-1', 'Reporting a propiedad'),
+        fase('4-2', 'Seguimiento de actividad'),
+        fase('4-3', 'Registro de operaciones'),
+        fase('4-4', 'Análisis de KPIs'),
+      ],
+    },
+  ];
+};
+
 const SEED_FLUJOS_NEGOCIO = [
-  {
-    id: 'lin-oficinas',
-    lineaNegocio: 'Oficinas',
-    grupo: 'transaccional',
-    flujos: [
-      {
-        id: 'flu-of-1',
-        nombre: 'Oferta / Mandato',
-        fases: [
-          { id: 'fa-of-1-1', nombre: 'Captación de activo', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-1-2', nombre: 'Pitch', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-1-3', nombre: 'Adjudicación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-1-4', nombre: 'Creación de mandato', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-1-5', nombre: 'Alta del activo', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-1-6', nombre: 'Estrategia comercial', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-1-7', nombre: 'Activación en mercado', herramientaIds: [], fuentesExternas: ['Idealista', 'LinkedIn', 'Web propia'], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-        ],
-      },
-      {
-        id: 'flu-of-2',
-        nombre: 'Demanda / Cliente',
-        fases: [
-          { id: 'fa-of-2-1', nombre: 'Entrada de demanda', herramientaIds: [], fuentesExternas: ['Idealista', 'LinkedIn', 'Email', 'Llamadas', 'Referidos', 'Web corporativa'], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-2-2', nombre: 'Cualificación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-2-3', nombre: 'Definición de requisitos', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-2-4', nombre: 'Búsqueda de activos', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-2-5', nombre: 'Shortlist', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-2-6', nombre: 'Presentación al cliente', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-        ],
-      },
-      {
-        id: 'flu-of-3',
-        nombre: 'Transacción / Negociación',
-        fases: [
-          { id: 'fa-of-3-1', nombre: 'Visitas', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-3-2', nombre: 'Feedback', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-3-3', nombre: 'Negociación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-3-4', nombre: 'Cierre', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-3-5', nombre: 'Firma', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-3-6', nombre: 'Facturación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas', 'Financiero'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-        ],
-      },
-      {
-        id: 'flu-of-4',
-        nombre: 'Reporting / Gobierno',
-        fases: [
-          { id: 'fa-of-4-1', nombre: 'Reporting a propiedad', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-4-2', nombre: 'Seguimiento de actividad', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-4-3', nombre: 'Registro de operaciones', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-          { id: 'fa-of-4-4', nombre: 'Análisis de KPIs', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
-        ],
-      },
-    ],
-  },
+  { id: 'lin-oficinas',          lineaNegocio: 'Oficinas',            grupo: 'transaccional', flujos: _flujoTransaccional('Oficinas', 'of') },
+  { id: 'lin-retail',            lineaNegocio: 'Retail',              grupo: 'transaccional', flujos: _flujoTransaccional('Retail', 'rt') },
+  { id: 'lin-hoteles',           lineaNegocio: 'Hoteles',             grupo: 'transaccional', flujos: _flujoTransaccional('Hoteles', 'ht') },
+  { id: 'lin-living',            lineaNegocio: 'Living',              grupo: 'transaccional', flujos: _flujoTransaccional('Living', 'lv') },
+  { id: 'lin-industrial',        lineaNegocio: 'Industrial/Logístico', grupo: 'transaccional', flujos: _flujoTransaccional('Industrial/Logístico', 'il') },
+  { id: 'lin-agrobusiness',      lineaNegocio: 'Agrobusiness',        grupo: 'transaccional', flujos: _flujoTransaccional('Agrobusiness', 'ag') },
+  { id: 'lin-alternativos',      lineaNegocio: 'Alternativos',        grupo: 'transaccional', flujos: _flujoTransaccional('Alternativos', 'al') },
+  { id: 'lin-centros-comerciales', lineaNegocio: 'Centros Comerciales', grupo: 'transaccional', flujos: _flujoTransaccional('Centros Comerciales', 'cc') },
 ];
 
 async function callClaude(systemPrompt, userMessage, conversationHistory = []) {
@@ -11799,7 +11816,8 @@ function ConversionForm({ tipo, mensaje, autor, personas, talleres, usuarioActua
   );
 }
 
-function FlujosView({ flujos, setFlujos, herramientas, setActive }) {
+function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActive }) {
+  const [zoom, setZoom] = useState(100);
   const grupos = [
     { id: 'transaccional', label: 'Transaccional' },
     { id: 'capital_markets', label: 'Capital Markets' },
@@ -12011,7 +12029,17 @@ function FlujosView({ flujos, setFlujos, herramientas, setActive }) {
           </button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <>
+        <div className="sticky top-0 z-10 bg-sand-50 border border-stone-200 rounded-xl px-3 py-2 mb-3 flex items-center justify-end gap-2">
+          <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Zoom</span>
+          <button onClick={() => setZoom(Math.max(40, zoom - 10))} className="w-7 h-7 rounded-md bg-white border border-stone-300 hover:border-navy-700 text-stone-700 hover:text-navy-900 font-bold transition-colors flex items-center justify-center" title="Alejar">−</button>
+          <span className="text-xs font-bold text-navy-900 tabular-nums w-12 text-center">{zoom}%</span>
+          <button onClick={() => setZoom(Math.min(150, zoom + 10))} className="w-7 h-7 rounded-md bg-white border border-stone-300 hover:border-navy-700 text-stone-700 hover:text-navy-900 font-bold transition-colors flex items-center justify-center" title="Acercar">+</button>
+          <button onClick={() => setZoom(100)} className="text-[11px] text-stone-600 hover:text-navy-900 underline ml-1">100%</button>
+          <button onClick={() => setZoom(60)} className="text-[11px] text-stone-600 hover:text-navy-900 underline">Vista panorámica</button>
+        </div>
+        <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+        <div className="space-y-6 origin-top-left transition-transform" style={{ transform: `scale(${zoom / 100})`, width: `${10000 / zoom}%`, transformOrigin: 'top left' }}>
           {(lineaActual.flujos || []).map(flujo => (
             <div key={flujo.id} className="bg-white border border-stone-200 rounded-2xl p-5">
               <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
@@ -12142,6 +12170,8 @@ function FlujosView({ flujos, setFlujos, herramientas, setActive }) {
             </button>
           )}
         </div>
+        </div>
+        </>
       )}
 
       {editandoFase && (() => {
@@ -12153,6 +12183,7 @@ function FlujosView({ flujos, setFlujos, herramientas, setActive }) {
           <FaseEditModal
             fase={fase}
             herramientas={herramientas}
+            setHerramientas={setHerramientas}
             onSave={(updates) => guardarFase(editandoFase.lineaId, editandoFase.flujoId, editandoFase.faseId, updates)}
             onDelete={() => eliminarFase(editandoFase.lineaId, editandoFase.flujoId, editandoFase.faseId)}
             onClose={() => setEditandoFase(null)}
@@ -12163,7 +12194,7 @@ function FlujosView({ flujos, setFlujos, herramientas, setActive }) {
   );
 }
 
-function FaseEditModal({ fase, herramientas, onSave, onDelete, onClose }) {
+function FaseEditModal({ fase, herramientas, setHerramientas, onSave, onDelete, onClose }) {
   const [form, setForm] = useState({
     nombre: fase.nombre || '',
     herramientaIds: fase.herramientaIds || [],
@@ -12178,6 +12209,39 @@ function FaseEditModal({ fase, herramientas, onSave, onDelete, onClose }) {
   });
   const [subTabEquipos, setSubTabEquipos] = useState('transaccional');
   const [busquedaHerr, setBusquedaHerr] = useState('');
+  const [creandoHerr, setCreandoHerr] = useState(false);
+  const [nuevaHerrForm, setNuevaHerrForm] = useState({ nombre: '', categoria: '', origen: 'externa' });
+
+  const crearHerramientaInline = async () => {
+    if (!nuevaHerrForm.nombre.trim() || !setHerramientas) return;
+    const nueva = {
+      id: `h-${Date.now()}`,
+      nombre: nuevaHerrForm.nombre.trim(),
+      descripcion: '',
+      categoria: nuevaHerrForm.categoria.trim() || 'Sin categoría',
+      origen: nuevaHerrForm.origen,
+      funcionalidades: [],
+      equipos: [],
+      todosEquipos: false,
+      delegaciones: [],
+      todasDelegaciones: false,
+      todasDelegacionesEspana: false,
+      todaCompaniaUsuarios: false,
+      numeroUsuarios: 0,
+      licenciasContratadas: 0,
+      licenciasActivas: 0,
+      sinCosteLicencia: nuevaHerrForm.origen === 'inhouse',
+      tipoLicencia: '',
+      costeAnual: 0,
+      alerta: null,
+      fechaAlta: new Date().toISOString().slice(0, 10),
+      solicitudesLicencia: [],
+    };
+    await setHerramientas([...herramientas, nueva]);
+    setForm({ ...form, herramientaIds: [...form.herramientaIds, nueva.id] });
+    setNuevaHerrForm({ nombre: '', categoria: '', origen: 'externa' });
+    setCreandoHerr(false);
+  };
 
   const herramientasFiltradas = herramientas.filter(h =>
     !busquedaHerr || h.nombre.toLowerCase().includes(busquedaHerr.toLowerCase())
@@ -12220,7 +12284,57 @@ function FaseEditModal({ fase, herramientas, onSave, onDelete, onClose }) {
         <div className="overflow-y-auto p-6 space-y-5">
           {/* HERRAMIENTAS */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Herramientas utilizadas <span className="normal-case text-stone-400 font-normal">· {form.herramientaIds.length} seleccionadas</span></label>
+            <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+              <label className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Herramientas utilizadas <span className="normal-case text-stone-400 font-normal">· {form.herramientaIds.length} seleccionadas</span></label>
+              {!creandoHerr && (
+                <button
+                  type="button"
+                  onClick={() => setCreandoHerr(true)}
+                  className="text-[11px] px-2.5 py-1 bg-navy-50 hover:bg-navy-100 text-navy-800 border border-navy-200 rounded-md font-semibold transition-colors flex items-center gap-1"
+                >
+                  <Plus size={11} /> Nueva herramienta al catálogo
+                </button>
+              )}
+            </div>
+
+            {creandoHerr && (
+              <div className="bg-navy-50 border border-navy-200 rounded-md p-3 mb-2">
+                <p className="text-[10px] uppercase tracking-wider text-navy-800 font-bold mb-2">Crear nueva herramienta y añadirla a esta fase</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                  <input
+                    autoFocus
+                    value={nuevaHerrForm.nombre}
+                    onChange={e => setNuevaHerrForm({ ...nuevaHerrForm, nombre: e.target.value })}
+                    placeholder="Nombre"
+                    className="bg-white border border-stone-200 rounded-md px-3 py-1.5 text-sm outline-none focus:border-navy-700"
+                  />
+                  <input
+                    value={nuevaHerrForm.categoria}
+                    onChange={e => setNuevaHerrForm({ ...nuevaHerrForm, categoria: e.target.value })}
+                    placeholder="Categoría (ej: CRM)"
+                    className="bg-white border border-stone-200 rounded-md px-3 py-1.5 text-sm outline-none focus:border-navy-700"
+                  />
+                  <select
+                    value={nuevaHerrForm.origen}
+                    onChange={e => setNuevaHerrForm({ ...nuevaHerrForm, origen: e.target.value })}
+                    className="bg-white border border-stone-200 rounded-md px-3 py-1.5 text-sm outline-none focus:border-navy-700"
+                  >
+                    <option value="externa">Externa</option>
+                    <option value="inhouse">In-house</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={crearHerramientaInline}
+                    disabled={!nuevaHerrForm.nombre.trim()}
+                    className="text-xs px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md font-semibold"
+                  >Crear y añadir</button>
+                  <button onClick={() => { setCreandoHerr(false); setNuevaHerrForm({ nombre: '', categoria: '', origen: 'externa' }); }} className="text-xs text-stone-600 hover:text-stone-900">Cancelar</button>
+                  <p className="text-[10px] text-stone-500 italic ml-auto">Después podrás completar el resto de campos (equipos, coste, licencias…) desde el módulo Herramientas.</p>
+                </div>
+              </div>
+            )}
+
             <input
               value={busquedaHerr}
               onChange={e => setBusquedaHerr(e.target.value)}
@@ -12868,7 +12982,7 @@ export default function Nexo() {
         {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
-        {active === 'flujos' && <FlujosView flujos={flujosNegocio} setFlujos={setFlujosNegocio} herramientas={herramientas} setActive={setActive} />}
+        {active === 'flujos' && <FlujosView flujos={flujosNegocio} setFlujos={setFlujosNegocio} herramientas={herramientas} setHerramientas={setHerramientas} setActive={setActive} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} herramientas={herramientas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'solapamientos' && <SolapamientosView talleres={talleres} herramientas={herramientas} iniciativas={iniciativas} personas={personas} solapamientos={solapamientos} setSolapamientos={setSolapamientos} peticiones={peticiones} setPeticiones={setPeticiones} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} personas={personas} usuarioActualId={usuarioActualId} />}
