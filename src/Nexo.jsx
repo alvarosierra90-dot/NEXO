@@ -25,6 +25,7 @@ const STORAGE_KEYS = {
   chat: 'nexo2:chat',
   session: 'nexo2:session',
   mensajes: 'nexo2:mensajes',
+  flujosNegocio: 'nexo2:flujosNegocio',
 };
 
 const SEED_TALLERES = [
@@ -179,6 +180,63 @@ const SEED_HISTORICO = [
   { id: 'e15', tallerId: 't6', fecha: '2026-03-25', tipo: 'avance', titulo: 'Diseño de Repositorio 360 iniciado', descripcion: 'Evolución de Repositorio Doc hacia visión 360 alineada con Plataforma Integrada. Mockup funcional construido.', autorId: 'p16' },
 ];
 
+const SEED_FLUJOS_NEGOCIO = [
+  {
+    id: 'lin-oficinas',
+    lineaNegocio: 'Oficinas',
+    grupo: 'transaccional',
+    flujos: [
+      {
+        id: 'flu-of-1',
+        nombre: 'Oferta / Mandato',
+        fases: [
+          { id: 'fa-of-1-1', nombre: 'Captación de activo', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-1-2', nombre: 'Pitch', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-1-3', nombre: 'Adjudicación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-1-4', nombre: 'Creación de mandato', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-1-5', nombre: 'Alta del activo', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-1-6', nombre: 'Estrategia comercial', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-1-7', nombre: 'Activación en mercado', herramientaIds: [], fuentesExternas: ['Idealista', 'LinkedIn', 'Web propia'], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+        ],
+      },
+      {
+        id: 'flu-of-2',
+        nombre: 'Demanda / Cliente',
+        fases: [
+          { id: 'fa-of-2-1', nombre: 'Entrada de demanda', herramientaIds: [], fuentesExternas: ['Idealista', 'LinkedIn', 'Email', 'Llamadas', 'Referidos', 'Web corporativa'], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-2-2', nombre: 'Cualificación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-2-3', nombre: 'Definición de requisitos', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-2-4', nombre: 'Búsqueda de activos', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-2-5', nombre: 'Shortlist', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-2-6', nombre: 'Presentación al cliente', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+        ],
+      },
+      {
+        id: 'flu-of-3',
+        nombre: 'Transacción / Negociación',
+        fases: [
+          { id: 'fa-of-3-1', nombre: 'Visitas', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-3-2', nombre: 'Feedback', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-3-3', nombre: 'Negociación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-3-4', nombre: 'Cierre', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-3-5', nombre: 'Firma', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-3-6', nombre: 'Facturación', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas', 'Financiero'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+        ],
+      },
+      {
+        id: 'flu-of-4',
+        nombre: 'Reporting / Gobierno',
+        fases: [
+          { id: 'fa-of-4-1', nombre: 'Reporting a propiedad', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-4-2', nombre: 'Seguimiento de actividad', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-4-3', nombre: 'Registro de operaciones', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+          { id: 'fa-of-4-4', nombre: 'Análisis de KPIs', herramientaIds: [], fuentesExternas: [], equipos: ['Oficinas'], delegaciones: [], todasDelegaciones: false, todasDelegacionesEspana: true, notas: '' },
+        ],
+      },
+    ],
+  },
+];
+
 async function callClaude(systemPrompt, userMessage, conversationHistory = []) {
   try {
     const messages = [...conversationHistory, { role: 'user', content: userMessage }];
@@ -239,6 +297,7 @@ function Sidebar({ active, setActive, usuarioActualId, setUsuarioActualId, perso
     { id: 'reuniones', label: 'Reuniones', icon: Mic },
     { id: 'mis-tareas', label: 'Mis Tareas', icon: User, badge: misTareasCount },
     { id: 'herramientas', label: 'Herramientas', icon: Wrench },
+    { id: 'flujos', label: 'Flujos', icon: GitBranch },
     { id: 'peticiones', label: 'Peticiones', icon: Workflow },
     { id: 'solapamientos', label: 'Conflictos', icon: AlertTriangle },
     { id: 'tareas', label: 'Tareas', icon: CheckSquare },
@@ -5339,7 +5398,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
 const EQUIPOS_NEGOCIO_GRUPOS = {
   transaccional: ['Oficinas', 'Retail', 'Hoteles', 'Living', 'Industrial/Logístico', 'Agrobusiness', 'Alternativos', 'Centros Comerciales'],
   capital_markets: ['Capital Markets Oficinas', 'Capital Markets Industrial Logístico', 'Capital Markets Retail', 'Capital Markets Alternativos', 'Capital Markets Living', 'Capital Markets Hoteles', 'Capital Markets Centros Comerciales'],
-  no_transaccional: ['Property Management', 'Facility Management', 'Arquitectura', 'Valoraciones', 'Financiero', 'IT', 'Desarrollo de Negocio', 'Research', 'Consultoría'],
+  no_transaccional: ['Property Management', 'Facility Management', 'Arquitectura', 'Valoraciones', 'Financiero', 'IT', 'Desarrollo de Negocio', 'Research', 'Consultoría', 'Jurídico'],
 };
 
 const EQUIPOS_NEGOCIO = [
@@ -11740,6 +11799,604 @@ function ConversionForm({ tipo, mensaje, autor, personas, talleres, usuarioActua
   );
 }
 
+function FlujosView({ flujos, setFlujos, herramientas, setActive }) {
+  const grupos = [
+    { id: 'transaccional', label: 'Transaccional' },
+    { id: 'capital_markets', label: 'Capital Markets' },
+    { id: 'no_transaccional', label: 'No transaccional' },
+  ];
+
+  // Asegurar que todas las líneas existen aunque no haya flujos. Las que no
+  // estén creadas aparecen vacías en el dropdown.
+  const todasLasLineas = [
+    ...EQUIPOS_NEGOCIO_GRUPOS.transaccional.map(l => ({ nombre: l, grupo: 'transaccional' })),
+    ...EQUIPOS_NEGOCIO_GRUPOS.capital_markets.map(l => ({ nombre: l, grupo: 'capital_markets' })),
+    ...EQUIPOS_NEGOCIO_GRUPOS.no_transaccional.map(l => ({ nombre: l, grupo: 'no_transaccional' })),
+  ];
+
+  const [lineaSeleccionada, setLineaSeleccionada] = useState(flujos[0]?.lineaNegocio || 'Oficinas');
+  const [filtroEquipo, setFiltroEquipo] = useState('todos');
+  const [filtroDelegacion, setFiltroDelegacion] = useState('todas');
+  const [filtroHerramienta, setFiltroHerramienta] = useState('todas');
+  const [filtroFuente, setFiltroFuente] = useState('todas');
+  const [editandoFase, setEditandoFase] = useState(null); // { lineaId, flujoId, faseId }
+  const [creandoFlujoEnLinea, setCreandoFlujoEnLinea] = useState(null);
+  const [nuevoFlujoNombre, setNuevoFlujoNombre] = useState('');
+
+  const lineaActual = flujos.find(l => l.lineaNegocio === lineaSeleccionada);
+  const grupoActual = todasLasLineas.find(l => l.nombre === lineaSeleccionada)?.grupo || 'transaccional';
+
+  const herramientaById = Object.fromEntries(herramientas.map(h => [h.id, h]));
+
+  const guardarLineas = async (nuevas) => {
+    await setFlujos(nuevas);
+  };
+
+  const asegurarLinea = () => {
+    if (lineaActual) return lineaActual;
+    const nueva = {
+      id: `lin-${Date.now()}`,
+      lineaNegocio: lineaSeleccionada,
+      grupo: grupoActual,
+      flujos: [],
+    };
+    guardarLineas([...flujos, nueva]);
+    return nueva;
+  };
+
+  const crearFlujo = async () => {
+    if (!nuevoFlujoNombre.trim() || !creandoFlujoEnLinea) return;
+    const linea = flujos.find(l => l.id === creandoFlujoEnLinea) || asegurarLinea();
+    const nuevoFlujo = { id: `flu-${Date.now()}`, nombre: nuevoFlujoNombre.trim(), fases: [] };
+    const actualizadas = flujos.find(l => l.id === linea.id)
+      ? flujos.map(l => l.id === linea.id ? { ...l, flujos: [...(l.flujos || []), nuevoFlujo] } : l)
+      : [...flujos, { ...linea, flujos: [nuevoFlujo] }];
+    await guardarLineas(actualizadas);
+    setCreandoFlujoEnLinea(null);
+    setNuevoFlujoNombre('');
+  };
+
+  const eliminarFlujo = async (lineaId, flujoId) => {
+    if (!confirm('¿Eliminar este flujo y todas sus fases?')) return;
+    await guardarLineas(flujos.map(l => l.id === lineaId ? { ...l, flujos: l.flujos.filter(f => f.id !== flujoId) } : l));
+  };
+
+  const renombrarFlujo = async (lineaId, flujoId, nuevoNombre) => {
+    if (!nuevoNombre.trim()) return;
+    await guardarLineas(flujos.map(l => l.id === lineaId ? { ...l, flujos: l.flujos.map(f => f.id === flujoId ? { ...f, nombre: nuevoNombre.trim() } : f) } : l));
+  };
+
+  const añadirFase = async (lineaId, flujoId) => {
+    const nuevaFase = {
+      id: `fa-${Date.now()}`,
+      nombre: 'Nueva fase',
+      herramientaIds: [],
+      fuentesExternas: [],
+      equipos: [lineaSeleccionada],
+      delegaciones: [],
+      todasDelegaciones: false,
+      todasDelegacionesEspana: false,
+      notas: '',
+    };
+    await guardarLineas(flujos.map(l => l.id === lineaId ? {
+      ...l,
+      flujos: l.flujos.map(f => f.id === flujoId ? { ...f, fases: [...(f.fases || []), nuevaFase] } : f),
+    } : l));
+    setEditandoFase({ lineaId, flujoId, faseId: nuevaFase.id });
+  };
+
+  const guardarFase = async (lineaId, flujoId, faseId, updates) => {
+    await guardarLineas(flujos.map(l => l.id === lineaId ? {
+      ...l,
+      flujos: l.flujos.map(f => f.id === flujoId ? {
+        ...f,
+        fases: f.fases.map(fa => fa.id === faseId ? { ...fa, ...updates } : fa),
+      } : f),
+    } : l));
+  };
+
+  const eliminarFase = async (lineaId, flujoId, faseId) => {
+    if (!confirm('¿Eliminar esta fase?')) return;
+    await guardarLineas(flujos.map(l => l.id === lineaId ? {
+      ...l,
+      flujos: l.flujos.map(f => f.id === flujoId ? { ...f, fases: f.fases.filter(fa => fa.id !== faseId) } : f),
+    } : l));
+    setEditandoFase(null);
+  };
+
+  const moverFase = async (lineaId, flujoId, faseId, direccion) => {
+    await guardarLineas(flujos.map(l => l.id === lineaId ? {
+      ...l,
+      flujos: l.flujos.map(f => {
+        if (f.id !== flujoId) return f;
+        const fases = [...f.fases];
+        const idx = fases.findIndex(fa => fa.id === faseId);
+        const newIdx = direccion === 'left' ? idx - 1 : idx + 1;
+        if (idx < 0 || newIdx < 0 || newIdx >= fases.length) return f;
+        [fases[idx], fases[newIdx]] = [fases[newIdx], fases[idx]];
+        return { ...f, fases };
+      }),
+    } : l));
+  };
+
+  // Detección de filtro: si una fase no cumple algún filtro, se atenúa.
+  const faseMatchFiltros = (fase) => {
+    if (filtroEquipo !== 'todos' && !(fase.equipos || []).includes(filtroEquipo)) return false;
+    if (filtroDelegacion !== 'todas') {
+      if (fase.todasDelegaciones) return true;
+      if (fase.todasDelegacionesEspana && DELEGACIONES_ESPANA.includes(filtroDelegacion)) return true;
+      if (!(fase.delegaciones || []).includes(filtroDelegacion)) return false;
+    }
+    if (filtroHerramienta !== 'todas' && !(fase.herramientaIds || []).includes(filtroHerramienta)) return false;
+    if (filtroFuente !== 'todas' && !(fase.fuentesExternas || []).includes(filtroFuente)) return false;
+    return true;
+  };
+
+  const todasLasFuentes = [...new Set(flujos.flatMap(l => (l.flujos || []).flatMap(f => (f.fases || []).flatMap(fa => fa.fuentesExternas || []))))].sort();
+
+  const fasesDeLinea = (lineaActual?.flujos || []).flatMap(f => f.fases || []);
+  const totalFases = fasesDeLinea.length;
+  const fasesConHerramientas = fasesDeLinea.filter(fa => (fa.herramientaIds || []).length > 0).length;
+  const fasesSinHerramientas = totalFases - fasesConHerramientas;
+
+  return (
+    <div className="p-8 w-full">
+      <header className="mb-6 flex items-end justify-between gap-3 flex-wrap">
+        <div>
+          <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-2">Mapa de procesos</p>
+          <h1 className="display-1 text-navy-900">Flujos de negocio y herramientas</h1>
+          <p className="text-sm text-stone-600 mt-1">Qué herramientas usa cada línea de negocio en cada fase de sus procesos.</p>
+        </div>
+      </header>
+
+      <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-3 flex-wrap mb-3">
+          <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Línea de negocio:</span>
+          <select
+            value={lineaSeleccionada}
+            onChange={e => setLineaSeleccionada(e.target.value)}
+            className="text-sm font-bold bg-stone-50 border border-stone-300 rounded-md px-3 py-1.5 outline-none focus:border-navy-700"
+          >
+            {grupos.map(g => (
+              <optgroup key={g.id} label={g.label}>
+                {EQUIPOS_NEGOCIO_GRUPOS[g.id].map(linea => (
+                  <option key={linea} value={linea}>{linea}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          {totalFases > 0 && (
+            <span className="text-xs text-stone-600">
+              <span className="font-bold text-navy-900">{totalFases}</span> fases · <span className="font-bold text-emerald-700">{fasesConHerramientas}</span> con herramientas · {fasesSinHerramientas > 0 && <span className="font-bold text-amber-700">{fasesSinHerramientas} sin herramientas</span>}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Filtros:</span>
+          <select value={filtroEquipo} onChange={e => setFiltroEquipo(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+            <option value="todos">Todos los equipos</option>
+            {EQUIPOS_NEGOCIO.map(eq => <option key={eq} value={eq}>{eq}</option>)}
+          </select>
+          <select value={filtroDelegacion} onChange={e => setFiltroDelegacion(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+            <option value="todas">Todas las delegaciones</option>
+            {DELEGACIONES.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <select value={filtroHerramienta} onChange={e => setFiltroHerramienta(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+            <option value="todas">Todas las herramientas</option>
+            {herramientas.map(h => <option key={h.id} value={h.id}>{h.nombre}</option>)}
+          </select>
+          <select value={filtroFuente} onChange={e => setFiltroFuente(e.target.value)} className="text-xs bg-stone-50 border border-stone-200 rounded-md px-2 py-1 outline-none">
+            <option value="todas">Todas las fuentes</option>
+            {todasLasFuentes.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
+          {(filtroEquipo !== 'todos' || filtroDelegacion !== 'todas' || filtroHerramienta !== 'todas' || filtroFuente !== 'todas') && (
+            <button onClick={() => { setFiltroEquipo('todos'); setFiltroDelegacion('todas'); setFiltroHerramienta('todas'); setFiltroFuente('todas'); }} className="text-[11px] text-stone-600 hover:text-navy-900 underline">Limpiar</button>
+          )}
+        </div>
+      </div>
+
+      {!lineaActual || (lineaActual.flujos || []).length === 0 ? (
+        <div className="bg-white border border-dashed border-stone-300 rounded-xl p-12 text-center">
+          <GitBranch size={36} className="text-stone-300 mx-auto mb-3" />
+          <p className="text-sm text-stone-600 font-medium mb-1">Esta línea de negocio aún no tiene flujos definidos.</p>
+          <p className="text-xs text-stone-400 mb-4">Crea el primer flujo para empezar a mapear sus procesos.</p>
+          <button
+            onClick={() => {
+              const linea = lineaActual || asegurarLinea();
+              setCreandoFlujoEnLinea(linea.id);
+            }}
+            className="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium inline-flex items-center gap-2"
+          >
+            <Plus size={14} /> Crear primer flujo
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {(lineaActual.flujos || []).map(flujo => (
+            <div key={flujo.id} className="bg-white border border-stone-200 rounded-2xl p-5">
+              <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <GitBranch size={16} className="text-navy-700" />
+                  <input
+                    value={flujo.nombre}
+                    onChange={e => renombrarFlujo(lineaActual.id, flujo.id, e.target.value)}
+                    className="font-serif text-xl font-bold text-navy-900 bg-transparent border-b border-transparent hover:border-stone-300 focus:border-navy-700 outline-none px-1"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => añadirFase(lineaActual.id, flujo.id)} className="text-xs px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md font-semibold flex items-center gap-1 transition-colors">
+                    <Plus size={11} /> Añadir fase
+                  </button>
+                  <button onClick={() => eliminarFlujo(lineaActual.id, flujo.id)} className="text-xs text-stone-400 hover:text-red-700 transition-colors">Eliminar flujo</button>
+                </div>
+              </div>
+
+              {(flujo.fases || []).length === 0 ? (
+                <p className="text-xs text-stone-500 italic text-center py-6 bg-stone-50 rounded-lg">Este flujo aún no tiene fases. Pulsa "Añadir fase" para empezar.</p>
+              ) : (
+                <div className="overflow-x-auto pb-2">
+                  <div className="flex items-start gap-0 min-w-max pt-1">
+                    {(flujo.fases || []).map((fase, idx) => {
+                      const matches = faseMatchFiltros(fase);
+                      const herrs = (fase.herramientaIds || []).map(id => herramientaById[id]).filter(Boolean);
+                      const fuentes = fase.fuentesExternas || [];
+                      const sinAsignaciones = herrs.length === 0 && fuentes.length === 0;
+                      return (
+                        <React.Fragment key={fase.id}>
+                          <div className={`relative w-[200px] flex-shrink-0 transition-opacity ${!matches ? 'opacity-30' : ''}`}>
+                            {/* CARD DE LA FASE */}
+                            <div
+                              className={`bg-navy-900 text-stone-50 border-2 border-navy-900 rounded-xl px-3 py-2.5 shadow-md hover:shadow-lg hover:bg-navy-800 cursor-pointer transition-all group`}
+                              onClick={() => setEditandoFase({ lineaId: lineaActual.id, flujoId: flujo.id, faseId: fase.id })}
+                            >
+                              <div className="flex items-start justify-between gap-1 mb-1">
+                                <span className="text-[9px] uppercase tracking-wider text-gold-400 font-bold bg-navy-800 px-1.5 py-0.5 rounded">Fase {idx + 1}</span>
+                                <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
+                                  <button onClick={(e) => { e.stopPropagation(); moverFase(lineaActual.id, flujo.id, fase.id, 'left'); }} className="text-stone-300 hover:text-stone-50 px-0.5" title="Mover a la izquierda">←</button>
+                                  <button onClick={(e) => { e.stopPropagation(); moverFase(lineaActual.id, flujo.id, fase.id, 'right'); }} className="text-stone-300 hover:text-stone-50 px-0.5" title="Mover a la derecha">→</button>
+                                </div>
+                              </div>
+                              <p className="text-sm font-bold text-stone-50 leading-snug line-clamp-2 min-h-[2.4rem]">{fase.nombre}</p>
+                              {fase.notas && (
+                                <p className="text-[10px] text-stone-400 italic mt-1 line-clamp-1">📝 {fase.notas}</p>
+                              )}
+                            </div>
+
+                            {/* CONECTOR Y HERRAMIENTAS COLGANDO */}
+                            <div className="flex flex-col items-center pt-1">
+                              {!sinAsignaciones && (
+                                <div className="w-px h-3 bg-stone-300"></div>
+                              )}
+                              <div className="w-full space-y-1.5">
+                                {herrs.length === 0 && fuentes.length === 0 && (
+                                  <div className="bg-amber-50 border border-amber-200 border-dashed rounded-md px-2 py-2 text-center mt-1">
+                                    <p className="text-[10px] text-amber-700 font-semibold">Sin herramientas</p>
+                                    <p className="text-[9px] text-amber-600">Pulsa la fase para asignar</p>
+                                  </div>
+                                )}
+                                {herrs.map(h => (
+                                  <div
+                                    key={h.id}
+                                    onClick={(e) => { e.stopPropagation(); setActive('herramientas'); }}
+                                    className="bg-white border border-stone-300 hover:border-navy-700 rounded-md px-2 py-1.5 cursor-pointer transition-all group/herr"
+                                    title={`${h.nombre} - Click para abrir Herramientas`}
+                                  >
+                                    <div className="flex items-center gap-1.5">
+                                      <Wrench size={10} className="text-navy-700 flex-shrink-0" />
+                                      <p className="text-[11px] font-bold text-navy-900 truncate group-hover/herr:text-navy-700">{h.nombre}</p>
+                                    </div>
+                                    {h.categoria && <p className="text-[9px] text-stone-500 truncate ml-4">{h.categoria}</p>}
+                                  </div>
+                                ))}
+                                {fuentes.map(f => (
+                                  <div
+                                    key={f}
+                                    className="bg-emerald-50 border border-emerald-200 rounded-md px-2 py-1"
+                                    title={`Fuente externa: ${f}`}
+                                  >
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-emerald-700 text-[10px]">↗</span>
+                                      <p className="text-[11px] font-semibold text-emerald-900 italic truncate">{f}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          {idx < (flujo.fases || []).length - 1 && (
+                            <div className="flex items-start pt-3 px-0.5 flex-shrink-0">
+                              <ChevronRight size={22} className="text-stone-400" />
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {creandoFlujoEnLinea === lineaActual?.id ? (
+            <div className="bg-white border border-stone-300 rounded-xl p-4 flex items-center gap-2">
+              <input
+                value={nuevoFlujoNombre}
+                onChange={e => setNuevoFlujoNombre(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') crearFlujo(); }}
+                placeholder="Nombre del nuevo flujo (ej: Posventa, Onboarding…)"
+                autoFocus
+                className="flex-1 bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+              />
+              <button onClick={crearFlujo} disabled={!nuevoFlujoNombre.trim()} className="px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-medium">Crear</button>
+              <button onClick={() => { setCreandoFlujoEnLinea(null); setNuevoFlujoNombre(''); }} className="px-3 py-2 text-stone-600 hover:text-stone-900 text-sm">Cancelar</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                const linea = lineaActual || asegurarLinea();
+                setCreandoFlujoEnLinea(linea.id);
+              }}
+              className="w-full bg-white border border-dashed border-stone-300 hover:border-navy-700 rounded-xl p-4 text-sm text-stone-600 hover:text-navy-900 font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <Plus size={14} /> Añadir nuevo flujo a {lineaSeleccionada}
+            </button>
+          )}
+        </div>
+      )}
+
+      {editandoFase && (() => {
+        const linea = flujos.find(l => l.id === editandoFase.lineaId);
+        const flujo = linea?.flujos.find(f => f.id === editandoFase.flujoId);
+        const fase = flujo?.fases.find(fa => fa.id === editandoFase.faseId);
+        if (!fase) return null;
+        return (
+          <FaseEditModal
+            fase={fase}
+            herramientas={herramientas}
+            onSave={(updates) => guardarFase(editandoFase.lineaId, editandoFase.flujoId, editandoFase.faseId, updates)}
+            onDelete={() => eliminarFase(editandoFase.lineaId, editandoFase.flujoId, editandoFase.faseId)}
+            onClose={() => setEditandoFase(null)}
+          />
+        );
+      })()}
+    </div>
+  );
+}
+
+function FaseEditModal({ fase, herramientas, onSave, onDelete, onClose }) {
+  const [form, setForm] = useState({
+    nombre: fase.nombre || '',
+    herramientaIds: fase.herramientaIds || [],
+    fuentesExternas: fase.fuentesExternas || [],
+    nuevaFuente: '',
+    equipos: fase.equipos || [],
+    delegaciones: fase.delegaciones || [],
+    nuevaDelegacion: '',
+    todasDelegaciones: !!fase.todasDelegaciones,
+    todasDelegacionesEspana: !!fase.todasDelegacionesEspana,
+    notas: fase.notas || '',
+  });
+  const [subTabEquipos, setSubTabEquipos] = useState('transaccional');
+  const [busquedaHerr, setBusquedaHerr] = useState('');
+
+  const herramientasFiltradas = herramientas.filter(h =>
+    !busquedaHerr || h.nombre.toLowerCase().includes(busquedaHerr.toLowerCase())
+  );
+
+  const guardar = () => {
+    const fuentesFinal = [...form.fuentesExternas];
+    if (form.nuevaFuente.trim()) fuentesFinal.push(form.nuevaFuente.trim());
+    const delegacionesFinal = form.todasDelegaciones || form.todasDelegacionesEspana ? [] : [...form.delegaciones];
+    if (!form.todasDelegaciones && !form.todasDelegacionesEspana && form.nuevaDelegacion.trim()) delegacionesFinal.push(form.nuevaDelegacion.trim());
+    onSave({
+      nombre: form.nombre.trim() || 'Sin nombre',
+      herramientaIds: form.herramientaIds,
+      fuentesExternas: fuentesFinal,
+      equipos: form.equipos,
+      delegaciones: delegacionesFinal,
+      todasDelegaciones: form.todasDelegaciones,
+      todasDelegacionesEspana: form.todasDelegacionesEspana && !form.todasDelegaciones,
+      notas: form.notas,
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="p-6 border-b border-stone-200 flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-1">Editar fase</p>
+            <input
+              value={form.nombre}
+              onChange={e => setForm({ ...form, nombre: e.target.value })}
+              className="font-serif text-2xl text-stone-900 bg-stone-50 border border-stone-300 rounded-md px-3 py-1.5 outline-none focus:border-navy-700 w-full"
+              placeholder="Nombre de la fase"
+            />
+          </div>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-700 flex-shrink-0"><X size={20} /></button>
+        </div>
+
+        <div className="overflow-y-auto p-6 space-y-5">
+          {/* HERRAMIENTAS */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Herramientas utilizadas <span className="normal-case text-stone-400 font-normal">· {form.herramientaIds.length} seleccionadas</span></label>
+            <input
+              value={busquedaHerr}
+              onChange={e => setBusquedaHerr(e.target.value)}
+              placeholder="Buscar herramienta…"
+              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 mb-2"
+            />
+            <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto border border-stone-200 rounded-md p-2 bg-stone-50">
+              {herramientasFiltradas.map(h => {
+                const sel = form.herramientaIds.includes(h.id);
+                return (
+                  <button
+                    key={h.id}
+                    type="button"
+                    onClick={() => setForm({ ...form, herramientaIds: sel ? form.herramientaIds.filter(x => x !== h.id) : [...form.herramientaIds, h.id] })}
+                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >{sel ? '✓ ' : ''}{h.nombre}</button>
+                );
+              })}
+              {herramientasFiltradas.length === 0 && <p className="text-xs text-stone-400 italic w-full text-center py-2">Sin resultados</p>}
+            </div>
+          </div>
+
+          {/* FUENTES EXTERNAS */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Fuentes externas / canales <span className="normal-case text-stone-400 font-normal">(Idealista, LinkedIn, Email, Llamadas…)</span></label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {form.fuentesExternas.map(f => (
+                <span key={f} className="flex items-center gap-1 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-semibold">
+                  ↗ {f}
+                  <button onClick={() => setForm({ ...form, fuentesExternas: form.fuentesExternas.filter(x => x !== f) })} className="hover:text-red-700">×</button>
+                </span>
+              ))}
+              {form.fuentesExternas.length === 0 && <span className="text-[11px] text-stone-400 italic">Aún no hay fuentes</span>}
+            </div>
+            <input
+              value={form.nuevaFuente}
+              onChange={e => setForm({ ...form, nuevaFuente: e.target.value })}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && form.nuevaFuente.trim()) {
+                  e.preventDefault();
+                  if (!form.fuentesExternas.includes(form.nuevaFuente.trim())) {
+                    setForm({ ...form, fuentesExternas: [...form.fuentesExternas, form.nuevaFuente.trim()], nuevaFuente: '' });
+                  } else {
+                    setForm({ ...form, nuevaFuente: '' });
+                  }
+                }
+              }}
+              placeholder="+ Añadir fuente y pulsa Enter"
+              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
+          </div>
+
+          {/* EQUIPOS */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Equipos vinculados</label>
+            <div className="flex items-center gap-1 mb-2 bg-stone-100 rounded-md p-0.5 w-fit">
+              {[
+                { k: 'transaccional', l: 'Transaccional' },
+                { k: 'capital_markets', l: 'Capital Markets' },
+                { k: 'no_transaccional', l: 'No transaccional' },
+              ].map(t => {
+                const count = EQUIPOS_NEGOCIO_GRUPOS[t.k].filter(e => form.equipos.includes(e)).length;
+                const active = subTabEquipos === t.k;
+                return (
+                  <button
+                    key={t.k}
+                    type="button"
+                    onClick={() => setSubTabEquipos(t.k)}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded text-[11px] font-medium transition-colors ${active ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+                  >
+                    {t.l}
+                    {count > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${active ? 'bg-navy-900 text-stone-50' : 'bg-stone-200 text-stone-700'}`}>{count}</span>}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {EQUIPOS_NEGOCIO_GRUPOS[subTabEquipos].map(eq => {
+                const sel = form.equipos.includes(eq);
+                return (
+                  <button
+                    key={eq}
+                    type="button"
+                    onClick={() => setForm({ ...form, equipos: sel ? form.equipos.filter(x => x !== eq) : [...form.equipos, eq] })}
+                    className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                  >{sel ? '+ ' : ''}{eq}</button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* DELEGACIONES */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-2 block font-semibold">Delegaciones</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, todasDelegaciones: !form.todasDelegaciones, todasDelegacionesEspana: false })}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${form.todasDelegaciones ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'}`}
+              >
+                <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${form.todasDelegaciones ? 'bg-stone-50 border-stone-50' : 'border-stone-400'}`}>
+                  {form.todasDelegaciones && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                </span>
+                Todas las delegaciones <span className="font-normal text-[10px]">(incl. internacionales)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, todasDelegacionesEspana: !form.todasDelegacionesEspana, todasDelegaciones: false })}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${form.todasDelegacionesEspana ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'}`}
+              >
+                <span className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${form.todasDelegacionesEspana ? 'bg-stone-50 border-stone-50' : 'border-stone-400'}`}>
+                  {form.todasDelegacionesEspana && <span className="text-stone-900 text-[10px] leading-none">✓</span>}
+                </span>
+                Todas las delegaciones España
+              </button>
+            </div>
+            {!form.todasDelegaciones && !form.todasDelegacionesEspana && (
+              <>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {[...new Set([...DELEGACIONES, ...form.delegaciones])].map(d => {
+                    const sel = form.delegaciones.includes(d);
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setForm({ ...form, delegaciones: sel ? form.delegaciones.filter(x => x !== d) : [...form.delegaciones, d] })}
+                        className={`text-xs px-2.5 py-1 rounded-md font-semibold transition-colors border ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
+                      >{sel ? '+ ' : ''}{d}</button>
+                    );
+                  })}
+                </div>
+                <input
+                  value={form.nuevaDelegacion}
+                  onChange={e => setForm({ ...form, nuevaDelegacion: e.target.value })}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && form.nuevaDelegacion.trim()) {
+                      e.preventDefault();
+                      if (!form.delegaciones.includes(form.nuevaDelegacion.trim())) {
+                        setForm({ ...form, delegaciones: [...form.delegaciones, form.nuevaDelegacion.trim()], nuevaDelegacion: '' });
+                      }
+                    }
+                  }}
+                  placeholder="+ Añadir provincia y pulsa Enter"
+                  className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+                />
+              </>
+            )}
+          </div>
+
+          {/* NOTAS */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 block font-semibold">Notas</label>
+            <textarea
+              value={form.notas}
+              onChange={e => setForm({ ...form, notas: e.target.value })}
+              placeholder="Notas, contexto, dolores, ideas de mejora…"
+              rows={3}
+              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="p-4 border-t border-stone-200 flex items-center justify-between">
+          <button onClick={onDelete} className="text-xs text-red-700 hover:text-red-800 font-medium flex items-center gap-1">
+            <X size={12} /> Eliminar fase
+          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={onClose} className="px-3 py-1.5 text-stone-600 hover:text-stone-900 text-sm">Cancelar</button>
+            <button onClick={guardar} className="px-4 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LoginScreen({ onEnterDemo }) {
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
@@ -12060,6 +12717,7 @@ export default function Nexo() {
   const [solapamientosLs, setSolapamientosLs] = useStored(STORAGE_KEYS.solapamientos, SEED_SOLAPAMIENTOS);
   const [peticionesLs, setPeticionesLs] = useStored(STORAGE_KEYS.peticiones, SEED_PETICIONES);
   const [mensajesLs, setMensajesLs] = useStored(STORAGE_KEYS.mensajes, []);
+  const [flujosNegocio, setFlujosNegocio] = useStored(STORAGE_KEYS.flujosNegocio, SEED_FLUJOS_NEGOCIO);
 
   const [tallerSeleccionadoId, setTallerSeleccionadoId] = useState(null);
 
@@ -12210,6 +12868,7 @@ export default function Nexo() {
         {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
+        {active === 'flujos' && <FlujosView flujos={flujosNegocio} setFlujos={setFlujosNegocio} herramientas={herramientas} setActive={setActive} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} herramientas={herramientas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'solapamientos' && <SolapamientosView talleres={talleres} herramientas={herramientas} iniciativas={iniciativas} personas={personas} solapamientos={solapamientos} setSolapamientos={setSolapamientos} peticiones={peticiones} setPeticiones={setPeticiones} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'herramientas' && <HerramientasView herramientas={herramientas} setHerramientas={setHerramientas} personas={personas} usuarioActualId={usuarioActualId} />}
