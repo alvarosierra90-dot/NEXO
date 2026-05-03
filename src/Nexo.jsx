@@ -181,15 +181,16 @@ const SEED_HISTORICO = [
 ];
 
 const _flujoTransaccional = (linea, slug) => {
-  const fase = (n, nombre, fuentes = [], equiposExtra = []) => ({
+  const fase = (n, nombre, opts = {}) => ({
     id: `fa-${slug}-${n}`,
     nombre,
     herramientaIds: [],
-    fuentesExternas: fuentes,
-    equipos: [linea, ...equiposExtra],
+    fuentesExternas: opts.fuentes || [],
+    equipos: [linea, ...(opts.equiposExtra || [])],
     delegaciones: [],
     todasDelegaciones: false,
     todasDelegacionesEspana: true,
+    procesoManual: !!opts.manual,
     notas: '',
   });
   return [
@@ -198,36 +199,36 @@ const _flujoTransaccional = (linea, slug) => {
       nombre: 'Oferta / Mandato',
       fases: [
         fase('1-1', 'Captación de activo'),
-        fase('1-2', 'Pitch'),
-        fase('1-3', 'Adjudicación'),
+        fase('1-2', 'Pitch', { manual: true }),
+        fase('1-3', 'Adjudicación', { manual: true }),
         fase('1-4', 'Creación de mandato'),
         fase('1-5', 'Alta del activo'),
-        fase('1-6', 'Estrategia comercial'),
-        fase('1-7', 'Activación en mercado', ['Idealista', 'LinkedIn', 'Web propia']),
+        fase('1-6', 'Estrategia comercial', { manual: true }),
+        fase('1-7', 'Activación en mercado', { fuentes: ['Idealista', 'LinkedIn', 'Web propia'] }),
       ],
     },
     {
       id: `flu-${slug}-2`,
       nombre: 'Demanda / Cliente',
       fases: [
-        fase('2-1', 'Entrada de demanda', ['Idealista', 'LinkedIn', 'Email', 'Llamadas', 'Referidos', 'Web corporativa']),
-        fase('2-2', 'Cualificación'),
-        fase('2-3', 'Definición de requisitos'),
+        fase('2-1', 'Entrada de demanda', { fuentes: ['Idealista', 'LinkedIn', 'Email', 'Llamadas', 'Referidos', 'Web corporativa'] }),
+        fase('2-2', 'Cualificación', { manual: true }),
+        fase('2-3', 'Definición de requisitos', { manual: true }),
         fase('2-4', 'Búsqueda de activos'),
         fase('2-5', 'Shortlist'),
-        fase('2-6', 'Presentación al cliente'),
+        fase('2-6', 'Presentación al cliente', { manual: true }),
       ],
     },
     {
       id: `flu-${slug}-3`,
       nombre: 'Transacción / Negociación',
       fases: [
-        fase('3-1', 'Visitas'),
-        fase('3-2', 'Feedback'),
-        fase('3-3', 'Negociación'),
-        fase('3-4', 'Cierre'),
+        fase('3-1', 'Visitas', { manual: true }),
+        fase('3-2', 'Feedback', { manual: true }),
+        fase('3-3', 'Negociación', { manual: true }),
+        fase('3-4', 'Cierre', { manual: true }),
         fase('3-5', 'Firma'),
-        fase('3-6', 'Facturación', [], ['Financiero']),
+        fase('3-6', 'Facturación', { equiposExtra: ['Financiero'] }),
       ],
     },
     {
@@ -11976,7 +11977,8 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
   const fasesDeLinea = (lineaActual?.flujos || []).flatMap(f => f.fases || []);
   const totalFases = fasesDeLinea.length;
   const fasesConHerramientas = fasesDeLinea.filter(fa => (fa.herramientaIds || []).length > 0).length;
-  const fasesSinHerramientas = totalFases - fasesConHerramientas;
+  const fasesManuales = fasesDeLinea.filter(fa => fa.procesoManual).length;
+  const fasesSinHerramientas = totalFases - fasesConHerramientas - fasesManuales;
 
   // Todos los nombres de flujos únicos en el sistema (para el comparador)
   const todosLosFlujos = [...new Set(flujos.flatMap(l => (l.flujos || []).map(f => f.nombre)))].sort();
@@ -12065,20 +12067,22 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
                               const herrs = (fase.herramientaIds || []).map(id => herramientaById[id]).filter(Boolean);
                               const fuentes = fase.fuentesExternas || [];
                               const sinAsignaciones = herrs.length === 0 && fuentes.length === 0;
+                              const esManual = !!fase.procesoManual;
                               return (
                                 <React.Fragment key={fase.id}>
                                   <div className="relative w-[200px] flex-shrink-0">
                                     <div
-                                      className="bg-stone-100 border-2 border-stone-300 rounded-xl px-3 py-2.5 shadow-sm hover:shadow-md hover:border-stone-500 cursor-pointer transition-all"
+                                      className={`${esManual ? 'bg-white border-2 border-dashed border-stone-300' : 'bg-stone-100 border-2 border-stone-300'} text-stone-900 rounded-xl px-3 py-2.5 shadow-sm hover:shadow-md hover:border-stone-500 cursor-pointer transition-all`}
                                       onClick={() => setEditandoFase({ lineaId: linea.id, flujoId: flujo.id, faseId: fase.id })}
                                     >
                                       <span className="text-[9px] uppercase tracking-wider text-stone-600 font-bold bg-white border border-stone-200 px-1.5 py-0.5 rounded">Fase {idx + 1}</span>
                                       <p className="text-sm font-bold text-stone-900 leading-snug line-clamp-2 min-h-[2.4rem] mt-1">{fase.nombre}</p>
+                                      {esManual && <p className="text-[10px] text-stone-500 italic mt-1">Hito / proceso manual</p>}
                                     </div>
                                     <div className="flex flex-col items-center pt-1">
                                       {!sinAsignaciones && <div className="w-px h-3 bg-stone-300"></div>}
                                       <div className="w-full space-y-1.5">
-                                        {sinAsignaciones && (
+                                        {sinAsignaciones && !esManual && (
                                           <div className="bg-amber-50 border border-amber-200 border-dashed rounded-md px-2 py-1 text-center mt-1">
                                             <p className="text-[10px] text-amber-700 font-semibold">Sin herramientas</p>
                                           </div>
@@ -12159,7 +12163,7 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
           </select>
           {totalFases > 0 && (
             <span className="text-xs text-stone-600">
-              <span className="font-bold text-navy-900">{totalFases}</span> fases · <span className="font-bold text-emerald-700">{fasesConHerramientas}</span> con herramientas · {fasesSinHerramientas > 0 && <span className="font-bold text-amber-700">{fasesSinHerramientas} sin herramientas</span>}
+              <span className="font-bold text-navy-900">{totalFases}</span> fases · <span className="font-bold text-emerald-700">{fasesConHerramientas}</span> con herramientas{fasesManuales > 0 && <> · <span className="font-bold text-stone-600">{fasesManuales} hitos manuales</span></>}{fasesSinHerramientas > 0 && <> · <span className="font-bold text-amber-700">{fasesSinHerramientas} sin herramientas</span></>}
             </span>
           )}
         </div>
@@ -12243,12 +12247,13 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
                       const herrs = (fase.herramientaIds || []).map(id => herramientaById[id]).filter(Boolean);
                       const fuentes = fase.fuentesExternas || [];
                       const sinAsignaciones = herrs.length === 0 && fuentes.length === 0;
+                      const esManual = !!fase.procesoManual;
                       return (
                         <React.Fragment key={fase.id}>
                           <div className={`relative w-[200px] flex-shrink-0 transition-opacity ${!matches ? 'opacity-30' : ''}`}>
                             {/* CARD DE LA FASE */}
                             <div
-                              className={`bg-stone-100 text-stone-900 border-2 border-stone-300 rounded-xl px-3 py-2.5 shadow-sm hover:shadow-md hover:border-stone-500 hover:bg-stone-50 cursor-pointer transition-all group`}
+                              className={`${esManual ? 'bg-white border-2 border-dashed border-stone-300' : 'bg-stone-100 border-2 border-stone-300'} text-stone-900 rounded-xl px-3 py-2.5 shadow-sm hover:shadow-md hover:border-stone-500 hover:bg-stone-50 cursor-pointer transition-all group`}
                               onClick={() => setEditandoFase({ lineaId: lineaActual.id, flujoId: flujo.id, faseId: fase.id })}
                             >
                               <div className="flex items-start justify-between gap-1 mb-1">
@@ -12259,6 +12264,9 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
                                 </div>
                               </div>
                               <p className="text-sm font-bold text-stone-900 leading-snug line-clamp-2 min-h-[2.4rem]">{fase.nombre}</p>
+                              {esManual && (
+                                <p className="text-[10px] text-stone-500 italic mt-1">Hito / proceso manual</p>
+                              )}
                               {fase.notas && (
                                 <p className="text-[10px] text-stone-600 italic mt-1 line-clamp-1">📝 {fase.notas}</p>
                               )}
@@ -12270,7 +12278,7 @@ function FlujosView({ flujos, setFlujos, herramientas, setHerramientas, setActiv
                                 <div className="w-px h-3 bg-stone-300"></div>
                               )}
                               <div className="w-full space-y-1.5">
-                                {herrs.length === 0 && fuentes.length === 0 && (
+                                {herrs.length === 0 && fuentes.length === 0 && !esManual && (
                                   <div className="bg-amber-50 border border-amber-200 border-dashed rounded-md px-2 py-2 text-center mt-1">
                                     <p className="text-[10px] text-amber-700 font-semibold">Sin herramientas</p>
                                     <p className="text-[9px] text-amber-600">Pulsa la fase para asignar</p>
@@ -12381,6 +12389,7 @@ function FaseEditModal({ fase, herramientas, setHerramientas, onSave, onDelete, 
     nuevaDelegacion: '',
     todasDelegaciones: !!fase.todasDelegaciones,
     todasDelegacionesEspana: !!fase.todasDelegacionesEspana,
+    procesoManual: !!fase.procesoManual,
     notas: fase.notas || '',
   });
   const [subTabEquipos, setSubTabEquipos] = useState('transaccional');
@@ -12436,6 +12445,7 @@ function FaseEditModal({ fase, herramientas, setHerramientas, onSave, onDelete, 
       delegaciones: delegacionesFinal,
       todasDelegaciones: form.todasDelegaciones,
       todasDelegacionesEspana: form.todasDelegacionesEspana && !form.todasDelegaciones,
+      procesoManual: form.procesoManual,
       notas: form.notas,
     });
     onClose();
@@ -12458,6 +12468,23 @@ function FaseEditModal({ fase, herramientas, setHerramientas, onSave, onDelete, 
         </div>
 
         <div className="overflow-y-auto p-6 space-y-5">
+          {/* PROCESO MANUAL */}
+          <div className={`border rounded-md p-3 ${form.procesoManual ? 'bg-stone-50 border-stone-300' : 'bg-white border-stone-200'}`}>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, procesoManual: !form.procesoManual })}
+              className="w-full flex items-start gap-2 text-left"
+            >
+              <span className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${form.procesoManual ? 'bg-stone-700 border-stone-700' : 'border-stone-400'}`}>
+                {form.procesoManual && <span className="text-stone-50 text-[10px] leading-none">✓</span>}
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-stone-800">Proceso manual / hito sin herramienta</p>
+                <p className="text-[11px] text-stone-600">Marca esta opción si esta fase es un hito relacional o decisión (Adjudicación, Pitch, Cierre, Firma, Visitas…) y no requiere ninguna herramienta digital. No saldrá como warning de "sin herramientas asignadas".</p>
+              </div>
+            </button>
+          </div>
+
           {/* HERRAMIENTAS */}
           <div>
             <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
