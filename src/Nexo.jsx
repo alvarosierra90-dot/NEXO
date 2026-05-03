@@ -2163,17 +2163,17 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               <p className="eyebrow text-navy-800">Detalle por taller</p>
               <p className="text-xs text-stone-400 font-medium">{total} talleres</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 auto-rows-fr">
               {saludByTaller.map(t => (
                 <button
                   key={t.id}
                   onClick={() => irATaller(t.id)}
-                  className="text-left bg-white hover:border-navy-700 hover:shadow-md border border-stone-200 rounded-lg overflow-hidden transition-all group"
+                  className="text-left bg-white hover:border-navy-700 hover:shadow-md border border-stone-200 rounded-lg overflow-hidden transition-all group flex flex-col"
                 >
-                  <div className={`h-1 ${bgColor[t.salud]}`}></div>
-                  <div className="p-3">
+                  <div className={`h-1.5 ${bgColor[t.salud]} flex-shrink-0`}></div>
+                  <div className="p-3 flex flex-col flex-1">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="text-xs font-medium text-stone-900 leading-snug line-clamp-2 min-h-[2.25rem]">{t.nombre}</p>
+                      <p className="text-xs font-medium text-stone-900 leading-snug line-clamp-2 h-[2.1rem]">{t.nombre}</p>
                       <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor[t.salud]}`}></div>
                     </div>
                     <div className="flex items-center gap-1.5 mb-2">
@@ -3680,7 +3680,7 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
       })()}
 
       {vistaTaller === 'cartas' && (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-fr">
         {talleresFiltrados.map(t => {
           const eventos = historico.filter(e => e.tallerId === t.id);
           const eventosOrdenados = [...eventos].sort((a, b) => b.fecha.localeCompare(a.fecha));
@@ -3725,11 +3725,11 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
             <button
               key={t.id}
               onClick={() => setTallerActivoId(t.id)}
-              className="text-left bg-white border border-stone-200 rounded-xl overflow-hidden hover:border-stone-400 hover:shadow-md transition-all group"
+              className="text-left bg-white border border-stone-200 rounded-xl overflow-hidden hover:border-stone-400 hover:shadow-md transition-all group flex flex-col"
             >
-              <div className={`h-1.5 ${saludColor}`}></div>
+              <div className={`h-1.5 ${saludColor} flex-shrink-0`}></div>
 
-              <div className="p-5">
+              <div className="p-5 flex flex-col flex-1">
                 <div className="flex items-center justify-between gap-2 mb-3 h-5">
                   <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${estadoBg}`}>{t.estado}</span>
                   <div className="flex items-center gap-1.5 text-[10px] flex-shrink-0">
