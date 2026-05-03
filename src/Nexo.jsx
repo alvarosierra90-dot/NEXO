@@ -3727,21 +3727,19 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
               onClick={() => setTallerActivoId(t.id)}
               className="text-left bg-white border border-stone-200 rounded-xl overflow-hidden hover:border-stone-400 hover:shadow-md transition-all group"
             >
-              <div className={`h-1 ${saludColor}`}></div>
+              <div className={`h-1.5 ${saludColor}`}></div>
 
               <div className="p-5">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-1.5 text-[10px] flex-shrink-0">
-                    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${estadoBg}`}>{t.estado}</span>
-                  </div>
+                <div className="flex items-center justify-between gap-2 mb-3 h-5">
+                  <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${estadoBg}`}>{t.estado}</span>
                   <div className="flex items-center gap-1.5 text-[10px] flex-shrink-0">
                     <div className={`w-1.5 h-1.5 rounded-full ${saludColor}`}></div>
                     <span className="text-stone-600">{saludLabel}</span>
                   </div>
                 </div>
 
-                <h3 className="font-serif text-base font-semibold text-stone-900 group-hover:text-stone-950 leading-snug min-h-[2.6rem] line-clamp-2 mb-1">{t.nombre}</h3>
-                <p className="text-[11px] text-stone-500 mb-3 truncate">{t.area || 'Sin área'}</p>
+                <h3 className="font-serif text-base font-semibold text-stone-900 group-hover:text-stone-950 leading-snug h-[2.75rem] line-clamp-2 mb-1">{t.nombre}</h3>
+                <p className="text-[11px] text-stone-500 mb-3 truncate h-4">{t.area || 'Sin área'}</p>
 
                 <div className="flex items-center gap-2 mb-3 pb-3 border-b border-stone-100 min-h-[2.5rem]">
                   {responsable ? (
