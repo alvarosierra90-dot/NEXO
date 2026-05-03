@@ -244,7 +244,297 @@ const _flujoTransaccional = (linea, slug) => {
   ];
 };
 
+const _flujoFromData = (linea, slug, defs) => {
+  const fase = (n, nombre, opts = {}) => ({
+    id: `fa-${slug}-${n}`,
+    nombre,
+    herramientaIds: [],
+    fuentesExternas: opts.fuentes || [],
+    equipos: [linea, ...(opts.equiposExtra || [])],
+    delegaciones: [],
+    todasDelegaciones: false,
+    todasDelegacionesEspana: true,
+    procesoManual: !!opts.manual,
+    notas: '',
+  });
+  return defs.map((d, i) => ({
+    id: `flu-${slug}-${i + 1}`,
+    nombre: d.nombre,
+    fases: d.fases.map((f, j) => fase(`${i + 1}-${j + 1}`, f.nombre, { manual: f.manual, fuentes: f.fuentes, equiposExtra: f.equiposExtra })),
+  }));
+};
+
+const FLUJOS_PROPERTY_MANAGEMENT = [
+  { nombre: 'Onboarding de activo', fases: [
+    { nombre: 'Recepción del mandato' },
+    { nombre: 'Inventario físico' },
+    { nombre: 'Documentación legal y técnica' },
+    { nombre: 'Alta en plataforma' },
+    { nombre: 'Definición de KPIs iniciales', manual: true },
+  ]},
+  { nombre: 'Operativa diaria', fases: [
+    { nombre: 'Gestión de incidencias' },
+    { nombre: 'Atención a inquilinos' },
+    { nombre: 'Coordinación de proveedores' },
+    { nombre: 'Control de morosidad' },
+  ]},
+  { nombre: 'Reporting al propietario', fases: [
+    { nombre: 'Recogida de datos' },
+    { nombre: 'Análisis de variaciones', manual: true },
+    { nombre: 'Elaboración de informe' },
+    { nombre: 'Entrega y reunión', manual: true },
+  ]},
+  { nombre: 'Renovaciones y rotación', fases: [
+    { nombre: 'Pre-aviso de vencimiento' },
+    { nombre: 'Negociación de renovación', manual: true },
+    { nombre: 'Gestión de salida' },
+    { nombre: 'Comercialización del espacio' },
+  ]},
+];
+
+const FLUJOS_FACILITY_MANAGEMENT = [
+  { nombre: 'Mantenimiento preventivo', fases: [
+    { nombre: 'Plan anual de mantenimiento', manual: true },
+    { nombre: 'Programación de tareas' },
+    { nombre: 'Ejecución por técnico/proveedor' },
+    { nombre: 'Validación y firma' },
+  ]},
+  { nombre: 'Mantenimiento correctivo', fases: [
+    { nombre: 'Recepción de incidencia' },
+    { nombre: 'Diagnóstico', manual: true },
+    { nombre: 'Asignación de proveedor' },
+    { nombre: 'Resolución' },
+    { nombre: 'Cierre y reporting' },
+  ]},
+  { nombre: 'Gestión de proveedores', fases: [
+    { nombre: 'Homologación' },
+    { nombre: 'Contratación' },
+    { nombre: 'Evaluación de servicio' },
+    { nombre: 'Renovación o cambio', manual: true },
+  ]},
+  { nombre: 'Compliance y auditorías', fases: [
+    { nombre: 'Inspección programada' },
+    { nombre: 'Detección de no conformidades' },
+    { nombre: 'Plan de acción correctivo' },
+    { nombre: 'Cierre y certificación' },
+  ]},
+];
+
+const FLUJOS_ARQUITECTURA = [
+  { nombre: 'Anteproyecto', fases: [
+    { nombre: 'Briefing del cliente', manual: true },
+    { nombre: 'Análisis de site' },
+    { nombre: 'Concepto y volumetría' },
+    { nombre: 'Validación con cliente', manual: true },
+  ]},
+  { nombre: 'Proyecto básico', fases: [
+    { nombre: 'Modelado BIM' },
+    { nombre: 'Cálculos estructurales' },
+    { nombre: 'Documentación gráfica' },
+    { nombre: 'Entrega para licencia' },
+  ]},
+  { nombre: 'Proyecto de ejecución', fases: [
+    { nombre: 'Detalles constructivos' },
+    { nombre: 'Especificaciones técnicas' },
+    { nombre: 'Mediciones y presupuesto' },
+    { nombre: 'Pliegos de condiciones' },
+  ]},
+  { nombre: 'Dirección de obra', fases: [
+    { nombre: 'Replanteo inicial', manual: true },
+    { nombre: 'Visitas de obra' },
+    { nombre: 'Certificaciones' },
+    { nombre: 'Recepción y entrega' },
+  ]},
+];
+
+const FLUJOS_VALORACIONES = [
+  { nombre: 'Encargo y toma de datos', fases: [
+    { nombre: 'Recepción del encargo' },
+    { nombre: 'Visita al activo', manual: true },
+    { nombre: 'Recopilación de documentación' },
+  ]},
+  { nombre: 'Análisis de mercado', fases: [
+    { nombre: 'Estudio de mercado' },
+    { nombre: 'Búsqueda de comparables' },
+    { nombre: 'Análisis de rentas' },
+    { nombre: 'Definición de cap rate', manual: true },
+  ]},
+  { nombre: 'Cálculo de valor', fases: [
+    { nombre: 'Selección de método' },
+    { nombre: 'Modelización financiera' },
+    { nombre: 'Análisis de sensibilidades' },
+    { nombre: 'Valor final', manual: true },
+  ]},
+  { nombre: 'Entrega y defensa', fases: [
+    { nombre: 'Redacción de informe' },
+    { nombre: 'Revisión interna', manual: true },
+    { nombre: 'Entrega al cliente' },
+    { nombre: 'Defensa ante auditor', manual: true },
+  ]},
+];
+
+const FLUJOS_FINANCIERO = [
+  { nombre: 'Facturación', fases: [
+    { nombre: 'Generación de factura' },
+    { nombre: 'Validación interna' },
+    { nombre: 'Emisión al cliente' },
+    { nombre: 'Cobro y conciliación' },
+  ]},
+  { nombre: 'Tesorería', fases: [
+    { nombre: 'Conciliación bancaria' },
+    { nombre: 'Programación de pagos' },
+    { nombre: 'Previsiones de caja' },
+    { nombre: 'Reporting de tesorería' },
+  ]},
+  { nombre: 'Cierre contable', fases: [
+    { nombre: 'Recogida de movimientos' },
+    { nombre: 'Registro de asientos' },
+    { nombre: 'Conciliaciones' },
+    { nombre: 'Cierre mensual', manual: true },
+  ]},
+  { nombre: 'Reporting financiero', fases: [
+    { nombre: 'Extracción de datos' },
+    { nombre: 'Consolidación' },
+    { nombre: 'Análisis de desviaciones', manual: true },
+    { nombre: 'Presentación a comité', manual: true },
+  ]},
+];
+
+const FLUJOS_IT = [
+  { nombre: 'Soporte a usuario', fases: [
+    { nombre: 'Recepción de ticket' },
+    { nombre: 'Clasificación y prioridad' },
+    { nombre: 'Resolución' },
+    { nombre: 'Cierre y satisfacción' },
+  ]},
+  { nombre: 'Gestión de aplicaciones', fases: [
+    { nombre: 'Backlog de peticiones' },
+    { nombre: 'Priorización', manual: true },
+    { nombre: 'Desarrollo o configuración' },
+    { nombre: 'Despliegue a producción' },
+  ]},
+  { nombre: 'Seguridad y cumplimiento', fases: [
+    { nombre: 'Monitorización' },
+    { nombre: 'Detección de incidente' },
+    { nombre: 'Análisis y mitigación' },
+    { nombre: 'Reporte y lecciones aprendidas', manual: true },
+  ]},
+  { nombre: 'Onboarding tecnológico', fases: [
+    { nombre: 'Alta de usuario' },
+    { nombre: 'Provisión de equipo' },
+    { nombre: 'Asignación de accesos' },
+    { nombre: 'Formación inicial', manual: true },
+  ]},
+];
+
+const FLUJOS_DESARROLLO_NEGOCIO = [
+  { nombre: 'Generación de leads', fases: [
+    { nombre: 'Identificación', fuentes: ['LinkedIn', 'Referidos', 'Eventos'] },
+    { nombre: 'Cualificación', manual: true },
+    { nombre: 'Primer contacto' },
+    { nombre: 'Reunión exploratoria', manual: true },
+  ]},
+  { nombre: 'Pipeline comercial', fases: [
+    { nombre: 'Apertura de oportunidad' },
+    { nombre: 'Diseño de propuesta' },
+    { nombre: 'Negociación', manual: true },
+    { nombre: 'Cierre', manual: true },
+  ]},
+  { nombre: 'Cuentas estratégicas', fases: [
+    { nombre: 'Plan de cuenta', manual: true },
+    { nombre: 'Reuniones periódicas', manual: true },
+    { nombre: 'Cross-selling' },
+    { nombre: 'Renovación de relación' },
+  ]},
+  { nombre: 'Marketing y posicionamiento', fases: [
+    { nombre: 'Plan de marketing', manual: true },
+    { nombre: 'Producción de contenidos' },
+    { nombre: 'Distribución', fuentes: ['LinkedIn', 'Web propia', 'Email'] },
+    { nombre: 'Medición de resultados' },
+  ]},
+];
+
+const FLUJOS_RESEARCH = [
+  { nombre: 'Estudios sectoriales', fases: [
+    { nombre: 'Definición de scope', manual: true },
+    { nombre: 'Recogida de datos', fuentes: ['INE', 'Idealista Data', 'Catastro'] },
+    { nombre: 'Análisis y modelado' },
+    { nombre: 'Publicación' },
+  ]},
+  { nombre: 'Reporting periódico de mercado', fases: [
+    { nombre: 'Datos de mercado', fuentes: ['Idealista Data', 'Costar', 'INE'] },
+    { nombre: 'Cálculo de indicadores' },
+    { nombre: 'Redacción' },
+    { nombre: 'Distribución' },
+  ]},
+  { nombre: 'Consultas ad-hoc', fases: [
+    { nombre: 'Recepción de petición' },
+    { nombre: 'Análisis exprés', manual: true },
+    { nombre: 'Respuesta al solicitante' },
+    { nombre: 'Seguimiento' },
+  ]},
+  { nombre: 'Eventos y presentaciones', fases: [
+    { nombre: 'Brief del evento', manual: true },
+    { nombre: 'Desarrollo de contenido' },
+    { nombre: 'Ensayo', manual: true },
+    { nombre: 'Presentación', manual: true },
+  ]},
+];
+
+const FLUJOS_CONSULTORIA = [
+  { nombre: 'Propuesta', fases: [
+    { nombre: 'Brief del cliente', manual: true },
+    { nombre: 'Diseño de propuesta' },
+    { nombre: 'Pitch', manual: true },
+    { nombre: 'Adjudicación', manual: true },
+  ]},
+  { nombre: 'Ejecución del proyecto', fases: [
+    { nombre: 'Kick-off', manual: true },
+    { nombre: 'Trabajo de campo' },
+    { nombre: 'Análisis y modelado' },
+    { nombre: 'Entregable' },
+  ]},
+  { nombre: 'Validación con cliente', fases: [
+    { nombre: 'Workshop', manual: true },
+    { nombre: 'Iteración' },
+    { nombre: 'Aprobación final', manual: true },
+  ]},
+  { nombre: 'Cierre y aprendizaje', fases: [
+    { nombre: 'Lecciones aprendidas', manual: true },
+    { nombre: 'Cross-selling' },
+    { nombre: 'Caso de éxito' },
+  ]},
+];
+
+const FLUJOS_JURIDICO = [
+  { nombre: 'Revisión contractual', fases: [
+    { nombre: 'Recepción del contrato' },
+    { nombre: 'Análisis legal', manual: true },
+    { nombre: 'Comentarios y redlines' },
+    { nombre: 'Validación final', manual: true },
+  ]},
+  { nombre: 'Due diligence', fases: [
+    { nombre: 'Definición de scope', manual: true },
+    { nombre: 'Recogida de documentación' },
+    { nombre: 'Análisis y informe' },
+    { nombre: 'Q&A con cliente', manual: true },
+  ]},
+  { nombre: 'Litigios', fases: [
+    { nombre: 'Demanda o reclamación' },
+    { nombre: 'Estrategia procesal', manual: true },
+    { nombre: 'Procedimiento' },
+    { nombre: 'Resolución', manual: true },
+  ]},
+  { nombre: 'Compliance', fases: [
+    { nombre: 'Definición de política', manual: true },
+    { nombre: 'Implantación' },
+    { nombre: 'Auditoría interna' },
+    { nombre: 'Reporte a dirección', manual: true },
+  ]},
+];
+
 const SEED_FLUJOS_NEGOCIO = [
+  // Transaccional
   { id: 'lin-oficinas',          lineaNegocio: 'Oficinas',            grupo: 'transaccional', flujos: _flujoTransaccional('Oficinas', 'of') },
   { id: 'lin-retail',            lineaNegocio: 'Retail',              grupo: 'transaccional', flujos: _flujoTransaccional('Retail', 'rt') },
   { id: 'lin-hoteles',           lineaNegocio: 'Hoteles',             grupo: 'transaccional', flujos: _flujoTransaccional('Hoteles', 'ht') },
@@ -253,6 +543,25 @@ const SEED_FLUJOS_NEGOCIO = [
   { id: 'lin-agrobusiness',      lineaNegocio: 'Agrobusiness',        grupo: 'transaccional', flujos: _flujoTransaccional('Agrobusiness', 'ag') },
   { id: 'lin-alternativos',      lineaNegocio: 'Alternativos',        grupo: 'transaccional', flujos: _flujoTransaccional('Alternativos', 'al') },
   { id: 'lin-centros-comerciales', lineaNegocio: 'Centros Comerciales', grupo: 'transaccional', flujos: _flujoTransaccional('Centros Comerciales', 'cc') },
+  // Capital Markets — mismo flujo que transaccional
+  { id: 'lin-cm-oficinas',       lineaNegocio: 'Capital Markets Oficinas',              grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Oficinas', 'cmof') },
+  { id: 'lin-cm-industrial',     lineaNegocio: 'Capital Markets Industrial Logístico',  grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Industrial Logístico', 'cmil') },
+  { id: 'lin-cm-retail',         lineaNegocio: 'Capital Markets Retail',                grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Retail', 'cmrt') },
+  { id: 'lin-cm-alternativos',   lineaNegocio: 'Capital Markets Alternativos',          grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Alternativos', 'cmal') },
+  { id: 'lin-cm-living',         lineaNegocio: 'Capital Markets Living',                grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Living', 'cmlv') },
+  { id: 'lin-cm-hoteles',        lineaNegocio: 'Capital Markets Hoteles',               grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Hoteles', 'cmht') },
+  { id: 'lin-cm-cc',             lineaNegocio: 'Capital Markets Centros Comerciales',   grupo: 'capital_markets', flujos: _flujoTransaccional('Capital Markets Centros Comerciales', 'cmcc') },
+  // No transaccional — flujos específicos
+  { id: 'lin-property',          lineaNegocio: 'Property Management', grupo: 'no_transaccional', flujos: _flujoFromData('Property Management', 'pm', FLUJOS_PROPERTY_MANAGEMENT) },
+  { id: 'lin-facility',          lineaNegocio: 'Facility Management', grupo: 'no_transaccional', flujos: _flujoFromData('Facility Management', 'fm', FLUJOS_FACILITY_MANAGEMENT) },
+  { id: 'lin-arquitectura',      lineaNegocio: 'Arquitectura',        grupo: 'no_transaccional', flujos: _flujoFromData('Arquitectura', 'arq', FLUJOS_ARQUITECTURA) },
+  { id: 'lin-valoraciones',      lineaNegocio: 'Valoraciones',        grupo: 'no_transaccional', flujos: _flujoFromData('Valoraciones', 'val', FLUJOS_VALORACIONES) },
+  { id: 'lin-financiero',        lineaNegocio: 'Financiero',          grupo: 'no_transaccional', flujos: _flujoFromData('Financiero', 'fin', FLUJOS_FINANCIERO) },
+  { id: 'lin-it',                lineaNegocio: 'IT',                  grupo: 'no_transaccional', flujos: _flujoFromData('IT', 'it', FLUJOS_IT) },
+  { id: 'lin-desarrollo',        lineaNegocio: 'Desarrollo de Negocio', grupo: 'no_transaccional', flujos: _flujoFromData('Desarrollo de Negocio', 'dn', FLUJOS_DESARROLLO_NEGOCIO) },
+  { id: 'lin-research',          lineaNegocio: 'Research',            grupo: 'no_transaccional', flujos: _flujoFromData('Research', 'rs', FLUJOS_RESEARCH) },
+  { id: 'lin-consultoria',       lineaNegocio: 'Consultoría',         grupo: 'no_transaccional', flujos: _flujoFromData('Consultoría', 'cs', FLUJOS_CONSULTORIA) },
+  { id: 'lin-juridico',          lineaNegocio: 'Jurídico',            grupo: 'no_transaccional', flujos: _flujoFromData('Jurídico', 'jur', FLUJOS_JURIDICO) },
 ];
 
 async function callClaude(systemPrompt, userMessage, conversationHistory = []) {
@@ -13164,6 +13473,14 @@ export default function Nexo() {
   const [peticionesLs, setPeticionesLs] = useStored(STORAGE_KEYS.peticiones, SEED_PETICIONES);
   const [mensajesLs, setMensajesLs] = useStored(STORAGE_KEYS.mensajes, []);
   const [flujosNegocio, setFlujosNegocio] = useStored(STORAGE_KEYS.flujosNegocio, SEED_FLUJOS_NEGOCIO);
+
+  useEffect(() => {
+    if (!Array.isArray(flujosNegocio) || flujosNegocio.length === 0) return;
+    const lineasExistentes = new Set(flujosNegocio.map(l => l.lineaNegocio));
+    const faltantes = SEED_FLUJOS_NEGOCIO.filter(l => !lineasExistentes.has(l.lineaNegocio));
+    if (faltantes.length > 0) setFlujosNegocio([...flujosNegocio, ...faltantes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flujosNegocio.length]);
 
   const [tallerSeleccionadoId, setTallerSeleccionadoId] = useState(null);
 
