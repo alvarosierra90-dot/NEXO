@@ -2427,6 +2427,20 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
         })()}
       </div>
 
+      <div className="mb-8">
+        <InformeMensual
+          talleres={talleres}
+          tareas={tareas}
+          historico={historico}
+          reuniones={reuniones}
+          solapamientos={solapamientos}
+          peticiones={peticiones}
+          iniciativas={iniciativas}
+          herramientas={herramientas}
+          personas={personas}
+        />
+      </div>
+
       {(() => {
         const saludByTaller = talleres.map(t => {
           const eventos = historico.filter(e => e.tallerId === t.id);
@@ -2530,79 +2544,65 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="eyebrow text-navy-800" style={{ fontSize: '10px' }}>Detalle por taller</p>
-                    <p className="text-xs text-stone-500 mt-0.5">{total} talleres · pulsa para abrir</p>
-                  </div>
-                  <button onClick={() => setActive('talleres')} className="text-xs text-navy-800 hover:text-navy-900 font-medium flex items-center gap-1">
-                    Ver todos <ChevronRight size={12} />
-                  </button>
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="eyebrow text-navy-800" style={{ fontSize: '10px' }}>Detalle por taller</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{total} talleres · pulsa para abrir</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 auto-rows-fr">
-                  {saludByTaller.map(t => (
-                    <button
-                      key={t.id}
-                      onClick={() => irATaller(t.id)}
-                      className="text-left bg-white border border-stone-200 hover:border-navy-700 hover:shadow-sm rounded-lg p-2.5 transition-all group"
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <p className="text-xs font-semibold text-navy-900 leading-snug line-clamp-1 flex-1">{t.nombre}</p>
-                        <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor[t.salud]}`}></div>
-                      </div>
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <div className="flex-1 h-1 rounded-full bg-stone-100 overflow-hidden">
-                          <div
-                            className={`h-full transition-all ${bgColor[t.salud]}`}
-                            style={{ width: `${Math.max(3, t.progreso)}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-[9px] text-stone-500 font-medium tabular-nums w-7 text-right">{Math.round(t.progreso)}%</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-[9px] text-stone-500 flex-wrap">
-                        <span
-                          className={`flex items-center gap-0.5 cursor-help ${t.riesgos > 0 ? 'text-amber-700' : ''}`}
-                          title={`${t.riesgos} riesgos o bloqueos detectados`}
-                        >
-                          <AlertOctagon size={9} /> {t.riesgos}
-                        </span>
-                        <span
-                          className="flex items-center gap-0.5 cursor-help"
-                          title={`${t.tareasAbiertas} tareas pendientes`}
-                        >
-                          <CheckSquare size={9} /> {t.tareasAbiertas}
-                        </span>
-                        <span
-                          className={`flex items-center gap-0.5 cursor-help ${t.objetivosT > 0 ? 'text-gold-700' : ''}`}
-                          title={`${t.objetivosComplT}/${t.objetivosT} objetivos cumplidos`}
-                        >
-                          <Flag size={9} /> {t.objetivosComplT}/{t.objetivosT}
-                        </span>
-                        <span
-                          className="flex items-center gap-0.5 cursor-help"
-                          title={`${t.integrantesT} integrantes en el taller`}
-                        >
-                          <Users size={9} /> {t.integrantesT}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                <button onClick={() => setActive('talleres')} className="text-xs text-navy-800 hover:text-navy-900 font-medium flex items-center gap-1">
+                  Ver todos <ChevronRight size={12} />
+                </button>
               </div>
-
-              <InformeMensual
-                talleres={talleres}
-                tareas={tareas}
-                historico={historico}
-                reuniones={reuniones}
-                solapamientos={solapamientos}
-                peticiones={peticiones}
-                iniciativas={iniciativas}
-                herramientas={herramientas}
-                personas={personas}
-              />
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 auto-rows-fr">
+                {saludByTaller.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => irATaller(t.id)}
+                    className="text-left bg-white border border-stone-200 hover:border-navy-700 hover:shadow-sm rounded-lg p-2.5 transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <p className="text-xs font-semibold text-navy-900 leading-snug line-clamp-1 flex-1">{t.nombre}</p>
+                      <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor[t.salud]}`}></div>
+                    </div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="flex-1 h-1 rounded-full bg-stone-100 overflow-hidden">
+                        <div
+                          className={`h-full transition-all ${bgColor[t.salud]}`}
+                          style={{ width: `${Math.max(3, t.progreso)}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-[9px] text-stone-500 font-medium tabular-nums w-7 text-right">{Math.round(t.progreso)}%</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[9px] text-stone-500 flex-wrap">
+                      <span
+                        className={`flex items-center gap-0.5 cursor-help ${t.riesgos > 0 ? 'text-amber-700' : ''}`}
+                        title={`${t.riesgos} riesgos o bloqueos detectados`}
+                      >
+                        <AlertOctagon size={9} /> {t.riesgos}
+                      </span>
+                      <span
+                        className="flex items-center gap-0.5 cursor-help"
+                        title={`${t.tareasAbiertas} tareas pendientes`}
+                      >
+                        <CheckSquare size={9} /> {t.tareasAbiertas}
+                      </span>
+                      <span
+                        className={`flex items-center gap-0.5 cursor-help ${t.objetivosT > 0 ? 'text-gold-700' : ''}`}
+                        title={`${t.objetivosComplT}/${t.objetivosT} objetivos cumplidos`}
+                      >
+                        <Flag size={9} /> {t.objetivosComplT}/{t.objetivosT}
+                      </span>
+                      <span
+                        className="flex items-center gap-0.5 cursor-help"
+                        title={`${t.integrantesT} integrantes en el taller`}
+                      >
+                        <Users size={9} /> {t.integrantesT}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </>
         );
