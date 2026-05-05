@@ -5653,21 +5653,21 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                 { txt: 'Pendiente', cls: 'bg-stone-100 text-stone-700' };
 
               return (
-                <div key={obj.id} className={`relative rounded-xl border-2 ${accent} transition-all hover:shadow-md flex flex-col aspect-square`}>
+                <div key={obj.id} className={`relative rounded-xl border-2 ${accent} transition-all hover:shadow-md flex flex-col`}>
                   <button onClick={() => eliminarObjetivo(obj.id)} className="absolute top-2 right-2 text-stone-400 hover:text-red-700 transition-colors p-1 bg-white/70 rounded z-10" title="Eliminar">
                     <X size={12} />
                   </button>
 
                   <button
                     onClick={() => setObjetivoActivoId(obj.id)}
-                    className="flex-1 text-left p-3 pr-8 flex flex-col min-h-0"
+                    className="text-left p-3 pr-8 flex flex-col"
                   >
                     <div className="flex items-center gap-1 mb-2 flex-wrap">
                       <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold ${estadoBadge.cls}`}>
                         {estadoBadge.txt}
                       </span>
                     </div>
-                    <h4 className={`text-xs font-bold leading-tight mb-2 line-clamp-3 flex-1 ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>
+                    <h4 className={`text-xs font-bold leading-tight mb-2 line-clamp-3 ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>
                       {obj.titulo}
                     </h4>
                     <div className="space-y-1.5">
@@ -5696,33 +5696,75 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                           )}
                         </div>
                       )}
-                      {subsObj.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-[9px] text-stone-500 font-medium">{subsObj.filter(s => s.completado).length}/{subsObj.length} subobj.</span>
-                            <span className="text-[9px] font-bold text-emerald-700">{progresoSub}%</span>
-                          </div>
-                          <div className="relative h-1.5 bg-stone-200 rounded-full overflow-hidden">
-                            <div
-                              className="absolute inset-y-0 left-0 bg-emerald-500 rounded-full"
-                              style={{ width: `${progresoSub}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-[9px] text-stone-500 pt-1.5 border-t border-stone-200/70">
-                        <span className="flex items-center gap-0.5"><Activity size={9} /> {eventosObj.length}</span>
-                        {(obj.reunionIds || []).length > 0 && (
-                          <span className="flex items-center gap-0.5"><Mic size={9} /> {(obj.reunionIds || []).length}</span>
-                        )}
-                      </div>
                     </div>
                   </button>
 
-                  <div className="px-3 pb-2">
+                  {subsObj.length > 0 && (
+                    <div className="px-3 pb-2">
+                      <div className="border-t border-stone-200/70 pt-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[9px] uppercase tracking-wider text-stone-500 font-bold">Subobjetivos</span>
+                          <span className="text-[10px] font-bold text-emerald-700">{progresoSub}%</span>
+                        </div>
+                        <div className="relative h-1.5 bg-stone-200 rounded-full overflow-hidden mb-2">
+                          <div
+                            className="absolute inset-y-0 left-0 bg-emerald-500 rounded-full transition-all duration-300"
+                            style={{ width: `${progresoSub}%` }}
+                          ></div>
+                        </div>
+                        <div className="space-y-1">
+                          {subsObj.map(sub => {
+                            const personasSub = (sub.personasIds || []).map(id => personaById[id]).filter(Boolean);
+                            return (
+                              <div key={sub.id} className="flex items-center gap-1.5 text-[10px]">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); toggleSubobjetivoCompletado(obj.id, sub.id); }}
+                                  className={`w-3.5 h-3.5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${sub.completado ? 'bg-emerald-500 border-emerald-500' : 'border-stone-400 hover:border-emerald-500 bg-white'}`}
+                                  title={sub.completado ? 'Marcar pendiente' : 'Marcar cumplido'}
+                                >
+                                  {sub.completado && <CheckCircle2 size={9} className="text-white" />}
+                                </button>
+                                <span className={`flex-1 min-w-0 truncate font-medium ${sub.completado ? 'text-stone-400 line-through' : 'text-stone-800'}`} title={sub.titulo}>
+                                  {sub.titulo}
+                                </span>
+                                {personasSub.length > 0 && (
+                                  <div className="flex -space-x-1 items-center flex-shrink-0">
+                                    {personasSub.slice(0, 2).map(p => {
+                                      const ini = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                                      return (
+                                        <div key={p.id} title={p.nombre} className="w-3.5 h-3.5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[7px] border border-white">
+                                          {ini}
+                                        </div>
+                                      );
+                                    })}
+                                    {personasSub.length > 2 && (
+                                      <div className="w-3.5 h-3.5 rounded-full bg-stone-300 text-stone-700 flex items-center justify-center font-semibold text-[7px] border border-white">
+                                        +{personasSub.length - 2}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                <span className={`text-[9px] font-bold flex-shrink-0 ${sub.completado ? 'text-emerald-700' : 'text-stone-600'}`}>
+                                  {sub.porcentaje}%
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="px-3 pb-2 flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-[9px] text-stone-500 flex-shrink-0">
+                      <span className="flex items-center gap-0.5"><Activity size={9} /> {eventosObj.length}</span>
+                      {(obj.reunionIds || []).length > 0 && (
+                        <span className="flex items-center gap-0.5"><Mic size={9} /> {(obj.reunionIds || []).length}</span>
+                      )}
+                    </div>
                     <button
                       onClick={() => toggleObjetivo(obj.id)}
-                      className={`w-full flex items-center justify-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${completado ? 'bg-stone-100 hover:bg-stone-200 text-stone-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
+                      className={`flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${completado ? 'bg-stone-100 hover:bg-stone-200 text-stone-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
                     >
                       {completado ? <><X size={10} /> Reabrir</> : <><CheckCircle2 size={10} /> Cumplir</>}
                     </button>
