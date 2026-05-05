@@ -2499,7 +2499,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-navy-900">
                   <div>
                     <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
                       <Activity size={16} className="text-gold-600" />
@@ -2530,8 +2530,8 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-navy-900 tracking-tight mb-3">Estados resumidos</h3>
-                <div className="divide-y divide-stone-200/70 border-t border-b border-stone-200/70">
+                <h3 className="text-lg font-bold text-navy-900 tracking-tight pb-3 mb-4 border-b-2 border-navy-900">Estados resumidos</h3>
+                <div className="divide-y divide-stone-200/70 border-b border-stone-200/70">
                   {segments.map(s => (
                     <div key={s.label} className="flex items-center gap-3 py-3">
                       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }}></div>
@@ -2545,9 +2545,12 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
             </div>
 
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-navy-900">
                 <div>
-                  <p className="eyebrow text-navy-800" style={{ fontSize: '10px' }}>Detalle por taller</p>
+                  <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                    <Layers size={16} className="text-navy-700" />
+                    Detalle por taller
+                  </h3>
                   <p className="text-xs text-stone-500 mt-0.5">{total} talleres · pulsa para abrir</p>
                 </div>
                 <button onClick={() => setActive('talleres')} className="text-xs text-navy-800 hover:text-navy-900 font-medium flex items-center gap-1">
@@ -2611,7 +2614,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
                 <RadioTower size={14} className="text-gold-600" />
                 Actividad reciente
@@ -2660,7 +2663,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
                 <CheckSquare size={14} className="text-red-600" />
                 Tareas urgentes
@@ -2693,7 +2696,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
 
         <div className="space-y-6">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
                 <AlertOctagon size={14} className="text-amber-600" />
                 Talleres con alerta
@@ -2718,7 +2721,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
                 <Wrench size={14} className="text-stone-600" />
                 Licencias infrautilizadas
@@ -2744,7 +2747,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
                 <Lightbulb size={14} className="text-violet-600" />
                 Iniciativas a comunicar
