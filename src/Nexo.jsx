@@ -667,8 +667,8 @@ function Sidebar({ active, setActive, usuarioActualId, setUsuarioActualId, perso
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
               }}
-              className="mt-2 w-full text-[10px] uppercase tracking-widest font-bold text-stone-700 hover:text-navy-900 bg-stone-100 hover:bg-stone-200 border border-stone-300 rounded-md px-2.5 py-1.5 transition-colors"
-            >📥 Exportar datos demo</button>
+              className="mt-2 w-full flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-stone-700 hover:text-navy-900 bg-stone-100 hover:bg-stone-200 border border-stone-300 rounded-md px-2.5 py-1.5 transition-colors"
+            ><FileText size={11} /> Exportar datos demo</button>
           </>
         )}
       </div>
@@ -6324,7 +6324,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
             )}
 
             {demoMode && documentos.length > 0 && (
-              <p className="text-[10px] text-stone-500 italic mt-3">⚠️ En modo demo los archivos se almacenan solo en tu navegador.</p>
+              <p className="text-[10px] text-stone-500 italic mt-3 flex items-center gap-1"><AlertTriangle size={10} /> En modo demo los archivos se almacenan solo en tu navegador.</p>
             )}
           </div>
 
@@ -7220,7 +7220,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     onClick={() => setNuevaHerr({ ...nuevaHerr, categorias: sel ? nuevaHerr.categorias.filter(x => x !== c) : [...nuevaHerr.categorias, c] })}
                     className={`text-xs px-2.5 py-1.5 rounded-md font-semibold transition-colors border-2 ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : sugerida ? 'bg-gold-50 text-gold-900 border-gold-300' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
                   >
-                    {sel ? '✓ ' : sugerida ? '✨ ' : ''}{c}
+                    {sel ? '✓ ' : sugerida ? '★ ' : ''}{c}
                   </button>
                 );
               })}
@@ -8218,7 +8218,7 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                             onClick={() => setEdicion({ ...edicion, categoriasSel: sel ? edicion.categoriasSel.filter(x => x !== c) : [...(edicion.categoriasSel || []), c] })}
                             className={`text-xs px-2.5 py-1.5 rounded-md font-semibold transition-colors border-2 ${sel ? 'bg-navy-900 text-stone-50 border-navy-900' : sugerida ? 'bg-gold-50 text-gold-900 border-gold-300' : 'bg-white text-stone-700 border-stone-200 hover:border-navy-700'}`}
                           >
-                            {sel ? '✓ ' : sugerida ? '✨ ' : ''}{c}
+                            {sel ? '✓ ' : sugerida ? '★ ' : ''}{c}
                           </button>
                         );
                       })}
@@ -14055,7 +14055,7 @@ Devuelve SOLO un JSON válido con esta estructura exacta:
                                 <p className="text-[10px] text-stone-500 italic mt-1">Hito / proceso manual</p>
                               )}
                               {fase.notas && (
-                                <p className="text-[10px] text-stone-600 italic mt-1 line-clamp-1">📝 {fase.notas}</p>
+                                <p className="text-[10px] text-stone-600 italic mt-1 line-clamp-1 flex items-center gap-1"><FileText size={9} /> {fase.notas}</p>
                               )}
                             </div>
 
