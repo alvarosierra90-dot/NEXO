@@ -5641,7 +5641,6 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         const eventosCron = historico
           .filter(e => e.tallerId === taller.id)
           .sort((a, b) => a.fecha.localeCompare(b.fecha));
-        if (eventosCron.length === 0) return null;
         const colorMap = {
           stone: { bg: '#f5f5f4', border: '#a8a29e', text: '#44403c', dot: '#78716c' },
           blue: { bg: '#E6F1FB', border: '#378ADD', text: '#0C447C', dot: '#378ADD' },
@@ -5664,17 +5663,93 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
 
         return (
           <div className="bg-white border border-stone-200 rounded-xl p-5 mb-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
               <h3 className="text-sm font-medium text-stone-900 flex items-center gap-2">
                 <Activity size={14} />
                 Cronograma del taller
-                <span className="text-xs text-stone-500 font-normal">· {eventosCron.length} eventos</span>
+                <span className="text-xs text-stone-500 font-normal">· {eventosCron.length} {eventosCron.length === 1 ? 'evento' : 'eventos'}</span>
               </h3>
-              <span className="text-[11px] text-stone-500">
-                {formatFecha(eventosCron[0].fecha)} → {formatFecha(eventosCron[eventosCron.length - 1].fecha)}
-              </span>
+              <div className="flex items-center gap-3 flex-wrap">
+                {eventosCron.length > 0 && (
+                  <span className="text-[11px] text-stone-500">
+                    {formatFecha(eventosCron[0].fecha)} → {formatFecha(eventosCron[eventosCron.length - 1].fecha)}
+                  </span>
+                )}
+                <button
+                  onClick={() => setAñadiendo(!añadiendo)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-xs transition-colors"
+                >
+                  {añadiendo ? <><X size={12} /> Cerrar</> : <><Plus size={12} /> Nuevo evento</>}
+                </button>
+              </div>
             </div>
 
+            {añadiendo && (
+              <div className="bg-stone-50 border border-stone-300 rounded-xl p-4 mb-4">
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <select
+                    value={nuevoTipo}
+                    onChange={e => setNuevoTipo(e.target.value)}
+                    className="bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none"
+                  >
+                    {Object.entries(TIPOS_EVENTO).map(([key, val]) => (
+                      <option key={key} value={key}>{val.label}</option>
+                    ))}
+                  </select>
+                  <input
+                    value={nuevoTitulo}
+                    onChange={e => setNuevoTitulo(e.target.value)}
+                    placeholder="Título"
+                    className="col-span-2 bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
+                  />
+                </div>
+                <textarea
+                  value={nuevaDesc}
+                  onChange={e => setNuevaDesc(e.target.value)}
+                  placeholder="Descripción"
+                  rows={2}
+                  className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-2"
+                />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <select
+                    value={nuevoAutor}
+                    onChange={e => setNuevoAutor(e.target.value)}
+                    className="bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none"
+                  >
+                    {(() => {
+                      const integrantes = personas.filter(p => (p.talleres || []).includes(taller.id));
+                      const otros = personas.filter(p => !(p.talleres || []).includes(taller.id));
+                      return (
+                        <>
+                          {integrantes.length > 0 && (
+                            <optgroup label={`Integrantes de ${taller.nombre}`}>
+                              {integrantes.map(p => <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>)}
+                            </optgroup>
+                          )}
+                          {otros.length > 0 && (
+                            <optgroup label="Otras personas">
+                              {otros.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                            </optgroup>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </select>
+                  <button onClick={añadirEvento} disabled={!nuevoTitulo.trim()} className="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm transition-colors">
+                    Publicar al comité
+                  </button>
+                  <button onClick={() => setAñadiendo(false)} className="px-3 py-1.5 text-stone-600 hover:text-stone-900 text-sm">
+                    Cancelar
+                  </button>
+                </div>
+                <p className="text-[11px] text-stone-500 mt-2">Visible para todos los miembros del comité en tiempo real.</p>
+              </div>
+            )}
+
+            {eventosCron.length === 0 ? (
+              <p className="text-sm text-stone-500 italic py-4 text-center">Aún no hay eventos en el cronograma. Pulsa "Nuevo evento" para registrar el primer hito, decisión, avance o riesgo.</p>
+            ) : (
+            <>
             <div className="overflow-x-auto pb-2 -mx-5 px-5">
               <div className="flex items-stretch gap-0 min-w-min">
                 {gruposOrdenados.map(([key, grupo], grupoIdx) => (
@@ -5749,6 +5824,8 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
               ))}
               <span className="ml-auto text-[10px] text-stone-400 italic">Pulsa una tarjeta para editar</span>
             </div>
+            </>
+            )}
           </div>
         );
       })()}
