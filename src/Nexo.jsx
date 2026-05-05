@@ -11889,6 +11889,13 @@ Devuelve SOLO JSON válido, sin markdown:
         </button>
       </header>
 
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <Metric label="Total" value={reuniones.length} />
+        <Metric label="Programadas" value={reunionesPorEstado.programadas?.length || 0} accent={(reunionesPorEstado.programadas?.length || 0) > 0 ? 'amber' : undefined} />
+        <Metric label="Por programar" value={reunionesPorEstado.por_programar?.length || 0} accent={(reunionesPorEstado.por_programar?.length || 0) > 0 ? 'amber' : undefined} />
+        <Metric label="Finalizadas" value={reunionesPorEstado.finalizadas?.length || 0} accent="emerald" />
+      </div>
+
       {añadiendo && (
         <div className="bg-white border border-stone-300 rounded-xl p-5 mb-6">
           <h3 className="text-sm font-medium text-stone-900 mb-3">Registrar reunión</h3>
