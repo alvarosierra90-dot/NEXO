@@ -10820,7 +10820,7 @@ function MisTareasView({ tareas, setTareas, talleres, personas, usuarioActualId,
   );
 }
 
-function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usuarioActualId }) {
+function PersonasView({ personas, setPersonas, talleres, tareas, reuniones = [], historico = [], setActive, usuarioActualId }) {
   const [filtroTaller, setFiltroTaller] = useState('todos');
   const [filtroNivel, setFiltroNivel] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
@@ -10829,6 +10829,7 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
   const [nuevoNivel, setNuevoNivel] = useState(2);
   const [nuevoEmail, setNuevoEmail] = useState('');
   const [añadiendoTallerA, setAñadiendoTallerA] = useState(null);
+  const [personaActivaId, setPersonaActivaId] = useState(null);
 
   const tallerById = Object.fromEntries(talleres.map(t => [t.id, t]));
 
@@ -10870,12 +10871,254 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
     await setPersonas(nuevas);
   };
 
+  const personaActiva = personas.find(p => p.id === personaActivaId);
+
   return (
     <div className="p-8 w-full">
       <header className="mb-6">
         <p className="text-[11px] uppercase tracking-widest text-stone-500 mb-2">{personas.length} personas registradas</p>
         <h1 className="display-1 text-navy-900">Personas</h1>
       </header>
+
+      {personaActiva && (() => {
+        const p = personaActiva;
+        const iniciales = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+        const equipo = getEquipo(p);
+        const nivel = getNivel(p);
+        const nivelInfo = nivel ? NIVELES[nivel] : null;
+        const misTalleresIds = p.talleres || [];
+        const misTalleres = talleres.filter(t => misTalleresIds.includes(t.id));
+
+        const misTareas = tareas.filter(t => t.personaId === p.id);
+        const tareasPend = misTareas.filter(t => t.estado === 'pendiente');
+        const tareasCompl = misTareas.filter(t => t.estado === 'completada');
+
+        const objetivosAsoc = [];
+        talleres.forEach(t => {
+          (t.objetivos || []).forEach(o => {
+            const enObj = (o.personasIds || []).includes(p.id);
+            const subsConPersona = (o.subobjetivos || []).filter(s => (s.personasIds || []).includes(p.id));
+            if (enObj || subsConPersona.length > 0) {
+              objetivosAsoc.push({ obj: o, taller: t, subs: subsConPersona });
+            }
+          });
+        });
+        const objetivosCompl = objetivosAsoc.filter(x => x.obj.estado === 'completado');
+        const objetivosPend = objetivosAsoc.filter(x => x.obj.estado !== 'completado');
+
+        const subobjetivosAsoc = objetivosAsoc.flatMap(x => x.subs.map(s => ({ sub: s, obj: x.obj, taller: x.taller })));
+        const subsCompl = subobjetivosAsoc.filter(x => x.sub.completado).length;
+
+        const hoyT = new Date(); hoyT.setHours(0,0,0,0);
+        const misReuniones = reuniones.filter(r => (r.asistentes || []).includes(p.id));
+        const reunionesPasadas = misReuniones.filter(r => r.fecha && new Date(r.fecha) < hoyT)
+          .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+        const reunionesFuturas = misReuniones.filter(r => !r.fecha || new Date(r.fecha) >= hoyT)
+          .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+
+        const eventosCreados = historico.filter(e => e.autorId === p.id);
+
+        return (
+          <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setPersonaActivaId(null)}>
+            <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+              <div className="p-6 border-b border-stone-200 flex items-start justify-between gap-4">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-16 h-16 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-bold text-xl">
+                      {iniciales}
+                    </div>
+                    {nivelInfo && (
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold ${nivelInfo.color}`} title={`${nivelInfo.label} · ${nivelInfo.desc}`}>
+                        {nivel}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-serif text-2xl text-navy-900">{p.nombre}</h2>
+                    <p className="text-sm text-stone-600 font-medium">{equipo}</p>
+                    {p.email && <p className="text-xs text-stone-400 mt-0.5">{p.email}</p>}
+                    {nivelInfo && (
+                      <p className="text-[11px] text-stone-500 mt-1">{nivelInfo.label} · {nivelInfo.desc}</p>
+                    )}
+                  </div>
+                </div>
+                <button onClick={() => setPersonaActivaId(null)} className="text-stone-400 hover:text-stone-700 flex-shrink-0">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto p-6 space-y-5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Talleres</p>
+                    <p className="text-2xl font-bold text-navy-900">{misTalleres.length}</p>
+                  </div>
+                  <div className="bg-gold-50 border border-gold-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-gold-700 font-semibold mb-1">Tareas pend.</p>
+                    <p className="text-2xl font-bold text-gold-800">{tareasPend.length}</p>
+                    <p className="text-[10px] text-stone-500">de {misTareas.length}</p>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">Objetivos cumpl.</p>
+                    <p className="text-2xl font-bold text-emerald-800">{objetivosCompl.length}</p>
+                    <p className="text-[10px] text-stone-500">de {objetivosAsoc.length}</p>
+                  </div>
+                  <div className="bg-navy-50 border border-navy-200 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-navy-700 font-semibold mb-1">Reuniones</p>
+                    <p className="text-2xl font-bold text-navy-900">{misReuniones.length}</p>
+                    <p className="text-[10px] text-stone-500">{reunionesPasadas.length} pasadas · {reunionesFuturas.length} próx.</p>
+                  </div>
+                </div>
+
+                {misTalleres.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Talleres en los que participa · {misTalleres.length}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {misTalleres.map(t => {
+                        const nivelEnT = getNivel(p, t.id);
+                        return (
+                          <span key={t.id} className="text-xs px-2 py-1 rounded-md font-semibold bg-navy-50 text-navy-800 border border-navy-100 flex items-center gap-1.5">
+                            {t.nombre}
+                            {nivelEnT && (
+                              <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold ${NIVELES[nivelEnT].color}`}>{nivelEnT}</span>
+                            )}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {misTareas.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">
+                      Tareas <span className="normal-case font-normal text-stone-400">· {tareasPend.length} pendientes · {tareasCompl.length} completadas</span>
+                    </p>
+                    <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                      {[...tareasPend, ...tareasCompl].map(t => {
+                        const completado = t.estado === 'completada';
+                        const tallerT = talleres.find(x => x.id === t.tallerId);
+                        return (
+                          <div key={t.id} className={`flex items-center gap-2 p-2 rounded-md border ${completado ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${completado ? 'bg-emerald-500' : t.prioridad === 'alta' ? 'bg-red-500' : t.prioridad === 'media' ? 'bg-gold-500' : 'bg-stone-400'}`}></span>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{t.tarea}</p>
+                              <p className="text-[10px] text-stone-500">
+                                {tallerT?.nombre || 'sin taller'}
+                                {t.deadline && t.deadline !== 'Sin fecha' && <> · {t.deadline}</>}
+                                {completado && <> · completada</>}
+                              </p>
+                            </div>
+                            <span className={`text-[9px] uppercase tracking-wider font-bold ${t.prioridad === 'alta' ? 'text-red-700' : t.prioridad === 'media' ? 'text-gold-700' : 'text-stone-500'}`}>
+                              {t.prioridad}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {objetivosAsoc.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">
+                      Objetivos asociados <span className="normal-case font-normal text-stone-400">· {objetivosCompl.length} cumplidos · {objetivosPend.length} pendientes</span>
+                    </p>
+                    <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                      {objetivosAsoc.map(({ obj, taller, subs }) => {
+                        const completado = obj.estado === 'completado';
+                        const totalSubs = (obj.subobjetivos || []).length;
+                        return (
+                          <div key={`${taller.id}-${obj.id}`} className={`p-2 rounded-md border ${completado ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+                            <div className="flex items-center gap-2">
+                              <Flag size={11} className={completado ? 'text-emerald-600' : 'text-gold-600'} />
+                              <p className={`text-xs font-semibold leading-tight flex-1 min-w-0 ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{obj.titulo}</p>
+                              {obj.fecha && <span className="text-[10px] text-stone-500">{formatFecha(obj.fecha)}</span>}
+                            </div>
+                            <p className="text-[10px] text-stone-500 mt-0.5 ml-5">
+                              {taller.nombre}
+                              {subs.length > 0 && <> · {subs.length}/{totalSubs} subobj. asignados</>}
+                            </p>
+                            {subs.length > 0 && (
+                              <div className="ml-5 mt-1 space-y-0.5">
+                                {subs.map(s => (
+                                  <div key={s.id} className="flex items-center gap-1.5 text-[10px]">
+                                    <span className={`w-2 h-2 rounded-full ${s.completado ? 'bg-emerald-500' : 'bg-stone-300'}`}></span>
+                                    <span className={`flex-1 truncate ${s.completado ? 'text-stone-400 line-through' : 'text-stone-700'}`}>{s.titulo}</span>
+                                    <span className="font-bold text-stone-600">{s.porcentaje}%</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {misReuniones.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">
+                      Reuniones <span className="normal-case font-normal text-stone-400">· {reunionesPasadas.length} celebradas · {reunionesFuturas.length} próximas</span>
+                    </p>
+                    <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                      {[...reunionesFuturas, ...reunionesPasadas].map(r => {
+                        const esPasada = r.fecha && new Date(r.fecha) < hoyT;
+                        const tallersR = (r.tallerIds || []).map(id => talleres.find(t => t.id === id)).filter(Boolean);
+                        return (
+                          <div key={r.id} className={`flex items-start gap-2 p-2 rounded-md border ${esPasada ? 'border-stone-200 bg-stone-50' : 'border-navy-200 bg-navy-50/40'}`}>
+                            <Mic size={11} className={`flex-shrink-0 mt-0.5 ${esPasada ? 'text-stone-500' : 'text-navy-700'}`} />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-navy-900 leading-tight">{r.titulo}</p>
+                              <p className="text-[10px] text-stone-500 mt-0.5">
+                                {r.fecha ? formatFecha(r.fecha) : 'Sin fecha'}
+                                {esPasada ? ' · celebrada' : ' · próxima'}
+                                {tallersR.length > 0 && <> · {tallersR.map(t => t.nombre).join(', ')}</>}
+                                {r.asistentes && <> · {r.asistentes.length} asistentes</>}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {eventosCreados.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">
+                      Eventos publicados <span className="normal-case font-normal text-stone-400">· {eventosCreados.length}</span>
+                    </p>
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {eventosCreados.slice(0, 20).map(e => {
+                        const tallerE = talleres.find(t => t.id === e.tallerId);
+                        const tipo = TIPOS_EVENTO[e.tipo];
+                        return (
+                          <div key={e.id} className="flex items-center gap-2 p-1.5 rounded-md border border-stone-200 bg-white text-[10px]">
+                            <span className="font-bold text-stone-600">[{tipo?.label || e.tipo}]</span>
+                            <span className="flex-1 truncate text-stone-700">{e.titulo}</span>
+                            <span className="text-stone-400">{tallerE?.nombre || ''}</span>
+                            <span className="text-stone-400">{formatFecha(e.fecha)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {misTareas.length === 0 && objetivosAsoc.length === 0 && misReuniones.length === 0 && (
+                  <p className="text-sm text-stone-500 italic text-center py-4">Esta persona aún no tiene tareas, objetivos ni reuniones asociadas.</p>
+                )}
+              </div>
+
+              <div className="p-4 border-t border-stone-200 flex items-center justify-end">
+                <button onClick={() => setPersonaActivaId(null)} className="px-4 py-1.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-medium transition-colors">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4 flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -10936,7 +11179,11 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
           const talleresDisponibles = talleres.filter(t => !misTalleresIds.includes(t.id));
           const expandido = añadiendoTallerA === p.id;
           return (
-            <div key={p.id} className={`bg-white border rounded-2xl p-4 transition-all ${esYo ? 'border-navy-700 shadow-sm ring-1 ring-navy-700/10' : 'border-stone-200/80 hover:border-stone-300'}`}>
+            <div
+              key={p.id}
+              onClick={() => setPersonaActivaId(p.id)}
+              className={`bg-white border rounded-2xl p-4 transition-all cursor-pointer hover:shadow-md ${esYo ? 'border-navy-700 shadow-sm ring-1 ring-navy-700/10' : 'border-stone-200/80 hover:border-navy-400'}`}
+            >
               <div className="flex items-start gap-3 mb-3">
                 <div className="relative flex-shrink-0">
                   <div className="w-11 h-11 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-sm">
@@ -10978,13 +11225,13 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
               </div>
 
               {esYo && (
-                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-stone-100">
+                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-stone-100" onClick={e => e.stopPropagation()}>
                   <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">Nivel</span>
                   <div className="flex gap-0.5">
                     {[1, 2, 3].map(n => (
                       <button
                         key={n}
-                        onClick={() => cambiarNivel(p.id, n)}
+                        onClick={(e) => { e.stopPropagation(); cambiarNivel(p.id, n); }}
                         className={`w-7 h-6 rounded text-xs font-bold transition-all ${
                           nivel === n ? NIVELES[n].color : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
                         }`}
@@ -11005,7 +11252,7 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
                   </p>
                   {esYo && talleresDisponibles.length > 0 && (
                     <button
-                      onClick={() => setAñadiendoTallerA(expandido ? null : p.id)}
+                      onClick={(e) => { e.stopPropagation(); setAñadiendoTallerA(expandido ? null : p.id); }}
                       className="text-xs text-navy-700 hover:text-navy-900 font-semibold flex items-center gap-1 px-2 py-0.5 rounded hover:bg-navy-50 transition-colors"
                     >
                       {expandido ? <><X size={11} /> Cerrar</> : <><Plus size={11} /> Unirme a taller</>}
@@ -11016,7 +11263,7 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
                   <div className="flex flex-wrap gap-1.5">
                     {misTalleres.map(t => (
                       <span key={t.id} className={`text-xs px-2 py-1 rounded-md font-semibold ${esYo ? 'bg-navy-900 text-stone-50 cursor-pointer hover:bg-navy-800' : 'bg-navy-50 text-navy-800 border border-navy-100'}`}
-                        onClick={esYo ? () => { if (confirm(`¿Salir del taller "${t.nombre}"?`)) togglePersonaTaller(p.id, t.id); } : undefined}
+                        onClick={esYo ? (e) => { e.stopPropagation(); if (confirm(`¿Salir del taller "${t.nombre}"?`)) togglePersonaTaller(p.id, t.id); } : undefined}
                         title={esYo ? 'Click para salir del taller' : undefined}
                       >{t.nombre}{esYo && ' ×'}</span>
                     ))}
@@ -11025,13 +11272,13 @@ function PersonasView({ personas, setPersonas, talleres, tareas, setActive, usua
                   <p className="text-xs text-stone-400 italic">No participa en ningún taller</p>
                 )}
                 {esYo && expandido && (
-                  <div className="mt-3 p-3 bg-stone-50 border border-stone-200 rounded-lg">
+                  <div className="mt-3 p-3 bg-stone-50 border border-stone-200 rounded-lg" onClick={e => e.stopPropagation()}>
                     <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Talleres disponibles</p>
                     <div className="flex flex-wrap gap-1.5">
                       {talleresDisponibles.map(t => (
                         <button
                           key={t.id}
-                          onClick={() => { togglePersonaTaller(p.id, t.id); }}
+                          onClick={(e) => { e.stopPropagation(); togglePersonaTaller(p.id, t.id); }}
                           className="text-xs px-2 py-1 rounded-md font-semibold bg-white border border-stone-200 text-stone-700 hover:border-navy-700 hover:text-navy-900 hover:bg-white transition-colors"
                         >+ {t.nombre}</button>
                       ))}
@@ -14232,7 +14479,7 @@ export default function Nexo() {
         {active === 'mis-tareas' && <MisTareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'reuniones' && <ReunionesView reuniones={reuniones} setReuniones={setReuniones} talleres={talleres} setTalleres={setTalleres} personas={personas} historico={historico} setHistorico={setHistorico} setActive={setActive} />}
         {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
-        {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} setActive={setActive} usuarioActualId={usuarioActualId} />}
+        {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} reuniones={reuniones} historico={historico} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} herramientas={herramientas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'solapamientos' && <SolapamientosView talleres={talleres} herramientas={herramientas} iniciativas={iniciativas} personas={personas} solapamientos={solapamientos} setSolapamientos={setSolapamientos} peticiones={peticiones} setPeticiones={setPeticiones} usuarioActualId={usuarioActualId} setActive={setActive} />}
