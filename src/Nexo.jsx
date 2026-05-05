@@ -12374,6 +12374,7 @@ Devuelve SOLO JSON válido, sin markdown:
 function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTalleres, personas, historico, setHistorico, onBack, onProcesar, extrayendo }) {
   const [editandoIdea, setEditandoIdea] = useState(null);
   const [editando, setEditando] = useState(false);
+  const [mostrarIdeas, setMostrarIdeas] = useState(false);
 
   const findVinculo = (reunionId) => {
     for (const t of talleres) {
@@ -12651,7 +12652,7 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTallere
         </div>
 
         {!editando && (reunion.asistentes || []).length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap mb-3">
             <span className="eyebrow text-stone-500" style={{ fontSize: '10px' }}>Asistentes</span>
             {(reunion.asistentes || []).map(id => {
               const p = personaById[id];
@@ -12662,6 +12663,40 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTallere
             })}
           </div>
         )}
+
+        {!editando && (() => {
+          const v = findVinculo(reunion.id);
+          const tallerLinked = v.tallerId ? tallerById[v.tallerId] : (reunion.tallerIds && reunion.tallerIds[0] ? tallerById[reunion.tallerIds[0]] : null);
+          const objetivoLinked = v.objetivoId && tallerLinked ? (tallerLinked.objetivos || []).find(o => o.id === v.objetivoId) : null;
+          const subLinked = objetivoLinked && v.subobjetivoId ? (objetivoLinked.subobjetivos || []).find(s => s.id === v.subobjetivoId) : null;
+          if (!tallerLinked) return null;
+          return (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="eyebrow text-stone-500" style={{ fontSize: '10px' }}>Vinculada a</span>
+              <span className="text-sm flex items-center gap-1.5 bg-gold-50 text-gold-900 border border-gold-200 px-2.5 py-1 rounded-md font-semibold">
+                <Layers size={11} /> {tallerLinked.nombre}
+              </span>
+              {objetivoLinked && (
+                <>
+                  <ChevronRight size={12} className="text-stone-400" />
+                  <span className="text-sm flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border border-emerald-200 px-2.5 py-1 rounded-md font-semibold">
+                    <Flag size={11} /> {objetivoLinked.titulo}
+                    {objetivoLinked.estado === 'completado' && <CheckCircle2 size={11} className="text-emerald-700" />}
+                  </span>
+                </>
+              )}
+              {subLinked && (
+                <>
+                  <ChevronRight size={12} className="text-stone-400" />
+                  <span className="text-sm flex items-center gap-1.5 bg-navy-50 text-navy-900 border border-navy-200 px-2.5 py-1 rounded-md font-semibold">
+                    <CheckSquare size={11} /> {subLinked.titulo} <span className="text-stone-500">· {subLinked.porcentaje}%</span>
+                    {subLinked.completado && <CheckCircle2 size={11} className="text-emerald-700" />}
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {editando && (() => {
           const tallerSel = editForm.tallerId ? talleres.find(t => t.id === editForm.tallerId) : null;
@@ -12773,35 +12808,60 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTallere
         })()}
       </header>
 
-      {(reunion.agenda || []).length > 0 && (
-        <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4">
-          <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-2">Temas a tratar</p>
-          <ul className="space-y-1.5">
-            {(reunion.agenda || []).map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm text-stone-800">
-                <span className="text-stone-400 mt-0.5 flex-shrink-0">•</span>
-                <span className="leading-relaxed">{item}</span>
-              </li>
-            ))}
-          </ul>
+      {((reunion.agenda || []).length > 0 || reunion.notas) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
+            <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-2">Temas a tratar</p>
+            {(reunion.agenda || []).length > 0 ? (
+              <ul className="space-y-1.5">
+                {(reunion.agenda || []).map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-stone-800">
+                    <span className="text-stone-400 mt-0.5 flex-shrink-0">•</span>
+                    <span className="leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-stone-400 italic">Sin temas registrados.</p>
+            )}
+          </div>
+
+          <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
+            <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-2">Acta de reunión</p>
+            {reunion.notas ? (
+              <p className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">{reunion.notas}</p>
+            ) : (
+              <p className="text-sm text-stone-400 italic">Sin acta registrada.</p>
+            )}
+          </div>
         </div>
       )}
 
-      {reunion.notas && (
-        <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 mb-6">
-          <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-2">Notas originales</p>
-          <p className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">{reunion.notas}</p>
-        </div>
-      )}
+      {(() => {
+        const publicadasCount = ideas.filter(i => i.publicada).length;
+        const pendientesCount = ideas.length - publicadasCount;
+        return (
+          <div className="mb-4">
+            <button
+              onClick={() => setMostrarIdeas(!mostrarIdeas)}
+              className="w-full flex items-center justify-between gap-3 bg-white border border-stone-200 hover:border-navy-700 rounded-xl px-4 py-3 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Lightbulb size={15} className="text-gold-600" />
+                <span className="text-sm font-bold text-navy-900">Ideas extraídas</span>
+                <span className="text-xs text-stone-500">· {ideas.length} {ideas.length === 1 ? 'idea' : 'ideas'}</span>
+                {publicadasCount > 0 && <span className="text-[11px] text-emerald-700 font-semibold">{publicadasCount} publicadas</span>}
+                {pendientesCount > 0 && <span className="text-[11px] text-gold-700 font-semibold">{pendientesCount} pendientes</span>}
+              </div>
+              <ChevronRight size={14} className={`text-stone-400 transition-transform ${mostrarIdeas ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
+        );
+      })()}
 
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif text-xl text-stone-900">Ideas extraídas</h2>
-        <span className="text-xs text-stone-500">{ideas.length} ideas · agrupadas por taller</span>
-      </div>
-
-      {ideas.length === 0 && (
-        <div className="bg-white border border-stone-200 rounded-xl p-8 text-center">
-          <Lightbulb size={32} className="text-stone-300 mx-auto mb-2" />
+      {mostrarIdeas && ideas.length === 0 && (
+        <div className="bg-white border border-stone-200 rounded-xl p-6 text-center mb-4">
+          <Lightbulb size={28} className="text-stone-300 mx-auto mb-2" />
           <p className="text-sm text-stone-600 mb-3">No hay ideas extraídas todavía.</p>
           {reunion.notas && (
             <button
@@ -12816,6 +12876,7 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTallere
         </div>
       )}
 
+      {mostrarIdeas && (
       <div className="space-y-4">
         {Object.entries(ideasPorTaller).map(([tallerId, items]) => {
           const taller = tallerById[tallerId];
@@ -12913,6 +12974,7 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTallere
           );
         })}
       </div>
+      )}
     </div>
   );
 }
