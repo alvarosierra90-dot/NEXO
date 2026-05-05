@@ -4478,6 +4478,63 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
     setNuevoEventoObjForm({ titulo: '', descripcion: '', tipo: 'avance' });
   };
 
+  const [nuevoSubObjForm, setNuevoSubObjForm] = useState({ titulo: '', porcentaje: '' });
+
+  const añadirSubobjetivo = async (objId) => {
+    if (!nuevoSubObjForm.titulo.trim()) return;
+    const obj = objetivos.find(o => o.id === objId);
+    if (!obj) return;
+    const subs = obj.subobjetivos || [];
+    const usado = subs.reduce((s, x) => s + (Number(x.porcentaje) || 0), 0);
+    const restante = Math.max(0, 100 - usado);
+    const peso = nuevoSubObjForm.porcentaje !== '' ? Math.max(0, Math.min(100, Number(nuevoSubObjForm.porcentaje) || 0)) : (subs.length === 0 ? 100 : restante);
+    const nuevoSub = {
+      id: `sub-${Date.now()}`,
+      titulo: nuevoSubObjForm.titulo.trim(),
+      porcentaje: peso,
+      completado: false,
+      personasIds: [],
+    };
+    await guardarObjetivos(objetivos.map(o => o.id === objId ? { ...o, subobjetivos: [...subs, nuevoSub] } : o));
+    setNuevoSubObjForm({ titulo: '', porcentaje: '' });
+  };
+
+  const eliminarSubobjetivo = async (objId, subId) => {
+    await guardarObjetivos(objetivos.map(o => {
+      if (o.id !== objId) return o;
+      return { ...o, subobjetivos: (o.subobjetivos || []).filter(s => s.id !== subId) };
+    }));
+  };
+
+  const toggleSubobjetivoCompletado = async (objId, subId) => {
+    await guardarObjetivos(objetivos.map(o => {
+      if (o.id !== objId) return o;
+      return { ...o, subobjetivos: (o.subobjetivos || []).map(s => s.id === subId ? { ...s, completado: !s.completado } : s) };
+    }));
+  };
+
+  const actualizarSubobjetivo = async (objId, subId, cambios) => {
+    await guardarObjetivos(objetivos.map(o => {
+      if (o.id !== objId) return o;
+      return { ...o, subobjetivos: (o.subobjetivos || []).map(s => s.id === subId ? { ...s, ...cambios } : s) };
+    }));
+  };
+
+  const togglePersonaEnSubobjetivo = async (objId, subId, personaId) => {
+    await guardarObjetivos(objetivos.map(o => {
+      if (o.id !== objId) return o;
+      return {
+        ...o,
+        subobjetivos: (o.subobjetivos || []).map(s => {
+          if (s.id !== subId) return s;
+          const linked = s.personasIds || [];
+          const yaVinculada = linked.includes(personaId);
+          return { ...s, personasIds: yaVinculada ? linked.filter(id => id !== personaId) : [...linked, personaId] };
+        }),
+      };
+    }));
+  };
+
   // Documentos
   const documentos = Array.isArray(taller.documentos) ? taller.documentos : [];
   const [subiendoDoc, setSubiendoDoc] = useState(false);
@@ -4813,6 +4870,157 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                     <p className="text-[11px] text-stone-500 italic">Este taller aún no tiene integrantes. Añade personas al taller primero.</p>
                   )}
                 </div>
+
+                {(() => {
+                  const subs = obj.subobjetivos || [];
+                  const totalPeso = subs.reduce((s, x) => s + (Number(x.porcentaje) || 0), 0);
+                  const pesoCompletado = subs.filter(s => s.completado).reduce((s, x) => s + (Number(x.porcentaje) || 0), 0);
+                  const progresoSubs = totalPeso > 0 ? Math.round((pesoCompletado / totalPeso) * 100) : 0;
+                  const restante = Math.max(0, 100 - totalPeso);
+                  return (
+                    <div>
+                      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                        <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">
+                          Subobjetivos <span className="normal-case text-stone-400 font-normal">· {subs.length}</span>
+                        </p>
+                        {subs.length > 0 && (
+                          <span className="text-[11px] text-stone-600">
+                            <span className="font-bold text-emerald-700">{progresoSubs}%</span> avance
+                            <span className="text-stone-400"> · {pesoCompletado}/{totalPeso} pts</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {subs.length > 0 && (
+                        <div className="relative h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
+                          <div
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
+                            style={{ width: `${progresoSubs}%` }}
+                          ></div>
+                        </div>
+                      )}
+
+                      {subs.length === 0 ? (
+                        <p className="text-xs text-stone-500 italic mb-3">Divide este objetivo en subobjetivos. Cada uno con su peso y persona responsable.</p>
+                      ) : (
+                        <div className="space-y-2 mb-3">
+                          {subs.map(sub => {
+                            const personasSub = (sub.personasIds || []).map(id => personaById[id]).filter(Boolean);
+                            const personasDisponiblesSub = integrantesTaller.filter(p => !(sub.personasIds || []).includes(p.id));
+                            return (
+                              <div key={sub.id} className={`rounded-md border-2 p-3 ${sub.completado ? 'border-emerald-300 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+                                <div className="flex items-start gap-2">
+                                  <button
+                                    onClick={() => toggleSubobjetivoCompletado(obj.id, sub.id)}
+                                    className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors mt-0.5 ${sub.completado ? 'bg-emerald-500 border-emerald-500' : 'border-stone-400 hover:border-emerald-500'}`}
+                                  >
+                                    {sub.completado && <CheckCircle2 size={12} className="text-white" />}
+                                  </button>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <input
+                                        value={sub.titulo}
+                                        onChange={e => actualizarSubobjetivo(obj.id, sub.id, { titulo: e.target.value })}
+                                        className={`flex-1 min-w-0 text-sm font-semibold bg-transparent outline-none border-b border-transparent focus:border-stone-300 ${sub.completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}
+                                      />
+                                      <div className="flex items-center gap-1">
+                                        <input
+                                          type="number"
+                                          min="0"
+                                          max="100"
+                                          value={sub.porcentaje}
+                                          onChange={e => actualizarSubobjetivo(obj.id, sub.id, { porcentaje: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+                                          className="w-12 text-xs font-bold text-navy-900 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5 outline-none focus:border-navy-700 text-right"
+                                        />
+                                        <span className="text-xs text-stone-500 font-bold">%</span>
+                                      </div>
+                                      <button
+                                        onClick={() => eliminarSubobjetivo(obj.id, sub.id)}
+                                        className="text-stone-400 hover:text-red-700 transition-colors p-0.5"
+                                        title="Eliminar"
+                                      ><X size={12} /></button>
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                                      {personasSub.length === 0 ? (
+                                        <span className="text-[10px] text-stone-400 italic">Sin asignar</span>
+                                      ) : (
+                                        personasSub.map(p => {
+                                          const ini = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                                          return (
+                                            <button
+                                              key={p.id}
+                                              onClick={() => togglePersonaEnSubobjetivo(obj.id, sub.id, p.id)}
+                                              className="flex items-center gap-1 bg-navy-50 border border-navy-200 hover:border-red-400 rounded-md px-1.5 py-0.5 group"
+                                              title="Quitar"
+                                            >
+                                              <div className="w-4 h-4 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[8px]">{ini}</div>
+                                              <span className="text-[10px] font-semibold text-navy-900">{p.nombre}</span>
+                                              <X size={9} className="text-stone-400 group-hover:text-red-700" />
+                                            </button>
+                                          );
+                                        })
+                                      )}
+                                      {personasDisponiblesSub.length > 0 && (
+                                        <select
+                                          value=""
+                                          onChange={e => { if (e.target.value) togglePersonaEnSubobjetivo(obj.id, sub.id, e.target.value); }}
+                                          className="text-[10px] bg-stone-50 border border-stone-200 rounded px-1 py-0.5 outline-none focus:border-navy-700"
+                                        >
+                                          <option value="">+ asignar</option>
+                                          {personasDisponiblesSub.map(p => (
+                                            <option key={p.id} value={p.id}>{p.nombre}</option>
+                                          ))}
+                                        </select>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      <div className="bg-stone-50 border border-stone-200 rounded-md p-2.5">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <p className="text-[10px] uppercase tracking-wider text-stone-500">Añadir subobjetivo</p>
+                          {totalPeso !== 100 && subs.length > 0 && (
+                            <span className={`text-[10px] font-bold ${totalPeso > 100 ? 'text-red-700' : 'text-gold-700'}`}>
+                              {totalPeso > 100 ? `${totalPeso - 100}% excede` : `${restante}% disponible`}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            value={nuevoSubObjForm.titulo}
+                            onChange={e => setNuevoSubObjForm({ ...nuevoSubObjForm, titulo: e.target.value })}
+                            placeholder="¿Qué hay que hacer?"
+                            className="flex-1 bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                          />
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={nuevoSubObjForm.porcentaje}
+                              onChange={e => setNuevoSubObjForm({ ...nuevoSubObjForm, porcentaje: e.target.value })}
+                              placeholder={String(restante || (subs.length === 0 ? 100 : 0))}
+                              className="w-14 bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700 text-right"
+                            />
+                            <span className="text-xs text-stone-500 font-bold">%</span>
+                          </div>
+                          <button
+                            onClick={() => añadirSubobjetivo(obj.id)}
+                            disabled={!nuevoSubObjForm.titulo.trim()}
+                            className="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-xs font-semibold transition-colors flex items-center gap-1"
+                          >
+                            <Plus size={12} /> Añadir
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">
@@ -5434,6 +5642,10 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
 
               const personasObj = (obj.personasIds || []).map(id => personaById[id]).filter(Boolean);
               const eventosObj = historico.filter(e => e.objetivoId === obj.id);
+              const subsObj = obj.subobjetivos || [];
+              const totalPesoSub = subsObj.reduce((s, x) => s + (Number(x.porcentaje) || 0), 0);
+              const pesoCompletadoSub = subsObj.filter(s => s.completado).reduce((s, x) => s + (Number(x.porcentaje) || 0), 0);
+              const progresoSub = totalPesoSub > 0 ? Math.round((pesoCompletadoSub / totalPesoSub) * 100) : 0;
 
               const estadoBadge = completado ? { txt: '✓', cls: 'bg-emerald-100 text-emerald-800' } :
                 vencido ? { txt: 'Vencido', cls: 'bg-red-100 text-red-800' } :
@@ -5482,6 +5694,20 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                               +{personasObj.length - 3}
                             </div>
                           )}
+                        </div>
+                      )}
+                      {subsObj.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-[9px] text-stone-500 font-medium">{subsObj.filter(s => s.completado).length}/{subsObj.length} subobj.</span>
+                            <span className="text-[9px] font-bold text-emerald-700">{progresoSub}%</span>
+                          </div>
+                          <div className="relative h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                            <div
+                              className="absolute inset-y-0 left-0 bg-emerald-500 rounded-full"
+                              style={{ width: `${progresoSub}%` }}
+                            ></div>
+                          </div>
                         </div>
                       )}
                       <div className="flex items-center gap-2 text-[9px] text-stone-500 pt-1.5 border-t border-stone-200/70">
