@@ -621,7 +621,7 @@ function Sidebar({ active, setActive, usuarioActualId, setUsuarioActualId, perso
     { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard },
     { id: 'talleres', label: 'Talleres', icon: Layers },
     { id: 'personas', label: 'Personas', icon: Users },
-    { id: 'reuniones', label: 'Reuniones', icon: Mic },
+    { id: 'reuniones', label: 'Reuniones', icon: Calendar },
     { id: 'mis-tareas', label: 'Mis Tareas', icon: User, badge: misTareasCount },
     { id: 'herramientas', label: 'Herramientas', icon: Wrench },
     { id: 'peticiones', label: 'Peticiones', icon: Workflow },
