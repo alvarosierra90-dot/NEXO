@@ -2448,11 +2448,14 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           const tareasComp = tareas.filter(ta => ta.tallerId === t.id && ta.estado === 'completada').length;
           const tareasTotalT = tareasT + tareasComp;
           const progreso = tareasTotalT > 0 ? (tareasComp / tareasTotalT) * 100 : (avances > 0 ? Math.min(avances * 20, 100) : 0);
+          const objetivosT = (t.objetivos || []).length;
+          const objetivosComplT = (t.objetivos || []).filter(o => o.estado === 'completado').length;
+          const integrantesT = personas.filter(p => (p.talleres || []).includes(t.id)).length;
           let salud = 'verde';
           if (riesgos >= 2) salud = 'rojo';
           else if (riesgos === 1 || tareasT > 5) salud = 'amber';
           else if (eventos.length === 0) salud = 'gris';
-          return { ...t, salud, eventos: eventos.length, riesgos, avances, tareasAbiertas: tareasT, tareasCompletadas: tareasComp, progreso };
+          return { ...t, salud, eventos: eventos.length, riesgos, avances, tareasAbiertas: tareasT, tareasCompletadas: tareasComp, progreso, objetivosT, objetivosComplT, integrantesT };
         });
         const verdes = saludByTaller.filter(t => t.salud === 'verde').length;
         const ambers = saludByTaller.filter(t => t.salud === 'amber').length;
@@ -2570,14 +2573,32 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
                       </div>
                       <span className="text-[9px] text-stone-500 font-medium tabular-nums">{Math.round(t.progreso)}%</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[9px] text-stone-500">
-                      <span className={`flex items-center gap-0.5 ${t.riesgos > 0 ? 'text-amber-700' : ''}`}>
+                    <div className="flex items-center gap-2 text-[9px] text-stone-500 flex-wrap">
+                      <span
+                        className={`flex items-center gap-0.5 cursor-help ${t.riesgos > 0 ? 'text-amber-700' : ''}`}
+                        title={`${t.riesgos} riesgos o bloqueos detectados`}
+                      >
                         <AlertOctagon size={9} /> {t.riesgos}
                       </span>
-                      <span className="flex items-center gap-0.5">
+                      <span
+                        className="flex items-center gap-0.5 cursor-help"
+                        title={`${t.tareasAbiertas} tareas pendientes`}
+                      >
                         <CheckSquare size={9} /> {t.tareasAbiertas}
                       </span>
-                      <span className="ml-auto">{t.eventos} ev.</span>
+                      <span
+                        className={`flex items-center gap-0.5 cursor-help ${t.objetivosT > 0 ? 'text-gold-700' : ''}`}
+                        title={`${t.objetivosComplT}/${t.objetivosT} objetivos cumplidos`}
+                      >
+                        <Flag size={9} /> {t.objetivosComplT}/{t.objetivosT}
+                      </span>
+                      <span
+                        className="flex items-center gap-0.5 cursor-help"
+                        title={`${t.integrantesT} integrantes en el taller`}
+                      >
+                        <Users size={9} /> {t.integrantesT}
+                      </span>
+                      <span className="ml-auto cursor-help" title={`${t.eventos} eventos publicados en la evolución`}>{t.eventos} ev.</span>
                     </div>
                   </div>
                 </button>
