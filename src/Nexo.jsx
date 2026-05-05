@@ -2360,48 +2360,38 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
         })()}
       </header>
 
-      <AsistenteGuia
-        talleres={talleres}
-        personas={personas}
-        tareas={tareas}
-        historico={historico}
-        iniciativas={iniciativas}
-        peticiones={peticiones}
-        herramientas={herramientas}
-        solapamientos={solapamientos}
-        reuniones={reuniones}
-        convocatorias={convocatorias}
-        usuarioActualId={usuarioActualId}
-        setTareas={setTareas}
-        setHistorico={setHistorico}
-        setIniciativas={setIniciativas}
-        setPeticiones={setPeticiones}
-        setHerramientas={setHerramientas}
-        setActive={setActive}
-        irATaller={irATaller}
-        active={active}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <AsistenteGuia
+          talleres={talleres}
+          personas={personas}
+          tareas={tareas}
+          historico={historico}
+          iniciativas={iniciativas}
+          peticiones={peticiones}
+          herramientas={herramientas}
+          solapamientos={solapamientos}
+          reuniones={reuniones}
+          convocatorias={convocatorias}
+          usuarioActualId={usuarioActualId}
+          setTareas={setTareas}
+          setHistorico={setHistorico}
+          setIniciativas={setIniciativas}
+          setPeticiones={setPeticiones}
+          setHerramientas={setHerramientas}
+          setActive={setActive}
+          irATaller={irATaller}
+          active={active}
+        />
 
-      <InformeMensual
-        talleres={talleres}
-        tareas={tareas}
-        historico={historico}
-        reuniones={reuniones}
-        solapamientos={solapamientos}
-        peticiones={peticiones}
-        iniciativas={iniciativas}
-        herramientas={herramientas}
-        personas={personas}
-      />
+        <ConvocatoriasDestacadas
+          convocatorias={convocatorias}
+          setConvocatorias={setConvocatorias}
+          personas={personas}
+          usuarioActualId={usuarioActualId}
+        />
+      </div>
 
-      <ConvocatoriasDestacadas
-        convocatorias={convocatorias}
-        setConvocatorias={setConvocatorias}
-        personas={personas}
-        usuarioActualId={usuarioActualId}
-      />
-
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <Metric
           label="Talleres"
           value={talleres.length}
@@ -2492,238 +2482,287 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
         };
 
         return (
-          <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-6">
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               <div>
-                <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                  <Activity size={16} className="text-gold-600" />
-                  Estado del Plan Estratégico
-                </h3>
-                <p className="text-sm text-stone-600 mt-1 font-medium">Salud y progreso de los {total} talleres activos</p>
-              </div>
-              <button onClick={() => setActive('talleres')} className="text-sm text-navy-800 hover:text-navy-900 font-medium flex items-center gap-1">
-                Ver todos <ChevronRight size={14} />
-              </button>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-sand-50 via-white to-navy-50/20 border border-stone-200/60 mb-6">
-              <div className="flex items-end justify-between gap-4 mb-4 flex-wrap">
-                <div>
-                  <p className="eyebrow text-stone-500" style={{ fontSize: '10px' }}>Pulso global</p>
-                  <div className="flex items-baseline gap-3 mt-1">
-                    <p className="kpi-number text-5xl text-navy-900">{porcentajeSano}<span className="text-2xl text-stone-400">%</span></p>
-                    <p className="text-base text-stone-600 font-medium">saludable · {verdes} de {total} talleres en buen estado</p>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                      <Activity size={16} className="text-gold-600" />
+                      Estado del Plan Estratégico
+                    </h3>
+                    <p className="text-sm text-stone-500 mt-0.5">Salud y progreso de los {total} talleres activos</p>
                   </div>
+                </div>
+                <p className="eyebrow text-stone-500 mb-1" style={{ fontSize: '10px' }}>Pulso global</p>
+                <div className="flex items-baseline gap-3 mb-4 flex-wrap">
+                  <p className="kpi-number text-6xl text-navy-900">{porcentajeSano}<span className="text-3xl text-stone-400">%</span></p>
+                  <p className="text-sm text-stone-600 font-medium">saludable · {verdes} de {total} talleres en buen estado</p>
+                </div>
+                <div className="flex h-4 rounded-full overflow-hidden bg-stone-100 shadow-inner">
+                  {segments.filter(s => s.count > 0).map(s => (
+                    <div
+                      key={s.label}
+                      className="h-full transition-all relative"
+                      style={{ width: `${(s.count / total) * 100}%`, backgroundColor: s.color }}
+                      title={`${s.label}: ${s.count} taller${s.count !== 1 ? 'es' : ''}`}
+                    >
+                      {(s.count / total) >= 0.08 && (
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-stone-900/80">{s.count}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="flex h-5 rounded-full overflow-hidden bg-stone-100 shadow-inner mb-4">
-                {segments.filter(s => s.count > 0).map(s => (
-                  <div
-                    key={s.label}
-                    className="h-full transition-all relative group"
-                    style={{ width: `${(s.count / total) * 100}%`, backgroundColor: s.color }}
-                    title={`${s.label}: ${s.count} taller${s.count !== 1 ? 'es' : ''}`}
-                  >
-                    {(s.count / total) >= 0.08 && (
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-stone-900/80">{s.count}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {segments.map(s => (
-                  <div key={s.label} className={`relative bg-white border ${s.borderColor} rounded-xl p-4 overflow-hidden`}>
-                    <div className={`absolute top-0 left-0 right-0 h-1 ${s.cssBg}`}></div>
-                    <div className="flex items-center gap-2 mb-3">
+              <div>
+                <h3 className="text-lg font-bold text-navy-900 tracking-tight mb-3">Estados resumidos</h3>
+                <div className="divide-y divide-stone-200/70 border-t border-b border-stone-200/70">
+                  {segments.map(s => (
+                    <div key={s.label} className="flex items-center gap-3 py-3">
                       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }}></div>
-                      <span className={`text-sm font-bold ${s.textColor} tracking-tight`}>{s.label}</span>
+                      <span className={`text-sm font-semibold ${s.textColor} flex-1`}>{s.label}</span>
+                      <span className="text-2xl font-bold text-navy-900 tabular-nums">{s.count}</span>
+                      <span className="text-xs text-stone-500 font-medium tabular-nums w-12 text-right">{Math.round((s.count / total) * 100)}%</span>
                     </div>
-                    <p className={`kpi-number text-5xl ${s.textColor}`}>{s.count}</p>
-                    <p className="text-xs text-stone-500 mt-1 font-medium">{Math.round((s.count / total) * 100)}% del total</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-3">
-              <p className="eyebrow text-navy-800">Detalle por taller</p>
-              <p className="text-xs text-stone-400 font-medium">{total} talleres</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="eyebrow text-navy-800" style={{ fontSize: '10px' }}>Detalle por taller</p>
+                    <p className="text-xs text-stone-500 mt-0.5">{total} talleres · pulsa para abrir</p>
+                  </div>
+                  <button onClick={() => setActive('talleres')} className="text-xs text-navy-800 hover:text-navy-900 font-medium flex items-center gap-1">
+                    Ver todos <ChevronRight size={12} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 auto-rows-fr">
+                  {saludByTaller.map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => irATaller(t.id)}
+                      className="text-left bg-white border border-stone-200 hover:border-navy-700 hover:shadow-sm rounded-lg p-2.5 transition-all group"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <p className="text-xs font-semibold text-navy-900 leading-snug line-clamp-1 flex-1">{t.nombre}</p>
+                        <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor[t.salud]}`}></div>
+                      </div>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <div className="flex-1 h-1 rounded-full bg-stone-100 overflow-hidden">
+                          <div
+                            className={`h-full transition-all ${bgColor[t.salud]}`}
+                            style={{ width: `${Math.max(3, t.progreso)}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-[9px] text-stone-500 font-medium tabular-nums w-7 text-right">{Math.round(t.progreso)}%</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[9px] text-stone-500 flex-wrap">
+                        <span
+                          className={`flex items-center gap-0.5 cursor-help ${t.riesgos > 0 ? 'text-amber-700' : ''}`}
+                          title={`${t.riesgos} riesgos o bloqueos detectados`}
+                        >
+                          <AlertOctagon size={9} /> {t.riesgos}
+                        </span>
+                        <span
+                          className="flex items-center gap-0.5 cursor-help"
+                          title={`${t.tareasAbiertas} tareas pendientes`}
+                        >
+                          <CheckSquare size={9} /> {t.tareasAbiertas}
+                        </span>
+                        <span
+                          className={`flex items-center gap-0.5 cursor-help ${t.objetivosT > 0 ? 'text-gold-700' : ''}`}
+                          title={`${t.objetivosComplT}/${t.objetivosT} objetivos cumplidos`}
+                        >
+                          <Flag size={9} /> {t.objetivosComplT}/{t.objetivosT}
+                        </span>
+                        <span
+                          className="flex items-center gap-0.5 cursor-help"
+                          title={`${t.integrantesT} integrantes en el taller`}
+                        >
+                          <Users size={9} /> {t.integrantesT}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <InformeMensual
+                talleres={talleres}
+                tareas={tareas}
+                historico={historico}
+                reuniones={reuniones}
+                solapamientos={solapamientos}
+                peticiones={peticiones}
+                iniciativas={iniciativas}
+                herramientas={herramientas}
+                personas={personas}
+              />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 auto-rows-fr">
-              {saludByTaller.map(t => (
+          </>
+        );
+      })()}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <AlertOctagon size={14} className="text-amber-600" />
+                Talleres con alerta
+              </h3>
+            </div>
+            <div className="divide-y divide-stone-200/60">
+              {talleres.filter(t => ['Innovación', 'Gobierno de licencias'].includes(t.nombre)).map(t => (
                 <button
                   key={t.id}
-                  onClick={() => irATaller(t.id)}
-                  className="text-left bg-white hover:border-navy-700 hover:shadow-md border border-stone-200 rounded-lg overflow-hidden transition-all group flex flex-col"
+                  onClick={(e) => { e.stopPropagation(); irATaller(t.id); }}
+                  className="w-full text-left flex items-center gap-3 py-2.5 hover:bg-stone-50 -mx-2 px-2 rounded transition-colors"
                 >
-                  <div className={`h-1.5 ${bgColor[t.salud]} flex-shrink-0`}></div>
-                  <div className="p-3 flex flex-col flex-1">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="text-xs font-medium text-stone-900 leading-snug line-clamp-2 h-[2.1rem]">{t.nombre}</p>
-                      <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor[t.salud]}`}></div>
-                    </div>
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <div className="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={`h-full transition-all ${bgColor[t.salud]}`}
-                          style={{ width: `${Math.max(3, t.progreso)}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-[9px] text-stone-500 font-medium tabular-nums">{Math.round(t.progreso)}%</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[9px] text-stone-500 flex-wrap">
-                      <span
-                        className={`flex items-center gap-0.5 cursor-help ${t.riesgos > 0 ? 'text-amber-700' : ''}`}
-                        title={`${t.riesgos} riesgos o bloqueos detectados`}
-                      >
-                        <AlertOctagon size={9} /> {t.riesgos}
-                      </span>
-                      <span
-                        className="flex items-center gap-0.5 cursor-help"
-                        title={`${t.tareasAbiertas} tareas pendientes`}
-                      >
-                        <CheckSquare size={9} /> {t.tareasAbiertas}
-                      </span>
-                      <span
-                        className={`flex items-center gap-0.5 cursor-help ${t.objetivosT > 0 ? 'text-gold-700' : ''}`}
-                        title={`${t.objetivosComplT}/${t.objetivosT} objetivos cumplidos`}
-                      >
-                        <Flag size={9} /> {t.objetivosComplT}/{t.objetivosT}
-                      </span>
-                      <span
-                        className="flex items-center gap-0.5 cursor-help"
-                        title={`${t.integrantesT} integrantes en el taller`}
-                      >
-                        <Users size={9} /> {t.integrantesT}
-                      </span>
-                      <span className="ml-auto cursor-help" title={`${t.eventos} eventos publicados en la evolución`}>{t.eventos} ev.</span>
-                    </div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-600 flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-stone-900">{t.nombre}</p>
+                    <p className="text-xs text-stone-500">{t.lider}{t.diaADia ? ` · día a día ${t.diaADia}` : ''}</p>
                   </div>
+                  <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-semibold">Solapa</span>
                 </button>
               ))}
             </div>
           </div>
-        );
-      })()}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white border border-stone-200 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-              <RadioTower size={16} className="text-gold-600" />
-              Actividad reciente
-            </h3>
-            <button onClick={() => setActive('talleres')} className="text-sm text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
-              Ver todo <ChevronRight size={14} />
-            </button>
-          </div>
-          <div className="space-y-1">
-            {actividadReciente.map(e => {
-              const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
-              const taller = tallerById[e.tallerId];
-              const autor = personaById[e.autorId];
-              const colorMap = {
-                stone: 'bg-stone-200 text-stone-700',
-                blue: 'bg-blue-100 text-blue-800',
-                emerald: 'bg-emerald-100 text-emerald-800',
-                violet: 'bg-violet-100 text-violet-800',
-                amber: 'bg-amber-100 text-amber-800',
-                red: 'bg-red-100 text-red-800',
-                navy: 'bg-navy-100 text-navy-800',
-                gold: 'bg-gold-100 text-gold-800',
-              };
-              const Icon = tipo.icon;
-              return (
-                <button
-                  key={e.id}
-                  onClick={() => taller && irATaller(taller.id)}
-                  className="w-full text-left flex items-start gap-3 py-2 border-b border-stone-100 last:border-0 hover:bg-navy-50/50 -mx-2 px-2 rounded transition-colors"
-                >
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${colorMap[tipo.color]}`}>
-                    <Icon size={12} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-stone-900 font-medium leading-tight">{e.titulo}</p>
-                    <p className="text-xs text-stone-500 mt-0.5">
-                      <span className="font-semibold text-navy-800">{taller?.nombre}</span>
-                      {autor && <> · {autor.nombre}</>}
-                      <> · {formatFecha(e.fecha, true)}</>
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <RadioTower size={14} className="text-gold-600" />
+                Actividad reciente
+              </h3>
+              <button onClick={() => setActive('talleres')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+                Ver todo <ChevronRight size={12} />
+              </button>
+            </div>
+            <div className="divide-y divide-stone-200/60">
+              {actividadReciente.map(e => {
+                const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
+                const taller = tallerById[e.tallerId];
+                const autor = personaById[e.autorId];
+                const colorMap = {
+                  stone: 'bg-stone-200 text-stone-700',
+                  blue: 'bg-blue-100 text-blue-800',
+                  emerald: 'bg-emerald-100 text-emerald-800',
+                  violet: 'bg-violet-100 text-violet-800',
+                  amber: 'bg-amber-100 text-amber-800',
+                  red: 'bg-red-100 text-red-800',
+                  navy: 'bg-navy-100 text-navy-800',
+                  gold: 'bg-gold-100 text-gold-800',
+                };
+                const Icon = tipo.icon;
+                return (
+                  <button
+                    key={e.id}
+                    onClick={() => taller && irATaller(taller.id)}
+                    className="w-full text-left flex items-start gap-3 py-2.5 hover:bg-stone-50 -mx-2 px-2 rounded transition-colors"
+                  >
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${colorMap[tipo.color]}`}>
+                      <Icon size={12} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-stone-900 font-medium leading-tight">{e.titulo}</p>
+                      <p className="text-xs text-stone-500 mt-0.5">
+                        <span className="font-semibold text-navy-800">{taller?.nombre}</span>
+                        {autor && <> · {autor.nombre}</>}
+                        <> · {formatFecha(e.fecha, true)}</>
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        <Card title="Tareas urgentes" onClick={() => setActive('tareas')}>
-          {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
-            const persona = personaById[t.personaId];
-            const taller = tallerById[t.tallerId];
-            return (
-              <div key={t.id} className="flex items-start gap-3 py-2 border-b border-stone-100 last:border-0">
-                <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-stone-800">{t.tarea}</p>
-                  <p className="text-xs text-stone-500">
-                    {persona?.nombre || 'Sin asignar'}
-                    {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
-                    <> · {t.deadline}</>
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card title="Talleres con alerta">
-          {talleres.filter(t => ['Innovación', 'Gobierno de licencias'].includes(t.nombre)).map(t => (
-            <button
-              key={t.id}
-              onClick={(e) => { e.stopPropagation(); irATaller(t.id); }}
-              className="w-full text-left flex items-center gap-3 py-2 border-b border-stone-100 last:border-0 hover:bg-navy-50/50 -mx-2 px-2 rounded transition-colors"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-stone-900">{t.nombre}</p>
-                <p className="text-xs text-stone-500">{t.lider}{t.diaADia ? ` · día a día ${t.diaADia}` : ''}</p>
-              </div>
-              <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded">Solapa</span>
-            </button>
-          ))}
-        </Card>
-
-        <Card title="Licencias infrautilizadas" onClick={() => setActive('herramientas')}>
-          {herramientas.filter(h => h.alerta === 'Infrautilizada').map(h => {
-            const pct = Math.round(((h.licenciasContratadas - h.licenciasActivas) / h.licenciasContratadas) * 100);
-            return (
-              <div key={h.id} className="flex items-center gap-3 py-2 border-b border-stone-100 last:border-0">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-stone-900">{h.nombre}</p>
-                  <p className="text-xs text-stone-500">{h.licenciasContratadas - h.licenciasActivas} sin uso · {h.costeAnual.toLocaleString()}€/año</p>
-                </div>
-                <span className="text-[10px] text-red-800 bg-red-100 px-2 py-0.5 rounded">{pct}%</span>
-              </div>
-            );
-          })}
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="Iniciativas a comunicar" onClick={() => setActive('innovacion')}>
-          {iniciativas.map(i => (
-            <div key={i.id} className="py-2 border-b border-stone-100 last:border-0">
-              <p className="text-sm font-medium text-stone-900">{i.titulo}</p>
-              <p className="text-xs text-stone-500">{i.autor} · {i.area}</p>
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <Wrench size={14} className="text-stone-600" />
+                Licencias infrautilizadas
+              </h3>
+              <button onClick={() => setActive('herramientas')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+                Ver catálogo <ChevronRight size={12} />
+              </button>
             </div>
-          ))}
-        </Card>
+            <div className="divide-y divide-stone-200/60">
+              {herramientas.filter(h => h.alerta === 'Infrautilizada').map(h => {
+                const pct = Math.round(((h.licenciasContratadas - h.licenciasActivas) / h.licenciasContratadas) * 100);
+                return (
+                  <div key={h.id} className="flex items-center gap-3 py-2.5">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-stone-900">{h.nombre}</p>
+                      <p className="text-xs text-stone-500">{h.licenciasContratadas - h.licenciasActivas} sin uso · {h.costeAnual.toLocaleString()}€/año</p>
+                    </div>
+                    <span className="text-[10px] text-red-800 bg-red-100 px-2 py-0.5 rounded font-semibold">{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-        <div></div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <Lightbulb size={14} className="text-violet-600" />
+                Iniciativas a comunicar
+              </h3>
+              <button onClick={() => setActive('innovacion')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+                Ver todas <ChevronRight size={12} />
+              </button>
+            </div>
+            <div className="divide-y divide-stone-200/60">
+              {iniciativas.map(i => (
+                <div key={i.id} className="py-2.5">
+                  <p className="text-sm font-medium text-stone-900">{i.titulo}</p>
+                  <p className="text-xs text-stone-500">{i.autor} · {i.area}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <CheckSquare size={14} className="text-red-600" />
+                Tareas urgentes
+              </h3>
+              <button onClick={() => setActive('tareas')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+                Ver kanban <ChevronRight size={12} />
+              </button>
+            </div>
+            <div className="divide-y divide-stone-200/60">
+              {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
+                const persona = personaById[t.personaId];
+                const taller = tallerById[t.tallerId];
+                return (
+                  <div key={t.id} className="flex items-start gap-3 py-2.5">
+                    <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-stone-800">{t.tarea}</p>
+                      <p className="text-xs text-stone-500">
+                        {persona?.nombre || 'Sin asignar'}
+                        {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
+                        <> · {t.deadline}</>
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
