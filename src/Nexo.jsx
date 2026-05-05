@@ -4449,6 +4449,35 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
     }));
   };
 
+  const togglePersonaEnObjetivo = async (objId, personaId) => {
+    await guardarObjetivos(objetivos.map(o => {
+      if (o.id !== objId) return o;
+      const linked = o.personasIds || [];
+      const yaVinculada = linked.includes(personaId);
+      return { ...o, personasIds: yaVinculada ? linked.filter(id => id !== personaId) : [...linked, personaId] };
+    }));
+  };
+
+  const [nuevoEventoObjForm, setNuevoEventoObjForm] = useState({ titulo: '', descripcion: '', tipo: 'avance' });
+
+  const añadirEventoAObjetivo = async (objId) => {
+    if (!nuevoEventoObjForm.titulo.trim()) return;
+    const nuevo = {
+      id: `e-obj-${Date.now()}`,
+      tallerId: taller.id,
+      fecha: new Date().toISOString().slice(0, 10),
+      tipo: nuevoEventoObjForm.tipo,
+      titulo: nuevoEventoObjForm.titulo.trim(),
+      descripcion: nuevoEventoObjForm.descripcion.trim(),
+      autorId: usuarioActualId || null,
+      objetivoId: objId,
+    };
+    if (setHistorico && historico) {
+      await setHistorico([...historico, nuevo]);
+    }
+    setNuevoEventoObjForm({ titulo: '', descripcion: '', tipo: 'avance' });
+  };
+
   // Documentos
   const documentos = Array.isArray(taller.documentos) ? taller.documentos : [];
   const [subiendoDoc, setSubiendoDoc] = useState(false);
@@ -4661,6 +4690,22 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           .map(id => personas.find(p => p.id === id))
           .filter(Boolean);
         const completado = obj.estado === 'completado';
+        const integrantesTaller = personas.filter(p => (p.talleres || []).includes(taller.id));
+        const personasAsociadas = (obj.personasIds || []).map(id => personaById[id]).filter(Boolean);
+        const integrantesDisponibles = integrantesTaller.filter(p => !(obj.personasIds || []).includes(p.id));
+        const eventosObjetivo = historico
+          .filter(e => e.objetivoId === obj.id)
+          .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+        const colorEvento = {
+          stone: { bg: '#f5f5f4', border: '#a8a29e', text: '#44403c' },
+          blue: { bg: '#E6F1FB', border: '#378ADD', text: '#0C447C' },
+          emerald: { bg: '#E1F5EE', border: '#1D9E75', text: '#04342C' },
+          violet: { bg: '#EEEDFE', border: '#8b5cf6', text: '#3C3489' },
+          amber: { bg: '#FAEEDA', border: '#BA7517', text: '#633806' },
+          red: { bg: '#FCEBEB', border: '#A32D2D', text: '#791F1F' },
+          navy: { bg: '#E5EAF3', border: '#1E3A6F', text: '#0E1F3D' },
+          gold: { bg: '#FBF3DD', border: '#D4A82C', text: '#5B3F0A' },
+        };
         return (
           <div className="fixed inset-0 bg-navy-900/40 z-50 flex items-center justify-center p-8" onClick={() => setObjetivoActivoId(null)}>
             <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
@@ -4716,6 +4761,142 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
               </div>
 
               <div className="overflow-y-auto p-6 space-y-5">
+                <div>
+                  <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">
+                      Miembros asociados <span className="normal-case text-stone-400 font-normal">· {personasAsociadas.length}</span>
+                    </p>
+                    <p className="text-[10px] text-stone-400 italic">Asocia integrantes del taller a este objetivo</p>
+                  </div>
+                  {personasAsociadas.length === 0 ? (
+                    <p className="text-xs text-stone-500 italic mb-3">Aún no hay miembros asociados. Añade integrantes del taller responsables de este objetivo.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {personasAsociadas.map(p => {
+                        const inic = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                        return (
+                          <div key={p.id} className="flex items-center gap-1.5 bg-navy-50 border border-navy-200 rounded-md px-2 py-1 group">
+                            <div className="w-6 h-6 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[10px]">{inic}</div>
+                            <div className="text-xs">
+                              <p className="font-semibold text-navy-900 leading-tight">{p.nombre}</p>
+                              <p className="text-[10px] text-stone-500 leading-tight">{getEquipo(p)}</p>
+                            </div>
+                            <button
+                              onClick={() => togglePersonaEnObjetivo(obj.id, p.id)}
+                              className="ml-1 text-stone-400 hover:text-red-700 transition-colors"
+                              title="Quitar"
+                            ><X size={12} /></button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {integrantesDisponibles.length > 0 && (
+                    <div className="bg-stone-50 border border-stone-200 rounded-md p-2.5">
+                      <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Añadir desde el taller</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {integrantesDisponibles.map(p => (
+                          <button
+                            key={p.id}
+                            onClick={() => togglePersonaEnObjetivo(obj.id, p.id)}
+                            className="flex items-center gap-1 bg-white border border-stone-200 hover:border-navy-700 hover:bg-navy-900 hover:text-stone-50 rounded-md px-2 py-1 text-[11px] transition-colors group"
+                          >
+                            <Plus size={10} />
+                            <span className="font-semibold">{p.nombre}</span>
+                            <span className="text-stone-400 group-hover:text-stone-300">· {getEquipo(p)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {integrantesTaller.length === 0 && (
+                    <p className="text-[11px] text-stone-500 italic">Este taller aún no tiene integrantes. Añade personas al taller primero.</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">
+                    Evolución del objetivo <span className="normal-case text-stone-400 font-normal">· {eventosObjetivo.length} {eventosObjetivo.length === 1 ? 'evento' : 'eventos'}</span>
+                  </p>
+                  {eventosObjetivo.length === 0 ? (
+                    <p className="text-xs text-stone-500 italic mb-3">Sin eventos registrados todavía. Añade el primero para empezar a documentar la evolución.</p>
+                  ) : (
+                    <div className="relative pl-5 mb-3 border-l-2 border-stone-200 space-y-3">
+                      {eventosObjetivo.map(e => {
+                        const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
+                        const Icon = tipo.icon;
+                        const c = colorEvento[tipo.color];
+                        const autor = personaById[e.autorId];
+                        return (
+                          <div key={e.id} className="relative">
+                            <div
+                              className="absolute -left-[26px] top-1.5 w-3 h-3 rounded-full border-2 border-white"
+                              style={{ backgroundColor: c.border }}
+                            ></div>
+                            <div className="rounded-lg p-3" style={{ backgroundColor: c.bg, borderLeft: `3px solid ${c.border}` }}>
+                              <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  <Icon size={12} style={{ color: c.text }} />
+                                  <span className="text-[10px] uppercase tracking-wider font-bold" style={{ color: c.text }}>{tipo.label}</span>
+                                </div>
+                                <span className="text-[10px] font-medium" style={{ color: c.text, opacity: 0.7 }}>
+                                  {formatFecha(e.fecha)}
+                                </span>
+                              </div>
+                              <p className="text-sm font-semibold leading-snug mb-1" style={{ color: c.text }}>{e.titulo}</p>
+                              {e.descripcion && (
+                                <p className="text-[12px] leading-relaxed" style={{ color: c.text, opacity: 0.85 }}>{e.descripcion}</p>
+                              )}
+                              {autor && (
+                                <div className="flex items-center gap-1.5 mt-2 pt-2" style={{ borderTop: `1px solid ${c.border}33` }}>
+                                  <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-medium" style={{ backgroundColor: c.border, color: c.bg }}>
+                                    {autor.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                                  </div>
+                                  <span className="text-[10px] font-medium" style={{ color: c.text, opacity: 0.8 }}>{autor.nombre}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="bg-stone-50 border border-stone-200 rounded-md p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-2">Añadir avance al objetivo</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
+                      <select
+                        value={nuevoEventoObjForm.tipo}
+                        onChange={e => setNuevoEventoObjForm({ ...nuevoEventoObjForm, tipo: e.target.value })}
+                        className="bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                      >
+                        {Object.entries(TIPOS_EVENTO).filter(([k]) => k !== 'objetivo').map(([k, v]) => (
+                          <option key={k} value={k}>{v.label}</option>
+                        ))}
+                      </select>
+                      <input
+                        value={nuevoEventoObjForm.titulo}
+                        onChange={e => setNuevoEventoObjForm({ ...nuevoEventoObjForm, titulo: e.target.value })}
+                        placeholder="Título del avance"
+                        className="sm:col-span-2 bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                      />
+                    </div>
+                    <textarea
+                      value={nuevoEventoObjForm.descripcion}
+                      onChange={e => setNuevoEventoObjForm({ ...nuevoEventoObjForm, descripcion: e.target.value })}
+                      placeholder="Descripción (opcional)"
+                      rows={2}
+                      className="w-full bg-white border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700 resize-none mb-2"
+                    />
+                    <button
+                      onClick={() => añadirEventoAObjetivo(obj.id)}
+                      disabled={!nuevoEventoObjForm.titulo.trim()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-xs font-semibold transition-colors"
+                    >
+                      <Plus size={12} /> Añadir avance
+                    </button>
+                  </div>
+                </div>
+
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-2">Personas con las que te has reunido <span className="normal-case text-stone-400 font-normal">· {personasUnicas.length}</span></p>
                   {personasUnicas.length === 0 ? (
@@ -5106,261 +5287,6 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         );
       })()}
 
-      {/* TAREAS DEL TALLER */}
-      {(() => {
-        const tareasDelTaller = ordenarTareasReciente(tareas.filter(t => t.tallerId === taller.id));
-        const pendientesT = tareasDelTaller.filter(t => t.estado === 'pendiente');
-        const completadasT = tareasDelTaller.filter(t => t.estado === 'completada');
-        if (tareasDelTaller.length === 0) return null;
-        return (
-          <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <CheckSquare size={17} className="text-navy-700" />
-                Tareas del taller
-                <span className="text-base text-stone-500 font-medium">· {tareasDelTaller.length}</span>
-              </h3>
-              <div className="flex items-center gap-3 text-xs">
-                <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-gold-500"></span>
-                  {pendientesT.length} pendientes
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  {completadasT.length} completadas
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {tareasDelTaller.slice(0, 8).map(t => {
-                const persona = personaById[t.personaId];
-                const completado = t.estado === 'completada';
-                const accentBar = t.prioridad === 'alta' ? 'bg-red-500' : t.prioridad === 'media' ? 'bg-gold-500' : 'bg-stone-400';
-                return (
-                  <div key={t.id} className={`flex items-center gap-3 p-3 rounded-lg border-2 ${completado ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
-                    <div className={`w-1 h-10 rounded-full ${completado ? 'bg-emerald-500' : accentBar} flex-shrink-0`}></div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{t.tarea}</p>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-stone-600 flex-wrap">
-                        {persona && (
-                          <span className="flex items-center gap-1 font-medium">
-                            <span className="w-4 h-4 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center text-[8px] font-bold">{persona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}</span>
-                            {persona.nombre}
-                          </span>
-                        )}
-                        {t.deadline && t.deadline !== 'Sin fecha' && (
-                          <span className="text-navy-800 font-semibold bg-navy-50 px-1.5 py-0.5 rounded">{t.deadline}</span>
-                        )}
-                        <span className={`text-[10px] uppercase tracking-wider font-bold ${t.prioridad === 'alta' ? 'text-red-700' : t.prioridad === 'media' ? 'text-gold-700' : 'text-stone-500'}`}>
-                          {t.prioridad}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {tareasDelTaller.length > 8 && (
-                <p className="text-xs text-stone-500 italic text-center pt-2">+ {tareasDelTaller.length - 8} tareas más en el módulo de Tareas</p>
-              )}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* OBJETIVOS DEL TALLER */}
-      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-            <Flag size={17} className="text-gold-600" />
-            Objetivos
-            <span className="text-base text-stone-500 font-medium">· {objetivos.length}</span>
-          </h3>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              {objetivos.filter(o => o.estado === 'completado').length} completados
-            </span>
-            <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-gold-500"></span>
-              {objetivos.filter(o => o.estado === 'pendiente').length} pendientes
-            </span>
-          </div>
-        </div>
-
-        {objetivos.length === 0 && (
-          <p className="text-sm text-stone-500 italic mb-4">No hay objetivos definidos. Añade el primero abajo con su fecha límite.</p>
-        )}
-
-        {objetivos.length > 0 && (
-          <div className="space-y-2 mb-4">
-            {[...objetivos].sort((a, b) => {
-              if (a.estado !== b.estado) return a.estado === 'pendiente' ? -1 : 1;
-              return (a.fecha || '').localeCompare(b.fecha || '');
-            }).map(obj => {
-              const completado = obj.estado === 'completado';
-              const hoy = new Date(); hoy.setHours(0,0,0,0);
-              const fechaObj = new Date(obj.fecha); fechaObj.setHours(0,0,0,0);
-              const diasRestantes = Math.round((fechaObj - hoy) / 86400000);
-              const vencido = diasRestantes < 0 && !completado;
-              const cercano = diasRestantes >= 0 && diasRestantes <= 7 && !completado;
-
-              const accent = completado ? 'border-emerald-300 bg-emerald-50/50' :
-                vencido ? 'border-red-300 bg-red-50/50' :
-                cercano ? 'border-gold-300 bg-gold-50/50' :
-                'border-stone-200 bg-white';
-
-              return (
-                <div key={obj.id} className={`flex items-center gap-3 p-3 rounded-lg border-2 ${accent} transition-colors`}>
-                  <button
-                    onClick={() => toggleObjetivo(obj.id)}
-                    className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${completado ? 'bg-emerald-500 border-emerald-500' : 'border-stone-400 hover:border-emerald-500'}`}
-                  >
-                    {completado && <CheckCircle2 size={14} className="text-white" />}
-                  </button>
-                  <button
-                    onClick={() => setObjetivoActivoId(obj.id)}
-                    className="flex-1 min-w-0 text-left hover:bg-white/60 rounded px-1 py-0.5 transition-colors group"
-                  >
-                    <div className="flex items-center gap-2">
-                      <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900 group-hover:text-navy-950'}`}>{obj.titulo}</p>
-                      {(obj.reunionIds || []).length > 0 && (
-                        <span className="flex items-center gap-0.5 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-navy-100 text-navy-800 font-bold flex-shrink-0">
-                          <Mic size={9} /> {(obj.reunionIds || []).length}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs mt-1 flex-wrap">
-                      <span className={`flex items-center gap-1 font-medium ${completado ? 'text-stone-400' : vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-600'}`}>
-                        <Calendar size={11} /> {formatFecha(obj.fecha)}
-                      </span>
-                      {!completado && (
-                        <span className={`font-bold ${vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-500'}`}>
-                          {vencido ? `Vencido hace ${Math.abs(diasRestantes)}d` : diasRestantes === 0 ? 'Hoy' : diasRestantes === 1 ? 'Mañana' : `En ${diasRestantes} días`}
-                        </span>
-                      )}
-                      {completado && <span className="text-emerald-700 font-bold">✓ Completado</span>}
-                      <span className="ml-auto text-[10px] text-stone-500 opacity-0 group-hover:opacity-100 transition-opacity">Pulsa para ver reuniones →</span>
-                    </div>
-                  </button>
-                  <button onClick={() => eliminarObjetivo(obj.id)} className="text-stone-400 hover:text-red-700 transition-colors p-1" title="Eliminar">
-                    <X size={14} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
-          <p className="eyebrow text-stone-500 mb-2" style={{ fontSize: '10px' }}>Añadir objetivo</p>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              value={nuevoObjTitulo}
-              onChange={e => setNuevoObjTitulo(e.target.value)}
-              placeholder="¿Qué hay que conseguir?"
-              className="flex-1 bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
-            />
-            <input
-              type="date"
-              value={nuevoObjFecha}
-              onChange={e => setNuevoObjFecha(e.target.value)}
-              className="bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 sm:w-40"
-            />
-            <button
-              onClick={añadirObjetivo}
-              disabled={!nuevoObjTitulo.trim() || !nuevoObjFecha}
-              className="px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-semibold transition-colors flex items-center gap-1.5"
-            >
-              <Plus size={14} /> Añadir
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* DOCUMENTOS DEL TALLER */}
-      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-            <FileText size={17} className="text-navy-700" />
-            Documentos
-            <span className="text-base text-stone-500 font-medium">· {documentos.length}</span>
-          </h3>
-          <div className="flex items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={(e) => subirDocumento(e.target.files?.[0])}
-              className="hidden"
-              disabled={subiendoDoc}
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={subiendoDoc}
-              className="flex items-center gap-1.5 px-3 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-sm font-semibold transition-colors"
-            >
-              {subiendoDoc ? <><Loader2 size={14} className="animate-spin" /> Subiendo...</> : <><Plus size={14} /> Subir documento</>}
-            </button>
-          </div>
-        </div>
-
-        {errorDoc && (
-          <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-3 flex items-center gap-2">
-            <AlertTriangle size={14} className="text-red-600" />
-            <p className="text-sm text-red-800 flex-1">{errorDoc}</p>
-            <button onClick={() => setErrorDoc(null)} className="text-red-500 hover:text-red-700"><X size={14} /></button>
-          </div>
-        )}
-
-        {documentos.length === 0 ? (
-          <p className="text-sm text-stone-500 italic">No hay documentos. Sube el primero — PDFs, hojas, presentaciones, imágenes, etc.</p>
-        ) : (
-          <div className="space-y-2">
-            {documentos.map(d => {
-              const icono = iconoDocumento(d.mimeType, d.nombre);
-              const persona = personas.find(p => p.id === d.subidoPor);
-              const fecha = d.subidoEn ? new Date(d.subidoEn) : null;
-              return (
-                <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-navy-700 hover:shadow-sm transition-all bg-white">
-                  <div className={`w-10 h-10 rounded-lg ${icono.color} flex items-center justify-center font-bold text-[10px] flex-shrink-0`}>
-                    {icono.label}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-navy-900 hover:text-navy-700 truncate block" title={d.nombre}>
-                      {d.nombre}
-                    </a>
-                    <p className="text-xs text-stone-500 font-medium">
-                      {formatBytes(d.size)}
-                      {persona && <> · subido por <span className="text-navy-700">{persona.nombre}</span></>}
-                      {fecha && <> · {fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} {fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</>}
-                    </p>
-                  </div>
-                  <a
-                    href={d.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={d.nombre}
-                    className="text-xs font-semibold text-navy-700 hover:text-navy-900 px-3 py-1.5 border border-stone-300 hover:border-navy-700 rounded-md transition-colors"
-                  >
-                    Abrir
-                  </a>
-                  <button
-                    onClick={() => eliminarDocumento(d)}
-                    className="text-stone-400 hover:text-red-700 p-1 transition-colors"
-                    title="Eliminar"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {demoMode && documentos.length > 0 && (
-          <p className="text-[10px] text-stone-500 italic mt-3">⚠️ En modo demo los archivos se almacenan solo en tu navegador y se pierden al recargar. Usa el modo real (login) para guardarlos en Supabase Storage.</p>
-        )}
-      </div>
-
       {(() => {
         const eventosCron = historico
           .filter(e => e.tallerId === taller.id)
@@ -5476,6 +5402,306 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           </div>
         );
       })()}
+
+      {/* TAREAS DEL TALLER */}
+      {(() => {
+        const tareasDelTaller = ordenarTareasReciente(tareas.filter(t => t.tallerId === taller.id));
+        const pendientesT = tareasDelTaller.filter(t => t.estado === 'pendiente');
+        const completadasT = tareasDelTaller.filter(t => t.estado === 'completada');
+        if (tareasDelTaller.length === 0) return null;
+        return (
+          <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <CheckSquare size={17} className="text-navy-700" />
+                Tareas del taller
+                <span className="text-base text-stone-500 font-medium">· {tareasDelTaller.length}</span>
+              </h3>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-gold-500"></span>
+                  {pendientesT.length} pendientes
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  {completadasT.length} completadas
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {tareasDelTaller.slice(0, 8).map(t => {
+                const persona = personaById[t.personaId];
+                const completado = t.estado === 'completada';
+                const accentBar = t.prioridad === 'alta' ? 'bg-red-500' : t.prioridad === 'media' ? 'bg-gold-500' : 'bg-stone-400';
+                return (
+                  <div key={t.id} className={`flex items-center gap-3 p-3 rounded-lg border-2 ${completado ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+                    <div className={`w-1 h-10 rounded-full ${completado ? 'bg-emerald-500' : accentBar} flex-shrink-0`}></div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{t.tarea}</p>
+                      <div className="flex items-center gap-2 mt-1 text-xs text-stone-600 flex-wrap">
+                        {persona && (
+                          <span className="flex items-center gap-1 font-medium">
+                            <span className="w-4 h-4 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center text-[8px] font-bold">{persona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}</span>
+                            {persona.nombre}
+                          </span>
+                        )}
+                        {t.deadline && t.deadline !== 'Sin fecha' && (
+                          <span className="text-navy-800 font-semibold bg-navy-50 px-1.5 py-0.5 rounded">{t.deadline}</span>
+                        )}
+                        <span className={`text-[10px] uppercase tracking-wider font-bold ${t.prioridad === 'alta' ? 'text-red-700' : t.prioridad === 'media' ? 'text-gold-700' : 'text-stone-500'}`}>
+                          {t.prioridad}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {tareasDelTaller.length > 8 && (
+                <p className="text-xs text-stone-500 italic text-center pt-2">+ {tareasDelTaller.length - 8} tareas más en el módulo de Tareas</p>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* OBJETIVOS DEL TALLER */}
+      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+            <Flag size={17} className="text-gold-600" />
+            Objetivos
+            <span className="text-base text-stone-500 font-medium">· {objetivos.length}</span>
+          </h3>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              {objetivos.filter(o => o.estado === 'completado').length} completados
+            </span>
+            <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-gold-500"></span>
+              {objetivos.filter(o => o.estado === 'pendiente').length} pendientes
+            </span>
+          </div>
+        </div>
+
+        {objetivos.length === 0 && (
+          <p className="text-sm text-stone-500 italic mb-4">No hay objetivos definidos. Añade el primero abajo con su fecha límite.</p>
+        )}
+
+        {objetivos.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {[...objetivos].sort((a, b) => {
+              if (a.estado !== b.estado) return a.estado === 'pendiente' ? -1 : 1;
+              return (a.fecha || '').localeCompare(b.fecha || '');
+            }).map(obj => {
+              const completado = obj.estado === 'completado';
+              const hoy = new Date(); hoy.setHours(0,0,0,0);
+              const fechaObj = new Date(obj.fecha); fechaObj.setHours(0,0,0,0);
+              const diasRestantes = Math.round((fechaObj - hoy) / 86400000);
+              const vencido = diasRestantes < 0 && !completado;
+              const cercano = diasRestantes >= 0 && diasRestantes <= 7 && !completado;
+
+              const accent = completado ? 'border-emerald-300 bg-emerald-50/40' :
+                vencido ? 'border-red-300 bg-red-50/40' :
+                cercano ? 'border-gold-300 bg-gold-50/40' :
+                'border-stone-200 bg-white hover:border-navy-300';
+
+              const personasObj = (obj.personasIds || []).map(id => personaById[id]).filter(Boolean);
+              const eventosObj = historico.filter(e => e.objetivoId === obj.id);
+              const reunionesCount = (obj.reunionIds || []).length;
+
+              const estadoBadge = completado ? { txt: '✓ Completado', cls: 'bg-emerald-100 text-emerald-800' } :
+                vencido ? { txt: 'Vencido', cls: 'bg-red-100 text-red-800' } :
+                cercano ? { txt: 'Próximo', cls: 'bg-gold-100 text-gold-800' } :
+                { txt: 'Pendiente', cls: 'bg-stone-100 text-stone-700' };
+
+              return (
+                <div key={obj.id} className={`relative rounded-xl border-2 ${accent} transition-all hover:shadow-md flex flex-col`}>
+                  <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                    <button onClick={() => eliminarObjetivo(obj.id)} className="text-stone-400 hover:text-red-700 transition-colors p-1 bg-white/70 rounded" title="Eliminar">
+                      <X size={14} />
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => setObjetivoActivoId(obj.id)}
+                    className="flex-1 text-left p-5 pr-12"
+                  >
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                      <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${estadoBadge.cls}`}>
+                        {estadoBadge.txt}
+                      </span>
+                      <span className={`flex items-center gap-1 text-[11px] font-medium ${completado ? 'text-stone-400' : vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-600'}`}>
+                        <Calendar size={11} /> {formatFecha(obj.fecha)}
+                      </span>
+                      {!completado && (
+                        <span className={`text-[11px] font-bold ${vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-500'}`}>
+                          {vencido ? `· Vencido ${Math.abs(diasRestantes)}d` : diasRestantes === 0 ? '· Hoy' : diasRestantes === 1 ? '· Mañana' : `· ${diasRestantes}d`}
+                        </span>
+                      )}
+                    </div>
+
+                    <h4 className={`text-base font-bold leading-snug mb-3 ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>
+                      {obj.titulo}
+                    </h4>
+
+                    {personasObj.length > 0 && (
+                      <div className="flex items-center gap-1.5 mb-3 flex-wrap">
+                        <div className="flex -space-x-1.5">
+                          {personasObj.slice(0, 5).map(p => {
+                            const ini = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                            return (
+                              <div key={p.id} title={p.nombre} className="w-7 h-7 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[10px] border-2 border-white">
+                                {ini}
+                              </div>
+                            );
+                          })}
+                          {personasObj.length > 5 && (
+                            <div className="w-7 h-7 rounded-full bg-stone-300 text-stone-700 flex items-center justify-center font-semibold text-[10px] border-2 border-white">
+                              +{personasObj.length - 5}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-stone-500">{personasObj.length} {personasObj.length === 1 ? 'asociado' : 'asociados'}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3 text-[11px] text-stone-600 pt-3 border-t border-stone-200/70">
+                      <span className="flex items-center gap-1">
+                        <Activity size={11} /> {eventosObj.length} {eventosObj.length === 1 ? 'evento' : 'eventos'}
+                      </span>
+                      {reunionesCount > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Mic size={11} /> {reunionesCount} {reunionesCount === 1 ? 'reunión' : 'reuniones'}
+                        </span>
+                      )}
+                      <span className="ml-auto text-navy-700 font-semibold">Ver evolución →</span>
+                    </div>
+                  </button>
+
+                  <div className="px-5 pb-4 -mt-1">
+                    <button
+                      onClick={() => toggleObjetivo(obj.id)}
+                      className={`w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${completado ? 'bg-stone-100 hover:bg-stone-200 text-stone-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
+                    >
+                      {completado ? <><X size={12} /> Reabrir objetivo</> : <><CheckCircle2 size={12} /> Marcar como cumplido</>}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
+          <p className="eyebrow text-stone-500 mb-2" style={{ fontSize: '10px' }}>Añadir objetivo</p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              value={nuevoObjTitulo}
+              onChange={e => setNuevoObjTitulo(e.target.value)}
+              placeholder="¿Qué hay que conseguir?"
+              className="flex-1 bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
+            <input
+              type="date"
+              value={nuevoObjFecha}
+              onChange={e => setNuevoObjFecha(e.target.value)}
+              className="bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 sm:w-40"
+            />
+            <button
+              onClick={añadirObjetivo}
+              disabled={!nuevoObjTitulo.trim() || !nuevoObjFecha}
+              className="px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <Plus size={14} /> Añadir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* DOCUMENTOS DEL TALLER */}
+      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+            <FileText size={17} className="text-navy-700" />
+            Documentos
+            <span className="text-base text-stone-500 font-medium">· {documentos.length}</span>
+          </h3>
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={(e) => subirDocumento(e.target.files?.[0])}
+              className="hidden"
+              disabled={subiendoDoc}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={subiendoDoc}
+              className="flex items-center gap-1.5 px-3 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-sm font-semibold transition-colors"
+            >
+              {subiendoDoc ? <><Loader2 size={14} className="animate-spin" /> Subiendo...</> : <><Plus size={14} /> Subir documento</>}
+            </button>
+          </div>
+        </div>
+
+        {errorDoc && (
+          <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-3 flex items-center gap-2">
+            <AlertTriangle size={14} className="text-red-600" />
+            <p className="text-sm text-red-800 flex-1">{errorDoc}</p>
+            <button onClick={() => setErrorDoc(null)} className="text-red-500 hover:text-red-700"><X size={14} /></button>
+          </div>
+        )}
+
+        {documentos.length === 0 ? (
+          <p className="text-sm text-stone-500 italic">No hay documentos. Sube el primero — PDFs, hojas, presentaciones, imágenes, etc.</p>
+        ) : (
+          <div className="space-y-2">
+            {documentos.map(d => {
+              const icono = iconoDocumento(d.mimeType, d.nombre);
+              const persona = personas.find(p => p.id === d.subidoPor);
+              const fecha = d.subidoEn ? new Date(d.subidoEn) : null;
+              return (
+                <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-navy-700 hover:shadow-sm transition-all bg-white">
+                  <div className={`w-10 h-10 rounded-lg ${icono.color} flex items-center justify-center font-bold text-[10px] flex-shrink-0`}>
+                    {icono.label}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-navy-900 hover:text-navy-700 truncate block" title={d.nombre}>
+                      {d.nombre}
+                    </a>
+                    <p className="text-xs text-stone-500 font-medium">
+                      {formatBytes(d.size)}
+                      {persona && <> · subido por <span className="text-navy-700">{persona.nombre}</span></>}
+                      {fecha && <> · {fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} {fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</>}
+                    </p>
+                  </div>
+                  <a
+                    href={d.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={d.nombre}
+                    className="text-xs font-semibold text-navy-700 hover:text-navy-900 px-3 py-1.5 border border-stone-300 hover:border-navy-700 rounded-md transition-colors"
+                  >
+                    Abrir
+                  </a>
+                  <button
+                    onClick={() => eliminarDocumento(d)}
+                    className="text-stone-400 hover:text-red-700 p-1 transition-colors"
+                    title="Eliminar"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {demoMode && documentos.length > 0 && (
+          <p className="text-[10px] text-stone-500 italic mt-3">⚠️ En modo demo los archivos se almacenan solo en tu navegador y se pierden al recargar. Usa el modo real (login) para guardarlos en Supabase Storage.</p>
+        )}
+      </div>
 
       <div className="bg-white border border-stone-200 rounded-xl p-5 mb-6">
         <div className="flex items-center justify-between mb-3">
