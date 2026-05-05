@@ -2499,15 +2499,11 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               <div>
-                <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-navy-900">
-                  <div>
-                    <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                      <Activity size={16} className="text-gold-600" />
-                      Estado del Plan Estratégico
-                    </h3>
-                    <p className="text-sm text-stone-500 mt-0.5">Salud y progreso de los {total} talleres activos</p>
-                  </div>
-                </div>
+                <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2 pb-3 mb-4 border-b-2 border-navy-900">
+                  <Activity size={16} className="text-gold-600" />
+                  Estado del Plan Estratégico
+                </h3>
+                <p className="text-sm text-stone-500 mb-3">Salud y progreso de los {total} talleres activos</p>
                 <p className="eyebrow text-stone-500 mb-1" style={{ fontSize: '10px' }}>Pulso global</p>
                 <div className="flex items-baseline gap-3 mb-4 flex-wrap">
                   <p className="kpi-number text-6xl text-navy-900">{porcentajeSano}<span className="text-3xl text-stone-400">%</span></p>
@@ -2545,16 +2541,13 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
             </div>
 
             <div className="mb-8">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-navy-900">
-                <div>
-                  <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                    <Layers size={16} className="text-navy-700" />
-                    Detalle por taller
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">{total} talleres · pulsa para abrir</p>
-                </div>
+              <div className="flex items-end justify-between pb-3 mb-4 border-b-2 border-navy-900">
+                <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                  <Layers size={16} className="text-navy-700" />
+                  Detalle por taller
+                </h3>
                 <button onClick={() => setActive('talleres')} className="text-xs text-navy-800 hover:text-navy-900 font-medium flex items-center gap-1">
-                  Ver todos <ChevronRight size={12} />
+                  Ver todos · {total} talleres <ChevronRight size={12} />
                 </button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 auto-rows-fr">
@@ -2611,86 +2604,53 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
         );
       })()}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div>
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
-              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <RadioTower size={14} className="text-gold-600" />
-                Actividad reciente
-              </h3>
-              <button onClick={() => setActive('talleres')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
-                Ver todo <ChevronRight size={12} />
-              </button>
-            </div>
-            <div className="divide-y divide-stone-200/60">
-              {actividadReciente.map(e => {
-                const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
-                const taller = tallerById[e.tallerId];
-                const autor = personaById[e.autorId];
-                const colorMap = {
-                  stone: 'bg-stone-200 text-stone-700',
-                  blue: 'bg-blue-100 text-blue-800',
-                  emerald: 'bg-emerald-100 text-emerald-800',
-                  violet: 'bg-violet-100 text-violet-800',
-                  amber: 'bg-amber-100 text-amber-800',
-                  red: 'bg-red-100 text-red-800',
-                  navy: 'bg-navy-100 text-navy-800',
-                  gold: 'bg-gold-100 text-gold-800',
-                };
-                const Icon = tipo.icon;
-                return (
-                  <button
-                    key={e.id}
-                    onClick={() => taller && irATaller(taller.id)}
-                    className="w-full text-left flex items-start gap-3 py-2.5 hover:bg-stone-50 -mx-2 px-2 rounded transition-colors"
-                  >
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${colorMap[tipo.color]}`}>
-                      <Icon size={12} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-stone-900 font-medium leading-tight">{e.titulo}</p>
-                      <p className="text-xs text-stone-500 mt-0.5">
-                        <span className="font-semibold text-navy-800">{taller?.nombre}</span>
-                        {autor && <> · {autor.nombre}</>}
-                        <> · {formatFecha(e.fecha, true)}</>
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-8">
+        <div>
+          <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
+            <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+              <RadioTower size={14} className="text-gold-600" />
+              Actividad reciente
+            </h3>
+            <button onClick={() => setActive('talleres')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+              Ver todo <ChevronRight size={12} />
+            </button>
           </div>
-
-          <div>
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
-              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <CheckSquare size={14} className="text-red-600" />
-                Tareas urgentes
-              </h3>
-              <button onClick={() => setActive('tareas')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
-                Ver kanban <ChevronRight size={12} />
-              </button>
-            </div>
-            <div className="divide-y divide-stone-200/60">
-              {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
-                const persona = personaById[t.personaId];
-                const taller = tallerById[t.tallerId];
-                return (
-                  <div key={t.id} className="flex items-start gap-3 py-2.5">
-                    <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-stone-800">{t.tarea}</p>
-                      <p className="text-xs text-stone-500">
-                        {persona?.nombre || 'Sin asignar'}
-                        {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
-                        <> · {t.deadline}</>
-                      </p>
-                    </div>
+          <div className="divide-y divide-stone-200/60">
+            {actividadReciente.map(e => {
+              const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
+              const taller = tallerById[e.tallerId];
+              const autor = personaById[e.autorId];
+              const colorMap = {
+                stone: 'bg-stone-200 text-stone-700',
+                blue: 'bg-blue-100 text-blue-800',
+                emerald: 'bg-emerald-100 text-emerald-800',
+                violet: 'bg-violet-100 text-violet-800',
+                amber: 'bg-amber-100 text-amber-800',
+                red: 'bg-red-100 text-red-800',
+                navy: 'bg-navy-100 text-navy-800',
+                gold: 'bg-gold-100 text-gold-800',
+              };
+              const Icon = tipo.icon;
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => taller && irATaller(taller.id)}
+                  className="w-full text-left flex items-start gap-3 py-2.5 hover:bg-stone-50 -mx-2 px-2 rounded transition-colors"
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${colorMap[tipo.color]}`}>
+                    <Icon size={12} />
                   </div>
-                );
-              })}
-            </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-stone-900 font-medium leading-tight">{e.titulo}</p>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      <span className="font-semibold text-navy-800">{taller?.nombre}</span>
+                      {autor && <> · {autor.nombre}</>}
+                      <> · {formatFecha(e.fecha, true)}</>
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -2745,25 +2705,56 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               })}
             </div>
           </div>
+        </div>
 
-          <div>
-            <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
-              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <Lightbulb size={14} className="text-violet-600" />
-                Iniciativas a comunicar
-              </h3>
-              <button onClick={() => setActive('innovacion')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
-                Ver todas <ChevronRight size={12} />
-              </button>
-            </div>
-            <div className="divide-y divide-stone-200/60">
-              {iniciativas.map(i => (
-                <div key={i.id} className="py-2.5">
-                  <p className="text-sm font-medium text-stone-900">{i.titulo}</p>
-                  <p className="text-xs text-stone-500">{i.autor} · {i.area}</p>
+        <div>
+          <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
+            <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+              <CheckSquare size={14} className="text-red-600" />
+              Tareas urgentes
+            </h3>
+            <button onClick={() => setActive('tareas')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+              Ver kanban <ChevronRight size={12} />
+            </button>
+          </div>
+          <div className="divide-y divide-stone-200/60">
+            {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
+              const persona = personaById[t.personaId];
+              const taller = tallerById[t.tallerId];
+              return (
+                <div key={t.id} className="flex items-start gap-3 py-2.5">
+                  <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-stone-800">{t.tarea}</p>
+                    <p className="text-xs text-stone-500">
+                      {persona?.nombre || 'Sin asignar'}
+                      {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
+                      <> · {t.deadline}</>
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between pb-2 mb-3 border-b border-stone-300">
+            <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+              <Lightbulb size={14} className="text-violet-600" />
+              Iniciativas a comunicar
+            </h3>
+            <button onClick={() => setActive('innovacion')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+              Ver todas <ChevronRight size={12} />
+            </button>
+          </div>
+          <div className="divide-y divide-stone-200/60">
+            {iniciativas.map(i => (
+              <div key={i.id} className="py-2.5">
+                <p className="text-sm font-medium text-stone-900">{i.titulo}</p>
+                <p className="text-xs text-stone-500">{i.autor} · {i.area}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
