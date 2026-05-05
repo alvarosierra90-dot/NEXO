@@ -5287,6 +5287,252 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         );
       })()}
 
+      {/* OBJETIVOS DEL TALLER */}
+      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+            <Flag size={17} className="text-gold-600" />
+            Objetivos
+            <span className="text-base text-stone-500 font-medium">· {objetivos.length}</span>
+          </h3>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              {objetivos.filter(o => o.estado === 'completado').length} completados
+            </span>
+            <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-gold-500"></span>
+              {objetivos.filter(o => o.estado === 'pendiente').length} pendientes
+            </span>
+          </div>
+        </div>
+
+        {objetivos.length > 0 && (() => {
+          const totalObj = objetivos.length;
+          const completadosObj = objetivos.filter(o => o.estado === 'completado').length;
+          const porcentaje = Math.round((completadosObj / totalObj) * 100);
+          const hoyTs = (() => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); })();
+          const fechasTs = objetivos.map(o => { const d = new Date(o.fecha); d.setHours(0,0,0,0); return d.getTime(); }).filter(t => !isNaN(t));
+          const fechasCreacionTs = objetivos.map(o => { const d = new Date(o.fechaCreacion || o.fecha); d.setHours(0,0,0,0); return d.getTime(); }).filter(t => !isNaN(t));
+          const minTs = Math.min(...fechasCreacionTs, ...fechasTs, hoyTs);
+          const maxTs = Math.max(...fechasTs, hoyTs);
+          const span = maxTs - minTs || 86400000 * 30;
+          const startTs = minTs - span * 0.05;
+          const endTs = maxTs + span * 0.05;
+          const totalRange = endTs - startTs;
+          const positionFor = (ts) => totalRange > 0 ? Math.max(0, Math.min(100, ((ts - startTs) / totalRange) * 100)) : 50;
+          const vencidosObj = objetivos.filter(o => {
+            if (o.estado === 'completado') return false;
+            const f = new Date(o.fecha); f.setHours(0,0,0,0);
+            return f.getTime() < hoyTs;
+          }).length;
+          const formatBrief = (ts) => new Date(ts).toLocaleDateString('es-ES', { month: 'short', year: '2-digit' });
+          const objetivosOrdenados = [...objetivos].filter(o => !isNaN(new Date(o.fecha).getTime())).sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+
+          return (
+            <div className="bg-gradient-to-br from-stone-50 to-white border border-stone-200 rounded-xl p-5 mb-5">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-navy-900">{porcentaje}%</span>
+                  <span className="text-sm text-stone-600 font-medium">objetivos cumplidos</span>
+                  <span className="text-xs text-stone-500">· {completadosObj}/{totalObj}</span>
+                </div>
+                {vencidosObj > 0 && (
+                  <span className="flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded">
+                    <AlertTriangle size={11} /> {vencidosObj} vencido{vencidosObj === 1 ? '' : 's'}
+                  </span>
+                )}
+              </div>
+
+              <div className="relative px-2 pt-6 pb-12">
+                <div className="absolute top-0 left-2 right-2 flex justify-between text-[10px] text-stone-500 font-medium uppercase tracking-wider">
+                  <span>{formatBrief(startTs)}</span>
+                  <span>{formatBrief(endTs)}</span>
+                </div>
+
+                <div className="relative h-3 bg-stone-200 rounded-full">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
+                    style={{ width: `${porcentaje}%` }}
+                  ></div>
+                  <span
+                    className="absolute top-1/2 -translate-y-1/2 text-[10px] font-bold text-white drop-shadow-sm whitespace-nowrap"
+                    style={{ left: porcentaje > 12 ? `${Math.min(porcentaje - 6, 92)}%` : `${porcentaje + 1}%`, color: porcentaje > 12 ? 'white' : '#0E1F3D' }}
+                  >
+                    {porcentaje}%
+                  </span>
+
+                  {hoyTs >= startTs && hoyTs <= endTs && (
+                    <div
+                      className="absolute -top-2 -bottom-2 w-0.5 bg-navy-900 z-20"
+                      style={{ left: `${positionFor(hoyTs)}%` }}
+                    >
+                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] font-bold text-navy-900 bg-white px-1 whitespace-nowrap rounded">HOY</span>
+                    </div>
+                  )}
+
+                  {objetivosOrdenados.map((obj, idx) => {
+                    const ts = (() => { const d = new Date(obj.fecha); d.setHours(0,0,0,0); return d.getTime(); })();
+                    const pos = positionFor(ts);
+                    const completado = obj.estado === 'completado';
+                    const vencido = !completado && ts < hoyTs;
+                    const cercano = !completado && !vencido && (ts - hoyTs) / 86400000 <= 7;
+                    const colorClass = completado ? 'bg-emerald-500 border-emerald-700' :
+                                  vencido ? 'bg-red-500 border-red-700' :
+                                  cercano ? 'bg-gold-500 border-gold-700' :
+                                  'bg-white border-stone-500';
+                    const labelTop = idx % 2 === 0 ? '14px' : '32px';
+                    return (
+                      <button
+                        key={obj.id}
+                        onClick={() => setObjetivoActivoId(obj.id)}
+                        className={`absolute w-4 h-4 rounded-full border-2 ${colorClass} -translate-x-1/2 -translate-y-1/2 hover:scale-150 transition-transform z-10 cursor-pointer group`}
+                        style={{ top: '50%', left: `${pos}%` }}
+                        title={`${obj.titulo} · ${formatFecha(obj.fecha)}`}
+                      >
+                        <span className="absolute left-1/2 -translate-x-1/2 text-[9px] text-stone-700 font-medium whitespace-nowrap pointer-events-none" style={{ top: labelTop }}>
+                          {new Date(ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3 text-[10px] text-stone-600 pt-2 border-t border-stone-200">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-emerald-700"></span>Cumplido</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-red-700"></span>Vencido</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-gold-500 border border-gold-700"></span>Próximo (≤7d)</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-white border border-stone-500"></span>Pendiente</span>
+                <span className="ml-auto text-stone-400 italic">Pulsa un punto para ver detalle</span>
+              </div>
+            </div>
+          );
+        })()}
+
+        {objetivos.length === 0 && (
+          <p className="text-sm text-stone-500 italic mb-4">No hay objetivos definidos. Añade el primero abajo con su fecha límite.</p>
+        )}
+
+        {objetivos.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+            {[...objetivos].sort((a, b) => {
+              if (a.estado !== b.estado) return a.estado === 'pendiente' ? -1 : 1;
+              return (a.fecha || '').localeCompare(b.fecha || '');
+            }).map(obj => {
+              const completado = obj.estado === 'completado';
+              const hoy = new Date(); hoy.setHours(0,0,0,0);
+              const fechaObj = new Date(obj.fecha); fechaObj.setHours(0,0,0,0);
+              const diasRestantes = Math.round((fechaObj - hoy) / 86400000);
+              const vencido = diasRestantes < 0 && !completado;
+              const cercano = diasRestantes >= 0 && diasRestantes <= 7 && !completado;
+
+              const accent = completado ? 'border-emerald-300 bg-emerald-50/40' :
+                vencido ? 'border-red-300 bg-red-50/40' :
+                cercano ? 'border-gold-300 bg-gold-50/40' :
+                'border-stone-200 bg-white hover:border-navy-300';
+
+              const personasObj = (obj.personasIds || []).map(id => personaById[id]).filter(Boolean);
+              const eventosObj = historico.filter(e => e.objetivoId === obj.id);
+
+              const estadoBadge = completado ? { txt: '✓', cls: 'bg-emerald-100 text-emerald-800' } :
+                vencido ? { txt: 'Vencido', cls: 'bg-red-100 text-red-800' } :
+                cercano ? { txt: 'Próximo', cls: 'bg-gold-100 text-gold-800' } :
+                { txt: 'Pendiente', cls: 'bg-stone-100 text-stone-700' };
+
+              return (
+                <div key={obj.id} className={`relative rounded-xl border-2 ${accent} transition-all hover:shadow-md flex flex-col aspect-square`}>
+                  <button onClick={() => eliminarObjetivo(obj.id)} className="absolute top-2 right-2 text-stone-400 hover:text-red-700 transition-colors p-1 bg-white/70 rounded z-10" title="Eliminar">
+                    <X size={12} />
+                  </button>
+
+                  <button
+                    onClick={() => setObjetivoActivoId(obj.id)}
+                    className="flex-1 text-left p-3 pr-8 flex flex-col min-h-0"
+                  >
+                    <div className="flex items-center gap-1 mb-2 flex-wrap">
+                      <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold ${estadoBadge.cls}`}>
+                        {estadoBadge.txt}
+                      </span>
+                    </div>
+                    <h4 className={`text-xs font-bold leading-tight mb-2 line-clamp-3 flex-1 ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>
+                      {obj.titulo}
+                    </h4>
+                    <div className="space-y-1.5">
+                      <div className={`flex items-center gap-1 text-[10px] font-medium ${completado ? 'text-stone-400' : vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-600'}`}>
+                        <Calendar size={9} /> {formatFecha(obj.fecha)}
+                      </div>
+                      {!completado && (
+                        <div className={`text-[10px] font-bold ${vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-500'}`}>
+                          {vencido ? `Vencido ${Math.abs(diasRestantes)}d` : diasRestantes === 0 ? 'Hoy' : diasRestantes === 1 ? 'Mañana' : `${diasRestantes}d restantes`}
+                        </div>
+                      )}
+                      {personasObj.length > 0 && (
+                        <div className="flex -space-x-1 items-center">
+                          {personasObj.slice(0, 3).map(p => {
+                            const ini = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+                            return (
+                              <div key={p.id} title={p.nombre} className="w-5 h-5 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[8px] border border-white">
+                                {ini}
+                              </div>
+                            );
+                          })}
+                          {personasObj.length > 3 && (
+                            <div className="w-5 h-5 rounded-full bg-stone-300 text-stone-700 flex items-center justify-center font-semibold text-[8px] border border-white">
+                              +{personasObj.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-[9px] text-stone-500 pt-1.5 border-t border-stone-200/70">
+                        <span className="flex items-center gap-0.5"><Activity size={9} /> {eventosObj.length}</span>
+                        {(obj.reunionIds || []).length > 0 && (
+                          <span className="flex items-center gap-0.5"><Mic size={9} /> {(obj.reunionIds || []).length}</span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+
+                  <div className="px-3 pb-2">
+                    <button
+                      onClick={() => toggleObjetivo(obj.id)}
+                      className={`w-full flex items-center justify-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${completado ? 'bg-stone-100 hover:bg-stone-200 text-stone-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
+                    >
+                      {completado ? <><X size={10} /> Reabrir</> : <><CheckCircle2 size={10} /> Cumplir</>}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
+          <p className="eyebrow text-stone-500 mb-2" style={{ fontSize: '10px' }}>Añadir objetivo</p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              value={nuevoObjTitulo}
+              onChange={e => setNuevoObjTitulo(e.target.value)}
+              placeholder="¿Qué hay que conseguir?"
+              className="flex-1 bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+            />
+            <input
+              type="date"
+              value={nuevoObjFecha}
+              onChange={e => setNuevoObjFecha(e.target.value)}
+              className="bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 sm:w-40"
+            />
+            <button
+              onClick={añadirObjetivo}
+              disabled={!nuevoObjTitulo.trim() || !nuevoObjFecha}
+              className="px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <Plus size={14} /> Añadir
+            </button>
+          </div>
+        </div>
+      </div>
+
       {(() => {
         const eventosCron = historico
           .filter(e => e.tallerId === taller.id)
@@ -5463,195 +5709,6 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           </div>
         );
       })()}
-
-      {/* OBJETIVOS DEL TALLER */}
-      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-            <Flag size={17} className="text-gold-600" />
-            Objetivos
-            <span className="text-base text-stone-500 font-medium">· {objetivos.length}</span>
-          </h3>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              {objetivos.filter(o => o.estado === 'completado').length} completados
-            </span>
-            <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-gold-500"></span>
-              {objetivos.filter(o => o.estado === 'pendiente').length} pendientes
-            </span>
-          </div>
-        </div>
-
-        {objetivos.length > 0 && (() => {
-          const totalObj = objetivos.length;
-          const completadosObj = objetivos.filter(o => o.estado === 'completado').length;
-          const porcentaje = Math.round((completadosObj / totalObj) * 100);
-          const hoyP = new Date(); hoyP.setHours(0,0,0,0);
-          const vencidosObj = objetivos.filter(o => {
-            if (o.estado === 'completado') return false;
-            const f = new Date(o.fecha); f.setHours(0,0,0,0);
-            return f < hoyP;
-          }).length;
-          return (
-            <div className="bg-gradient-to-br from-stone-50 to-white border border-stone-200 rounded-xl p-4 mb-4">
-              <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-navy-900">{porcentaje}%</span>
-                  <span className="text-sm text-stone-600 font-medium">completado</span>
-                  <span className="text-xs text-stone-500">· {completadosObj}/{totalObj} objetivos</span>
-                </div>
-                {vencidosObj > 0 && (
-                  <span className="flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded">
-                    <AlertTriangle size={11} /> {vencidosObj} vencido{vencidosObj === 1 ? '' : 's'}
-                  </span>
-                )}
-              </div>
-              <div className="relative h-3 bg-stone-200 rounded-full overflow-hidden">
-                <div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
-                  style={{ width: `${porcentaje}%` }}
-                ></div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {objetivos.length === 0 && (
-          <p className="text-sm text-stone-500 italic mb-4">No hay objetivos definidos. Añade el primero abajo con su fecha límite.</p>
-        )}
-
-        {objetivos.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {[...objetivos].sort((a, b) => {
-              if (a.estado !== b.estado) return a.estado === 'pendiente' ? -1 : 1;
-              return (a.fecha || '').localeCompare(b.fecha || '');
-            }).map(obj => {
-              const completado = obj.estado === 'completado';
-              const hoy = new Date(); hoy.setHours(0,0,0,0);
-              const fechaObj = new Date(obj.fecha); fechaObj.setHours(0,0,0,0);
-              const diasRestantes = Math.round((fechaObj - hoy) / 86400000);
-              const vencido = diasRestantes < 0 && !completado;
-              const cercano = diasRestantes >= 0 && diasRestantes <= 7 && !completado;
-
-              const accent = completado ? 'border-emerald-300 bg-emerald-50/40' :
-                vencido ? 'border-red-300 bg-red-50/40' :
-                cercano ? 'border-gold-300 bg-gold-50/40' :
-                'border-stone-200 bg-white hover:border-navy-300';
-
-              const personasObj = (obj.personasIds || []).map(id => personaById[id]).filter(Boolean);
-              const eventosObj = historico.filter(e => e.objetivoId === obj.id);
-              const reunionesCount = (obj.reunionIds || []).length;
-
-              const estadoBadge = completado ? { txt: '✓ Completado', cls: 'bg-emerald-100 text-emerald-800' } :
-                vencido ? { txt: 'Vencido', cls: 'bg-red-100 text-red-800' } :
-                cercano ? { txt: 'Próximo', cls: 'bg-gold-100 text-gold-800' } :
-                { txt: 'Pendiente', cls: 'bg-stone-100 text-stone-700' };
-
-              return (
-                <div key={obj.id} className={`relative rounded-xl border-2 ${accent} transition-all hover:shadow-md flex flex-col`}>
-                  <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
-                    <button onClick={() => eliminarObjetivo(obj.id)} className="text-stone-400 hover:text-red-700 transition-colors p-1 bg-white/70 rounded" title="Eliminar">
-                      <X size={14} />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => setObjetivoActivoId(obj.id)}
-                    className="flex-1 text-left p-5 pr-12"
-                  >
-                    <div className="flex items-center gap-2 mb-3 flex-wrap">
-                      <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${estadoBadge.cls}`}>
-                        {estadoBadge.txt}
-                      </span>
-                      <span className={`flex items-center gap-1 text-[11px] font-medium ${completado ? 'text-stone-400' : vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-600'}`}>
-                        <Calendar size={11} /> {formatFecha(obj.fecha)}
-                      </span>
-                      {!completado && (
-                        <span className={`text-[11px] font-bold ${vencido ? 'text-red-700' : cercano ? 'text-gold-700' : 'text-stone-500'}`}>
-                          {vencido ? `· Vencido ${Math.abs(diasRestantes)}d` : diasRestantes === 0 ? '· Hoy' : diasRestantes === 1 ? '· Mañana' : `· ${diasRestantes}d`}
-                        </span>
-                      )}
-                    </div>
-
-                    <h4 className={`text-base font-bold leading-snug mb-3 ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>
-                      {obj.titulo}
-                    </h4>
-
-                    {personasObj.length > 0 && (
-                      <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-                        <div className="flex -space-x-1.5">
-                          {personasObj.slice(0, 5).map(p => {
-                            const ini = p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
-                            return (
-                              <div key={p.id} title={p.nombre} className="w-7 h-7 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-semibold text-[10px] border-2 border-white">
-                                {ini}
-                              </div>
-                            );
-                          })}
-                          {personasObj.length > 5 && (
-                            <div className="w-7 h-7 rounded-full bg-stone-300 text-stone-700 flex items-center justify-center font-semibold text-[10px] border-2 border-white">
-                              +{personasObj.length - 5}
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-[11px] text-stone-500">{personasObj.length} {personasObj.length === 1 ? 'asociado' : 'asociados'}</span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-3 text-[11px] text-stone-600 pt-3 border-t border-stone-200/70">
-                      <span className="flex items-center gap-1">
-                        <Activity size={11} /> {eventosObj.length} {eventosObj.length === 1 ? 'evento' : 'eventos'}
-                      </span>
-                      {reunionesCount > 0 && (
-                        <span className="flex items-center gap-1">
-                          <Mic size={11} /> {reunionesCount} {reunionesCount === 1 ? 'reunión' : 'reuniones'}
-                        </span>
-                      )}
-                      <span className="ml-auto text-navy-700 font-semibold">Ver evolución →</span>
-                    </div>
-                  </button>
-
-                  <div className="px-5 pb-4 -mt-1">
-                    <button
-                      onClick={() => toggleObjetivo(obj.id)}
-                      className={`w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${completado ? 'bg-stone-100 hover:bg-stone-200 text-stone-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
-                    >
-                      {completado ? <><X size={12} /> Reabrir objetivo</> : <><CheckCircle2 size={12} /> Marcar como cumplido</>}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
-          <p className="eyebrow text-stone-500 mb-2" style={{ fontSize: '10px' }}>Añadir objetivo</p>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              value={nuevoObjTitulo}
-              onChange={e => setNuevoObjTitulo(e.target.value)}
-              placeholder="¿Qué hay que conseguir?"
-              className="flex-1 bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
-            />
-            <input
-              type="date"
-              value={nuevoObjFecha}
-              onChange={e => setNuevoObjFecha(e.target.value)}
-              className="bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 sm:w-40"
-            />
-            <button
-              onClick={añadirObjetivo}
-              disabled={!nuevoObjTitulo.trim() || !nuevoObjFecha}
-              className="px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-semibold transition-colors flex items-center gap-1.5"
-            >
-              <Plus size={14} /> Añadir
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* DOCUMENTOS DEL TALLER */}
       <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
