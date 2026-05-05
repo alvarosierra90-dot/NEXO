@@ -2587,7 +2587,78 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
         );
       })()}
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+              <RadioTower size={16} className="text-gold-600" />
+              Actividad reciente
+            </h3>
+            <button onClick={() => setActive('talleres')} className="text-sm text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+              Ver todo <ChevronRight size={14} />
+            </button>
+          </div>
+          <div className="space-y-1">
+            {actividadReciente.map(e => {
+              const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
+              const taller = tallerById[e.tallerId];
+              const autor = personaById[e.autorId];
+              const colorMap = {
+                stone: 'bg-stone-200 text-stone-700',
+                blue: 'bg-blue-100 text-blue-800',
+                emerald: 'bg-emerald-100 text-emerald-800',
+                violet: 'bg-violet-100 text-violet-800',
+                amber: 'bg-amber-100 text-amber-800',
+                red: 'bg-red-100 text-red-800',
+                navy: 'bg-navy-100 text-navy-800',
+                gold: 'bg-gold-100 text-gold-800',
+              };
+              const Icon = tipo.icon;
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => taller && irATaller(taller.id)}
+                  className="w-full text-left flex items-start gap-3 py-2 border-b border-stone-100 last:border-0 hover:bg-navy-50/50 -mx-2 px-2 rounded transition-colors"
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${colorMap[tipo.color]}`}>
+                    <Icon size={12} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-stone-900 font-medium leading-tight">{e.titulo}</p>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      <span className="font-semibold text-navy-800">{taller?.nombre}</span>
+                      {autor && <> · {autor.nombre}</>}
+                      <> · {formatFecha(e.fecha, true)}</>
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <Card title="Tareas urgentes" onClick={() => setActive('tareas')}>
+          {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
+            const persona = personaById[t.personaId];
+            const taller = tallerById[t.tallerId];
+            return (
+              <div key={t.id} className="flex items-start gap-3 py-2 border-b border-stone-100 last:border-0">
+                <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-stone-800">{t.tarea}</p>
+                  <p className="text-xs text-stone-500">
+                    {persona?.nombre || 'Sin asignar'}
+                    {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
+                    <> · {t.deadline}</>
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <Card title="Talleres con alerta">
           {talleres.filter(t => ['Innovación', 'Gobierno de licencias'].includes(t.nombre)).map(t => (
             <button
@@ -2621,56 +2692,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
         </Card>
       </div>
 
-      <div className="bg-white border border-stone-200 rounded-2xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-            <RadioTower size={16} className="text-gold-600" />
-            Actividad reciente del comité
-          </h3>
-          <button onClick={() => setActive('talleres')} className="text-sm text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
-            Ver todo <ChevronRight size={14} />
-          </button>
-        </div>
-        <div className="space-y-2">
-          {actividadReciente.map(e => {
-            const tipo = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
-            const taller = tallerById[e.tallerId];
-            const autor = personaById[e.autorId];
-            const colorMap = {
-              stone: 'bg-stone-200 text-stone-700',
-              blue: 'bg-blue-100 text-blue-800',
-              emerald: 'bg-emerald-100 text-emerald-800',
-              violet: 'bg-violet-100 text-violet-800',
-              amber: 'bg-amber-100 text-amber-800',
-              red: 'bg-red-100 text-red-800',
-              navy: 'bg-navy-100 text-navy-800',
-              gold: 'bg-gold-100 text-gold-800',
-            };
-            const Icon = tipo.icon;
-            return (
-              <button
-                key={e.id}
-                onClick={() => taller && irATaller(taller.id)}
-                className="w-full text-left flex items-start gap-3 py-2 border-b border-stone-100 last:border-0 hover:bg-navy-50/50 -mx-2 px-2 rounded transition-colors"
-              >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${colorMap[tipo.color]}`}>
-                  <Icon size={12} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-stone-900 font-medium">{e.titulo}</p>
-                  <p className="text-xs text-stone-500">
-                    <span className="font-semibold text-navy-800">{taller?.nombre}</span>
-                    {autor && <> · {autor.nombre}</>}
-                    <> · {formatFecha(e.fecha, true)}</>
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card title="Iniciativas a comunicar" onClick={() => setActive('innovacion')}>
           {iniciativas.map(i => (
             <div key={i.id} className="py-2 border-b border-stone-100 last:border-0">
@@ -2680,25 +2702,7 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           ))}
         </Card>
 
-        <Card title="Tareas urgentes" onClick={() => setActive('tareas')}>
-          {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 4).map(t => {
-            const persona = personaById[t.personaId];
-            const taller = tallerById[t.tallerId];
-            return (
-              <div key={t.id} className="flex items-start gap-3 py-2 border-b border-stone-100 last:border-0">
-                <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-stone-800">{t.tarea}</p>
-                  <p className="text-xs text-stone-500">
-                    {persona?.nombre || 'Sin asignar'}
-                    {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
-                    <> · {t.deadline}</>
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </Card>
+        <div></div>
       </div>
     </div>
   );
