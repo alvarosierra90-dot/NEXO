@@ -7965,21 +7965,22 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
           <p className="text-base text-stone-600 font-medium">No hay herramientas que coincidan con los filtros.</p>
         </div>
       ) : vistaCatalogo === 'catalogo' ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="space-y-3">
           {Object.entries(herramientasPorCategoria).map(([categoria, items]) => {
             const Icon = categoriaIcon[categoria] || Package;
             const itemsConUso = items.map(h => ({ ...h, usoEstado: calcularUsoEstado(h) }));
             const totalAlertas = itemsConUso.filter(h => h.usoEstado.key === 'sin_uso' || h.usoEstado.key === 'infrautilizada' || (h.alerta || '').includes('Duplica')).length;
             return (
-              <div key={categoria} className="bg-stone-50/60 border border-stone-200 rounded-2xl overflow-hidden flex flex-col group">
-                <div className="flex items-center gap-2 px-4 py-3 bg-white border-b border-stone-200">
+              <div key={categoria} className="bg-stone-50/60 border border-stone-200 rounded-2xl overflow-hidden group">
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-white border-b border-stone-200">
                   <Icon size={15} className="text-navy-700" />
                   <h3
-                    className="text-sm font-bold text-navy-900 tracking-tight flex-1 cursor-help"
+                    className="text-sm font-bold text-navy-900 tracking-tight cursor-help"
                     title={CATEGORIAS_DESCRIPCIONES[categoria] || 'Categoría personalizada'}
                   >{categoria}</h3>
                   <span className="text-xs font-bold text-navy-900 bg-stone-100 px-2 py-0.5 rounded">{items.length}</span>
                   {totalAlertas > 0 && <span className="text-xs font-bold text-gold-800 bg-gold-100 px-2 py-0.5 rounded" title={`${totalAlertas} con alerta`}>!{totalAlertas}</span>}
+                  <span className="ml-auto text-[10px] text-stone-400 italic hidden sm:inline">Desplázate horizontalmente →</span>
                   <button
                     onClick={() => iniciarBorradoCategoria(categoria)}
                     className="text-stone-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -7988,78 +7989,80 @@ Reglas: usa nombres exactos de la lista. Elige 1-3 categorías como máximo. Si 
                     <X size={14} />
                   </button>
                 </div>
-                <div className="p-2 space-y-2 flex-1">
-                  {itemsConUso.map(h => {
-                    const u = h.usoEstado;
-                    const esDuplicada = (h.alerta || '').includes('Duplica');
-                    const colorBarra = {
-                      muy_uso: 'bg-emerald-500',
-                      uso_moderado: 'bg-navy-700',
-                      infrautilizada: 'bg-gold-500',
-                      sin_uso: 'bg-red-500',
-                      sin_dato: 'bg-stone-300',
-                    }[u.key];
-                    const accent = {
-                      muy_uso: 'border-l-emerald-500',
-                      uso_moderado: 'border-l-navy-700',
-                      infrautilizada: 'border-l-gold-500',
-                      sin_uso: 'border-l-red-500',
-                      sin_dato: 'border-l-stone-300',
-                    }[u.key];
-                    const badge = {
-                      muy_uso: 'bg-emerald-100 text-emerald-800',
-                      uso_moderado: 'bg-navy-100 text-navy-800',
-                      infrautilizada: 'bg-gold-100 text-gold-800',
-                      sin_uso: 'bg-red-100 text-red-800',
-                      sin_dato: 'bg-stone-100 text-stone-700',
-                    }[u.key];
+                <div className="overflow-x-auto">
+                  <div className="flex gap-2 p-2 min-w-min">
+                    {itemsConUso.map(h => {
+                      const u = h.usoEstado;
+                      const esDuplicada = (h.alerta || '').includes('Duplica');
+                      const colorBarra = {
+                        muy_uso: 'bg-emerald-500',
+                        uso_moderado: 'bg-navy-700',
+                        infrautilizada: 'bg-gold-500',
+                        sin_uso: 'bg-red-500',
+                        sin_dato: 'bg-stone-300',
+                      }[u.key];
+                      const accent = {
+                        muy_uso: 'border-l-emerald-500',
+                        uso_moderado: 'border-l-navy-700',
+                        infrautilizada: 'border-l-gold-500',
+                        sin_uso: 'border-l-red-500',
+                        sin_dato: 'border-l-stone-300',
+                      }[u.key];
+                      const badge = {
+                        muy_uso: 'bg-emerald-100 text-emerald-800',
+                        uso_moderado: 'bg-navy-100 text-navy-800',
+                        infrautilizada: 'bg-gold-100 text-gold-800',
+                        sin_uso: 'bg-red-100 text-red-800',
+                        sin_dato: 'bg-stone-100 text-stone-700',
+                      }[u.key];
 
-                    return (
-                      <button
-                        key={h.id}
-                        onClick={() => abrirDetalle(h)}
-                        className={`text-left bg-white border border-stone-200 ${accent} border-l-4 rounded-lg p-3 hover:shadow-md hover:border-navy-700 transition-all w-full`}
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <p className="text-sm font-semibold text-navy-900 leading-tight line-clamp-2 flex-1">{h.nombre}</p>
-                          <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold flex-shrink-0 ${badge}`}>{u.label}</span>
-                        </div>
-                        <div className="flex items-center gap-1 mb-2">
-                          <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold ${origenDe(h) === 'inhouse' ? 'bg-navy-100 text-navy-800' : 'bg-stone-100 text-stone-700'}`}>{origenDe(h) === 'inhouse' ? 'In-house' : 'Externa'}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                            <div className={`h-full transition-all ${colorBarra}`} style={{ width: `${Math.max(2, u.pct)}%` }}></div>
+                      return (
+                        <button
+                          key={h.id}
+                          onClick={() => abrirDetalle(h)}
+                          className={`flex-shrink-0 w-60 text-left bg-white border border-stone-200 ${accent} border-l-4 rounded-lg p-3 hover:shadow-md hover:border-navy-700 transition-all`}
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <p className="text-sm font-semibold text-navy-900 leading-tight line-clamp-2 flex-1">{h.nombre}</p>
+                            <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold flex-shrink-0 ${badge}`}>{u.label}</span>
                           </div>
-                          <span className="text-xs font-bold text-stone-700 tabular-nums">{u.pct}%</span>
-                        </div>
+                          <div className="flex items-center gap-1 mb-2">
+                            <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold ${origenDe(h) === 'inhouse' ? 'bg-navy-100 text-navy-800' : 'bg-stone-100 text-stone-700'}`}>{origenDe(h) === 'inhouse' ? 'In-house' : 'Externa'}</span>
+                          </div>
 
-                        <div className="flex items-center justify-between text-xs text-stone-600">
-                          <span className="font-medium">{h.licenciasActivas}/{h.licenciasContratadas} lic.</span>
-                          <span className="font-bold text-navy-800 tabular-nums" title={`${(h.costeAnual || 0).toLocaleString()}€/año total · ${costePorLicenciaDe(h).toLocaleString()}€/año por licencia`}>{Math.round(costePorLicenciaDe(h) / 12).toLocaleString()}€/mes·lic</span>
-                        </div>
-                        {esDuplicada && (() => {
-                          const otra = herramientaDuplicadaDe(h);
-                          return (
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (otra) abrirDetalle(otra);
-                              }}
-                              onKeyDown={(e) => { if (e.key === 'Enter' && otra) { e.stopPropagation(); abrirDetalle(otra); } }}
-                              className="text-[10px] text-red-700 font-semibold mt-1.5 flex items-center gap-1 hover:underline cursor-pointer"
-                              title={otra ? `Pulsa para ver ${otra.nombre}` : 'Pulsa para ver la herramienta duplicada'}
-                            >
-                              <AlertTriangle size={10} /> Duplica con <span className="underline">{otra?.nombre || '…'}</span>
-                            </span>
-                          );
-                        })()}
-                      </button>
-                    );
-                  })}
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                              <div className={`h-full transition-all ${colorBarra}`} style={{ width: `${Math.max(2, u.pct)}%` }}></div>
+                            </div>
+                            <span className="text-xs font-bold text-stone-700 tabular-nums">{u.pct}%</span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs text-stone-600">
+                            <span className="font-medium">{h.licenciasActivas}/{h.licenciasContratadas} lic.</span>
+                            <span className="font-bold text-navy-800 tabular-nums" title={`${(h.costeAnual || 0).toLocaleString()}€/año total · ${costePorLicenciaDe(h).toLocaleString()}€/año por licencia`}>{Math.round(costePorLicenciaDe(h) / 12).toLocaleString()}€/mes·lic</span>
+                          </div>
+                          {esDuplicada && (() => {
+                            const otra = herramientaDuplicadaDe(h);
+                            return (
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (otra) abrirDetalle(otra);
+                                }}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && otra) { e.stopPropagation(); abrirDetalle(otra); } }}
+                                className="text-[10px] text-red-700 font-semibold mt-1.5 flex items-center gap-1 hover:underline cursor-pointer"
+                                title={otra ? `Pulsa para ver ${otra.nombre}` : 'Pulsa para ver la herramienta duplicada'}
+                              >
+                                <AlertTriangle size={10} /> Duplica con <span className="underline">{otra?.nombre || '…'}</span>
+                              </span>
+                            );
+                          })()}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             );
