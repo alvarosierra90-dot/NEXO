@@ -4154,48 +4154,67 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
 
                 <p className="text-xs text-stone-700 leading-relaxed mb-3 line-clamp-2 min-h-[2.4rem]">{t.descripcion}</p>
 
-                {integrantes.length > 0 && (
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex -space-x-1.5">
-                      {integrantes.slice(0, 5).map(p => (
-                        <div
-                          key={p.id}
-                          className="w-6 h-6 rounded-full bg-stone-200 border-2 border-white text-stone-700 flex items-center justify-center font-medium text-[9px]"
-                          title={p.nombre}
-                        >
-                          {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                        </div>
-                      ))}
-                      {integrantes.length > 5 && (
-                        <div className="w-6 h-6 rounded-full bg-stone-100 border-2 border-white text-stone-600 flex items-center justify-center font-medium text-[9px]">
-                          +{integrantes.length - 5}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-stone-500">{integrantes.length} integrantes</span>
-                  </div>
-                )}
-
-                {ultimosEventos.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Actividad reciente</p>
-                    <div className="flex items-center gap-1">
-                      {ultimosEventos.map(e => {
-                        const t = TIPOS_EVENTO[e.tipo] || TIPOS_EVENTO.avance;
-                        return (
+                <div className="flex items-center gap-2 mb-3">
+                  {integrantes.length > 0 ? (
+                    <>
+                      <div className="flex -space-x-1.5">
+                        {integrantes.slice(0, 4).map(p => (
                           <div
-                            key={e.id}
-                            className="flex-1 h-7 rounded-sm flex items-center justify-center"
-                            style={{ backgroundColor: colorEvento[t.color] + '22' }}
-                            title={`${t.label}: ${e.titulo}`}
+                            key={p.id}
+                            className="w-6 h-6 rounded-full bg-stone-200 border-2 border-white text-stone-700 flex items-center justify-center font-medium text-[9px]"
+                            title={p.nombre}
                           >
-                            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colorEvento[t.color] }}></div>
+                            {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
                           </div>
-                        );
-                      })}
+                        ))}
+                        {integrantes.length > 4 && (
+                          <div className="w-6 h-6 rounded-full bg-stone-100 border-2 border-white text-stone-600 flex items-center justify-center font-medium text-[9px]">
+                            +{integrantes.length - 4}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[11px] font-semibold text-stone-700">{integrantes.length} {integrantes.length === 1 ? 'integrante' : 'integrantes'}</span>
+                    </>
+                  ) : (
+                    <span className="text-[11px] text-stone-400 italic">Sin integrantes</span>
+                  )}
+                </div>
+
+                {(() => {
+                  const objs = t.objetivos || [];
+                  const objsCompl = objs.filter(o => o.estado === 'completado').length;
+                  const subs = objs.flatMap(o => o.subobjetivos || []);
+                  const subsCompl = subs.filter(s => s.completado).length;
+                  const porc = objs.length > 0 ? Math.round((objsCompl / objs.length) * 100) : 0;
+                  if (objs.length === 0 && subs.length === 0) {
+                    return (
+                      <div className="bg-stone-50 rounded-md px-3 py-2 mb-3 flex items-center gap-2">
+                        <Flag size={12} className="text-stone-400" />
+                        <span className="text-[11px] text-stone-500 italic">Sin objetivos definidos</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="bg-stone-50 rounded-md px-3 py-2 mb-3">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Flag size={11} className="text-gold-600" />
+                          <span className="text-[11px] font-semibold text-stone-800">{objsCompl}/{objs.length} objetivos</span>
+                        </div>
+                        {subs.length > 0 && (
+                          <span className="text-[10px] text-stone-600">{subsCompl}/{subs.length} subobj.</span>
+                        )}
+                        <span className="text-[10px] font-bold text-emerald-700 ml-auto">{porc}%</span>
+                      </div>
+                      <div className="relative h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                        <div
+                          className="absolute inset-y-0 left-0 bg-emerald-500 rounded-full transition-all duration-500"
+                          style={{ width: `${porc}%` }}
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-stone-50 rounded-md p-2 text-center">
