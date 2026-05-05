@@ -5484,6 +5484,40 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
           </div>
         </div>
 
+        {objetivos.length > 0 && (() => {
+          const totalObj = objetivos.length;
+          const completadosObj = objetivos.filter(o => o.estado === 'completado').length;
+          const porcentaje = Math.round((completadosObj / totalObj) * 100);
+          const hoyP = new Date(); hoyP.setHours(0,0,0,0);
+          const vencidosObj = objetivos.filter(o => {
+            if (o.estado === 'completado') return false;
+            const f = new Date(o.fecha); f.setHours(0,0,0,0);
+            return f < hoyP;
+          }).length;
+          return (
+            <div className="bg-gradient-to-br from-stone-50 to-white border border-stone-200 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold text-navy-900">{porcentaje}%</span>
+                  <span className="text-sm text-stone-600 font-medium">completado</span>
+                  <span className="text-xs text-stone-500">· {completadosObj}/{totalObj} objetivos</span>
+                </div>
+                {vencidosObj > 0 && (
+                  <span className="flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded">
+                    <AlertTriangle size={11} /> {vencidosObj} vencido{vencidosObj === 1 ? '' : 's'}
+                  </span>
+                )}
+              </div>
+              <div className="relative h-3 bg-stone-200 rounded-full overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500"
+                  style={{ width: `${porcentaje}%` }}
+                ></div>
+              </div>
+            </div>
+          );
+        })()}
+
         {objetivos.length === 0 && (
           <p className="text-sm text-stone-500 italic mb-4">No hay objetivos definidos. Añade el primero abajo con su fecha límite.</p>
         )}
