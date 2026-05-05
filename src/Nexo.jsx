@@ -2613,31 +2613,6 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <AlertOctagon size={14} className="text-amber-600" />
-                Talleres con alerta
-              </h3>
-            </div>
-            <div className="divide-y divide-stone-200/60">
-              {talleres.filter(t => ['Innovación', 'Gobierno de licencias'].includes(t.nombre)).map(t => (
-                <button
-                  key={t.id}
-                  onClick={(e) => { e.stopPropagation(); irATaller(t.id); }}
-                  className="w-full text-left flex items-center gap-3 py-2.5 hover:bg-stone-50 -mx-2 px-2 rounded transition-colors"
-                >
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-600 flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-stone-900">{t.nombre}</p>
-                    <p className="text-xs text-stone-500">{t.lider}{t.diaADia ? ` · día a día ${t.diaADia}` : ''}</p>
-                  </div>
-                  <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-semibold">Solapa</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
                 <RadioTower size={14} className="text-gold-600" />
                 Actividad reciente
               </h3>
@@ -2683,9 +2658,65 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
               })}
             </div>
           </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <CheckSquare size={14} className="text-red-600" />
+                Tareas urgentes
+              </h3>
+              <button onClick={() => setActive('tareas')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
+                Ver kanban <ChevronRight size={12} />
+              </button>
+            </div>
+            <div className="divide-y divide-stone-200/60">
+              {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
+                const persona = personaById[t.personaId];
+                const taller = tallerById[t.tallerId];
+                return (
+                  <div key={t.id} className="flex items-start gap-3 py-2.5">
+                    <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-stone-800">{t.tarea}</p>
+                      <p className="text-xs text-stone-500">
+                        {persona?.nombre || 'Sin asignar'}
+                        {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
+                        <> · {t.deadline}</>
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <AlertOctagon size={14} className="text-amber-600" />
+                Talleres con alerta
+              </h3>
+            </div>
+            <div className="divide-y divide-stone-200/60">
+              {talleres.filter(t => ['Innovación', 'Gobierno de licencias'].includes(t.nombre)).map(t => (
+                <button
+                  key={t.id}
+                  onClick={(e) => { e.stopPropagation(); irATaller(t.id); }}
+                  className="w-full text-left flex items-center gap-3 py-2.5 hover:bg-stone-50 -mx-2 px-2 rounded transition-colors"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-600 flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-stone-900">{t.nombre}</p>
+                    <p className="text-xs text-stone-500">{t.lider}{t.diaADia ? ` · día a día ${t.diaADia}` : ''}</p>
+                  </div>
+                  <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-semibold">Solapa</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
@@ -2729,37 +2760,6 @@ function Dashboard({ talleres, herramientas, setHerramientas, tareas, setTareas,
                   <p className="text-xs text-stone-500">{i.autor} · {i.area}</p>
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-base font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <CheckSquare size={14} className="text-red-600" />
-                Tareas urgentes
-              </h3>
-              <button onClick={() => setActive('tareas')} className="text-xs text-navy-700 hover:text-navy-900 font-medium flex items-center gap-1">
-                Ver kanban <ChevronRight size={12} />
-              </button>
-            </div>
-            <div className="divide-y divide-stone-200/60">
-              {ordenarTareasReciente(tareas.filter(t => t.prioridad === 'alta' && t.estado === 'pendiente')).slice(0, 5).map(t => {
-                const persona = personaById[t.personaId];
-                const taller = tallerById[t.tallerId];
-                return (
-                  <div key={t.id} className="flex items-start gap-3 py-2.5">
-                    <div className="w-3.5 h-3.5 border border-stone-400 rounded-sm mt-0.5 flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-stone-800">{t.tarea}</p>
-                      <p className="text-xs text-stone-500">
-                        {persona?.nombre || 'Sin asignar'}
-                        {taller && <> · <span className="text-stone-400">{taller.nombre}</span></>}
-                        <> · {t.deadline}</>
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </div>
