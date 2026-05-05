@@ -3769,7 +3769,7 @@ Formato:
   );
 }
 
-function TalleresView({ talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, tallerInicialId, onCerrarTaller, usuarioActualId, demoMode }) {
+function TalleresView({ talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, setTareas, reuniones = [], setReuniones, tallerInicialId, onCerrarTaller, usuarioActualId, demoMode }) {
   const [tallerActivoId, setTallerActivoId] = useState(tallerInicialId || null);
   const [creandoTaller, setCreandoTaller] = useState(false);
   const [nuevoTallerForm, setNuevoTallerForm] = useState({ nombre: '', descripcion: '', area: '', estado: 'Planificado', lider: '' });
@@ -3816,6 +3816,7 @@ function TalleresView({ talleres, setTalleres, historico, setHistorico, personas
       personas={personas}
       setPersonas={setPersonas}
       tareas={tareas}
+      setTareas={setTareas}
       reuniones={reuniones}
       setReuniones={setReuniones}
       usuarioActualId={usuarioActualId}
@@ -4292,7 +4293,7 @@ const TIPOS_EVENTO = {
   objetivo: { label: 'Objetivo', color: 'gold', icon: CheckCircle2 },
 };
 
-function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, reuniones = [], setReuniones, onBack, usuarioActualId, demoMode }) {
+function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico, personas, setPersonas, tareas, setTareas, reuniones = [], setReuniones, onBack, usuarioActualId, demoMode }) {
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [filtroTiempo, setFiltroTiempo] = useState('historico');
   const [nuevoTipo, setNuevoTipo] = useState('avance');
@@ -4533,6 +4534,59 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
         }),
       };
     }));
+  };
+
+  const [crearForm, setCrearForm] = useState({ tipo: null, objId: null, subId: null, titulo: '', fecha: '', personaId: '', prioridad: 'media' });
+  const abrirCrear = (tipo, objId, subId = null) => {
+    setCrearForm({ tipo, objId, subId, titulo: '', fecha: tipo === 'reunion' ? new Date().toISOString().slice(0,10) : '', personaId: '', prioridad: 'media' });
+  };
+  const cerrarCrear = () => setCrearForm({ tipo: null, objId: null, subId: null, titulo: '', fecha: '', personaId: '', prioridad: 'media' });
+
+  const crearReunionDesde = async () => {
+    if (!crearForm.titulo.trim() || !setReuniones) return;
+    const nueva = {
+      id: `r-${Date.now()}`,
+      titulo: crearForm.titulo.trim(),
+      fecha: crearForm.fecha || null,
+      asistentes: [],
+      estado: 'borrador',
+      notas: '',
+      agenda: [],
+      ideas: [],
+      tallerIds: [taller.id],
+    };
+    await setReuniones([...reuniones, nueva]);
+    if (crearForm.subId) {
+      await guardarObjetivos(objetivos.map(o => {
+        if (o.id !== crearForm.objId) return o;
+        return {
+          ...o,
+          reunionIds: [...(o.reunionIds || []), nueva.id],
+          subobjetivos: (o.subobjetivos || []).map(s => s.id === crearForm.subId ? { ...s, reunionIds: [...(s.reunionIds || []), nueva.id] } : s),
+        };
+      }));
+    } else if (crearForm.objId) {
+      await guardarObjetivos(objetivos.map(o => o.id === crearForm.objId ? { ...o, reunionIds: [...(o.reunionIds || []), nueva.id] } : o));
+    }
+    cerrarCrear();
+  };
+
+  const crearTareaDesde = async () => {
+    if (!crearForm.titulo.trim() || !setTareas) return;
+    const nuevaTarea = {
+      id: `ta-${Date.now()}`,
+      tarea: crearForm.titulo.trim(),
+      personaId: crearForm.personaId || null,
+      tallerId: taller.id,
+      objetivoId: crearForm.objId || null,
+      subobjetivoId: crearForm.subId || null,
+      creadorId: usuarioActualId || null,
+      deadline: crearForm.fecha || 'Sin fecha',
+      estado: 'pendiente',
+      prioridad: crearForm.prioridad,
+    };
+    await setTareas([...tareas, nuevaTarea]);
+    cerrarCrear();
   };
 
   // Documentos
@@ -4871,6 +4925,82 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                   )}
                 </div>
 
+                <div className="bg-stone-50 border border-stone-200 rounded-md p-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Crear desde este objetivo</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => abrirCrear('reunion', obj.id, null)}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-white border border-stone-200 hover:border-navy-700 hover:bg-navy-900 hover:text-stone-50 rounded-md text-xs font-semibold transition-colors"
+                    ><Mic size={11} /> Nueva reunión</button>
+                    <button
+                      onClick={() => abrirCrear('tarea', obj.id, null)}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-white border border-stone-200 hover:border-navy-700 hover:bg-navy-900 hover:text-stone-50 rounded-md text-xs font-semibold transition-colors"
+                    ><CheckSquare size={11} /> Nueva tarea</button>
+                    <span className="text-[10px] text-stone-400 italic ml-auto">se enlazará automáticamente a "{obj.titulo}"</span>
+                  </div>
+                </div>
+
+                {crearForm.tipo && crearForm.objId === obj.id && (
+                  <div className="bg-white border-2 border-navy-300 rounded-md p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-bold text-navy-900 flex items-center gap-1.5">
+                        {crearForm.tipo === 'reunion' ? <><Mic size={12} /> Nueva reunión</> : <><CheckSquare size={12} /> Nueva tarea</>}
+                        {crearForm.subId && (() => {
+                          const subSel = (obj.subobjetivos || []).find(s => s.id === crearForm.subId);
+                          return subSel ? <span className="text-stone-500 font-normal"> · enlazada a "{subSel.titulo}"</span> : null;
+                        })()}
+                      </p>
+                      <button onClick={cerrarCrear} className="text-stone-400 hover:text-stone-700"><X size={14} /></button>
+                    </div>
+                    <input
+                      value={crearForm.titulo}
+                      onChange={e => setCrearForm({ ...crearForm, titulo: e.target.value })}
+                      placeholder={crearForm.tipo === 'reunion' ? 'Título de la reunión' : 'Descripción de la tarea'}
+                      className="w-full bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 text-sm outline-none focus:border-navy-700 mb-2"
+                      autoFocus
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                      <input
+                        type="date"
+                        value={crearForm.fecha}
+                        onChange={e => setCrearForm({ ...crearForm, fecha: e.target.value })}
+                        className="bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                      />
+                      {crearForm.tipo === 'tarea' && (
+                        <>
+                          <select
+                            value={crearForm.personaId}
+                            onChange={e => setCrearForm({ ...crearForm, personaId: e.target.value })}
+                            className="bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700"
+                          >
+                            <option value="">— Asignar a —</option>
+                            {integrantesTaller.map(p => (
+                              <option key={p.id} value={p.id}>{p.nombre}</option>
+                            ))}
+                          </select>
+                          <select
+                            value={crearForm.prioridad}
+                            onChange={e => setCrearForm({ ...crearForm, prioridad: e.target.value })}
+                            className="bg-stone-50 border border-stone-200 rounded-md px-2 py-1.5 text-xs outline-none focus:border-navy-700 sm:col-span-2"
+                          >
+                            <option value="alta">Prioridad alta</option>
+                            <option value="media">Prioridad media</option>
+                            <option value="baja">Prioridad baja</option>
+                          </select>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={crearForm.tipo === 'reunion' ? crearReunionDesde : crearTareaDesde}
+                        disabled={!crearForm.titulo.trim()}
+                        className="px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-xs font-semibold transition-colors flex items-center gap-1"
+                      ><Plus size={11} /> Crear y vincular</button>
+                      <button onClick={cerrarCrear} className="text-xs text-stone-600 hover:text-stone-900 px-2">Cancelar</button>
+                    </div>
+                  </div>
+                )}
+
                 {(() => {
                   const subs = obj.subobjetivos || [];
                   const totalPeso = subs.reduce((s, x) => s + (Number(x.porcentaje) || 0), 0);
@@ -4972,6 +5102,16 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                                           ))}
                                         </select>
                                       )}
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-1.5">
+                                      <button
+                                        onClick={() => abrirCrear('reunion', obj.id, sub.id)}
+                                        className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white border border-stone-200 text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition-colors"
+                                      ><Mic size={9} /> Reunión</button>
+                                      <button
+                                        onClick={() => abrirCrear('tarea', obj.id, sub.id)}
+                                        className="flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white border border-stone-200 text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition-colors"
+                                      ><CheckSquare size={9} /> Tarea</button>
                                     </div>
                                   </div>
                                 </div>
@@ -11444,8 +11584,9 @@ function ReunionesView({ reuniones, setReuniones, talleres, setTalleres, persona
 
   const [nuevoTallerId, setNuevoTallerId] = useState('');
   const [nuevoObjetivoId, setNuevoObjetivoId] = useState('');
+  const [nuevoSubobjetivoId, setNuevoSubobjetivoId] = useState('');
 
-  const vincularReunionAObjetivo = async (tallerId, objetivoId, reunionId) => {
+  const vincularReunionAObjetivo = async (tallerId, objetivoId, reunionId, subobjetivoId = null) => {
     if (!setTalleres || !tallerId || !objetivoId || !reunionId) return;
     const actualizados = talleres.map(t => {
       if (t.id !== tallerId) return t;
@@ -11454,8 +11595,16 @@ function ReunionesView({ reuniones, setReuniones, talleres, setTalleres, persona
         objetivos: (t.objetivos || []).map(o => {
           if (o.id !== objetivoId) return o;
           const linked = o.reunionIds || [];
-          if (linked.includes(reunionId)) return o;
-          return { ...o, reunionIds: [...linked, reunionId] };
+          const newReunionIds = linked.includes(reunionId) ? linked : [...linked, reunionId];
+          let newSubs = o.subobjetivos || [];
+          if (subobjetivoId) {
+            newSubs = newSubs.map(s => {
+              if (s.id !== subobjetivoId) return s;
+              const subLinked = s.reunionIds || [];
+              return subLinked.includes(reunionId) ? s : { ...s, reunionIds: [...subLinked, reunionId] };
+            });
+          }
+          return { ...o, reunionIds: newReunionIds, subobjetivos: newSubs };
         }),
       };
     });
@@ -11559,12 +11708,12 @@ Devuelve SOLO un array JSON, sin explicación ni markdown. Formato:
     await setReuniones([...reuniones, nueva]);
 
     if (nuevoTallerId && nuevoObjetivoId) {
-      await vincularReunionAObjetivo(nuevoTallerId, nuevoObjetivoId, nueva.id);
+      await vincularReunionAObjetivo(nuevoTallerId, nuevoObjetivoId, nueva.id, nuevoSubobjetivoId || null);
     }
 
     setReunionActiva(nueva);
     setNuevoTitulo(''); setNuevasNotas(''); setNuevaAgenda(''); setAsistentesSel([]); setSinFecha(false); setAñadiendo(false);
-    setNuevoTallerId(''); setNuevoObjetivoId('');
+    setNuevoTallerId(''); setNuevoObjetivoId(''); setNuevoSubobjetivoId('');
 
     if (nuevasNotas.trim()) {
       await procesarReunion(nueva.id, nuevasNotas, asistentesSel);
@@ -11743,13 +11892,15 @@ Devuelve SOLO JSON válido, sin markdown:
           {(() => {
             const tallerSel = nuevoTallerId ? talleres.find(t => t.id === nuevoTallerId) : null;
             const objetivosTaller = tallerSel ? (tallerSel.objetivos || []) : [];
+            const objetivoSel = nuevoObjetivoId ? objetivosTaller.find(o => o.id === nuevoObjetivoId) : null;
+            const subobjetivosObj = objetivoSel ? (objetivoSel.subobjetivos || []) : [];
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Vincular a taller <span className="normal-case text-stone-400">(opcional)</span></p>
                   <select
                     value={nuevoTallerId}
-                    onChange={e => { setNuevoTallerId(e.target.value); setNuevoObjetivoId(''); }}
+                    onChange={e => { setNuevoTallerId(e.target.value); setNuevoObjetivoId(''); setNuevoSubobjetivoId(''); }}
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
                   >
                     <option value="">— Sin vincular —</option>
@@ -11757,16 +11908,30 @@ Devuelve SOLO JSON válido, sin markdown:
                   </select>
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Objetivo concreto <span className="normal-case text-stone-400">{tallerSel ? `· ${objetivosTaller.length} disponibles` : '· elige taller primero'}</span></p>
+                  <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Objetivo <span className="normal-case text-stone-400">{tallerSel ? `· ${objetivosTaller.length} disponibles` : '· elige taller primero'}</span></p>
                   <select
                     value={nuevoObjetivoId}
-                    onChange={e => setNuevoObjetivoId(e.target.value)}
+                    onChange={e => { setNuevoObjetivoId(e.target.value); setNuevoSubobjetivoId(''); }}
                     disabled={!nuevoTallerId || objetivosTaller.length === 0}
                     className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 disabled:opacity-50"
                   >
                     <option value="">— Sin objetivo —</option>
                     {objetivosTaller.map(o => (
                       <option key={o.id} value={o.id}>{o.estado === 'completado' ? '✓ ' : ''}{o.titulo}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Subobjetivo <span className="normal-case text-stone-400">{objetivoSel ? `· ${subobjetivosObj.length} disponibles` : '· elige objetivo primero'}</span></p>
+                  <select
+                    value={nuevoSubobjetivoId}
+                    onChange={e => setNuevoSubobjetivoId(e.target.value)}
+                    disabled={!nuevoObjetivoId || subobjetivosObj.length === 0}
+                    className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 disabled:opacity-50"
+                  >
+                    <option value="">— Sin subobjetivo —</option>
+                    {subobjetivosObj.map(s => (
+                      <option key={s.id} value={s.id}>{s.completado ? '✓ ' : ''}{s.titulo} · {s.porcentaje}%</option>
                     ))}
                   </select>
                 </div>
@@ -14555,7 +14720,7 @@ export default function Nexo() {
         {active === 'dashboard' && <Dashboard talleres={talleres} herramientas={herramientas} setHerramientas={setHerramientas} tareas={tareas} setTareas={setTareas} iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} historico={historico} setHistorico={setHistorico} solapamientos={solapamientos} convocatorias={convocatorias} setConvocatorias={setConvocatorias} peticiones={peticiones} setPeticiones={setPeticiones} reuniones={reuniones} usuarioActualId={usuarioActualId} setActive={setActive} irATaller={irATaller} session={sessionForUI} active={active} />}
         {active === 'mis-tareas' && <MisTareasView tareas={tareas} setTareas={setTareas} talleres={talleres} personas={personas} usuarioActualId={usuarioActualId} setActive={setActive} />}
         {active === 'reuniones' && <ReunionesView reuniones={reuniones} setReuniones={setReuniones} talleres={talleres} setTalleres={setTalleres} personas={personas} historico={historico} setHistorico={setHistorico} setActive={setActive} />}
-        {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
+        {active === 'talleres' && <TalleresView talleres={talleres} setTalleres={setTalleres} historico={historico} setHistorico={setHistorico} personas={personas} setPersonas={setPersonas} tareas={tareas} setTareas={setTareas} reuniones={reuniones} setReuniones={setReuniones} tallerInicialId={tallerSeleccionadoId} onCerrarTaller={() => setTallerSeleccionadoId(null)} usuarioActualId={usuarioActualId} demoMode={demoMode} />}
         {active === 'personas' && <PersonasView personas={personas} setPersonas={setPersonas} talleres={talleres} tareas={tareas} reuniones={reuniones} historico={historico} setActive={setActive} usuarioActualId={usuarioActualId} />}
         {active === 'innovacion' && <InnovacionView iniciativas={iniciativas} setIniciativas={setIniciativas} personas={personas} talleres={talleres} />}
         {active === 'peticiones' && <ProcesosView peticiones={peticiones} setPeticiones={setPeticiones} talleres={talleres} personas={personas} herramientas={herramientas} usuarioActualId={usuarioActualId} setActive={setActive} />}
