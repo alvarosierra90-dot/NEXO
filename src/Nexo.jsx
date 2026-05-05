@@ -5331,170 +5331,6 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         <p className="text-base text-stone-700 leading-relaxed max-w-3xl">{taller.descripcion}</p>
       </header>
 
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        <Metric label="Eventos" value={totalEventos} />
-        <Metric label="Tareas abiertas" value={tareasAbiertas} accent={tareasAbiertas > 0 ? 'amber' : undefined} />
-        <Metric label="Avances" value={conteoTipos.avance || 0} accent="emerald" />
-        <Metric label="Riesgos" value={(conteoTipos.riesgo || 0) + (conteoTipos.bloqueo || 0)} accent={(conteoTipos.riesgo || conteoTipos.bloqueo) ? 'amber' : undefined} />
-      </div>
-
-      {(() => {
-        const integrantes = personas.filter(p => (p.talleres || []).includes(taller.id));
-        const responsable = integrantes.find(p => p.nombre === taller.lider) || integrantes.find(p => (getEquipo(p) || '').toLowerCase().includes('líder'));
-        const diaADiaPersona = taller.diaADia ? integrantes.find(p => p.nombre === taller.diaADia) : null;
-        const otros = integrantes.filter(p => p.id !== responsable?.id && p.id !== diaADiaPersona?.id);
-        return (
-          <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <Users size={17} className="text-navy-700" />
-                Integrantes del taller
-                <span className="text-base text-stone-500 font-medium">· {integrantes.length}</span>
-              </h3>
-              <button
-                onClick={() => setGestionandoMiembros(!gestionandoMiembros)}
-                className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-xs transition-colors"
-              >
-                {gestionandoMiembros ? <X size={12} /> : <Plus size={12} />}
-                {gestionandoMiembros ? 'Cerrar' : 'Gestionar miembros'}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              {responsable && (
-                <div className="flex items-center gap-3 p-3 bg-navy-900 rounded-lg">
-                  <div className="relative flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-stone-50 text-stone-900 flex items-center justify-center font-medium text-xs">
-                      {responsable.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                    </div>
-                    {getNivel(responsable, taller.id) && (
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-navy-900 flex items-center justify-center text-[9px] font-bold ${NIVELES[getNivel(responsable, taller.id)].color}`}>
-                        {getNivel(responsable, taller.id)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] uppercase tracking-wider text-stone-400 mb-0.5">Responsable</p>
-                    <p className="text-sm font-medium text-stone-50">{responsable.nombre}</p>
-                    <p className="text-[11px] text-stone-400">{getEquipo(responsable)}</p>
-                  </div>
-                </div>
-              )}
-              {diaADiaPersona && (
-                <div className="flex items-center gap-3 p-3 bg-stone-100 rounded-lg">
-                  <div className="relative flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-medium text-xs">
-                      {diaADiaPersona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                    </div>
-                    {getNivel(diaADiaPersona, taller.id) && (
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-stone-100 flex items-center justify-center text-[9px] font-bold ${NIVELES[getNivel(diaADiaPersona, taller.id)].color}`}>
-                        {getNivel(diaADiaPersona, taller.id)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-0.5">Día a día</p>
-                    <p className="text-sm font-medium text-stone-900">{diaADiaPersona.nombre}</p>
-                    <p className="text-[11px] text-stone-600">{getEquipo(diaADiaPersona)}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {otros.length > 0 && (
-              <>
-                <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-2">Equipo</p>
-                <div className="flex flex-wrap gap-2">
-                  {otros.map(p => {
-                    const tareasPersona = tareas.filter(t => t.personaId === p.id && t.tallerId === taller.id && t.estado === 'pendiente').length;
-                    const nivel = getNivel(p, taller.id);
-                    return (
-                      <div key={p.id} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5 group">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-6 h-6 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center font-medium text-[10px]">
-                            {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                          </div>
-                          {nivel && (
-                            <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-stone-50 flex items-center justify-center text-[8px] font-bold ${NIVELES[nivel].color}`}>
-                              {nivel}
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-stone-900 leading-tight">{p.nombre}</p>
-                          <p className="text-[10px] text-stone-500 leading-tight">{getEquipo(p)}</p>
-                        </div>
-                        {tareasPersona > 0 && (
-                          <span className="text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded ml-1">{tareasPersona}</span>
-                        )}
-                        {gestionandoMiembros && (
-                          <>
-                            <div className="flex items-center gap-0.5 ml-1 bg-white rounded p-0.5 border border-stone-200">
-                              {[1, 2, 3].map(n => (
-                                <button
-                                  key={n}
-                                  onClick={() => setNivelEnTaller(p.id, n)}
-                                  title={`${NIVELES[n].label} · ${NIVELES[n].desc}`}
-                                  className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center transition-all ${
-                                    nivel === n ? NIVELES[n].color : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
-                                  }`}
-                                >{n}</button>
-                              ))}
-                            </div>
-                            <button
-                              onClick={() => toggleMiembro(p.id)}
-                              className="ml-0.5 text-stone-400 hover:text-red-700 transition-colors"
-                              title="Quitar del taller"
-                            ><X size={12} /></button>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-
-            {integrantes.length === 0 && !gestionandoMiembros && (
-              <p className="text-xs text-stone-500 italic">No hay personas asignadas a este taller. Pulsa "Gestionar miembros" para añadir.</p>
-            )}
-
-            {gestionandoMiembros && (
-              <div className="mt-4 pt-4 border-t border-stone-200">
-                <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-2">Añadir personas al taller</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {personas.filter(p => !(p.talleres || []).includes(taller.id)).map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => toggleMiembro(p.id)}
-                      className="flex items-center gap-1.5 bg-white border border-stone-200 hover:border-navy-900 hover:bg-navy-900 hover:text-stone-50 rounded-md px-2 py-1 text-xs transition-colors group"
-                    >
-                      <Plus size={10} />
-                      <span>{p.nombre}</span>
-                      <span className="text-stone-400 group-hover:text-stone-300">· {getEquipo(p)}</span>
-                    </button>
-                  ))}
-                  {personas.filter(p => !(p.talleres || []).includes(taller.id)).length === 0 && (
-                    <p className="text-xs text-stone-500 italic">Todas las personas registradas ya pertenecen a este taller.</p>
-                  )}
-                </div>
-                {integrantes.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-stone-200">
-                    <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Implicación en este taller</p>
-                    <div className="flex flex-wrap gap-2 text-[10px] text-stone-600">
-                      <span className="flex items-center gap-1"><span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${NIVELES[1].color}`}>1</span>Más implicado · decisor</span>
-                      <span className="flex items-center gap-1"><span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${NIVELES[2].color}`}>2</span>Implicado · operativo</span>
-                      <span className="flex items-center gap-1"><span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${NIVELES[3].color}`}>3</span>Parcial · puntual</span>
-                    </div>
-                    <p className="text-[10px] text-stone-500 mt-2">El nivel se asigna por taller. Una persona puede estar muy implicada en uno y poco en otro.</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })()}
-
       {/* OBJETIVOS DEL TALLER */}
       <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
@@ -5917,173 +5753,344 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
         );
       })()}
 
-      {/* TAREAS DEL TALLER */}
-      {(() => {
-        const tareasDelTaller = ordenarTareasReciente(tareas.filter(t => t.tallerId === taller.id));
-        const pendientesT = tareasDelTaller.filter(t => t.estado === 'pendiente');
-        const completadasT = tareasDelTaller.filter(t => t.estado === 'completada');
-        if (tareasDelTaller.length === 0) return null;
-        return (
-          <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-                <CheckSquare size={17} className="text-navy-700" />
-                Tareas del taller
-                <span className="text-base text-stone-500 font-medium">· {tareasDelTaller.length}</span>
-              </h3>
-              <div className="flex items-center gap-3 text-xs">
-                <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-gold-500"></span>
-                  {pendientesT.length} pendientes
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  {completadasT.length} completadas
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {tareasDelTaller.slice(0, 8).map(t => {
-                const persona = personaById[t.personaId];
-                const completado = t.estado === 'completada';
-                const accentBar = t.prioridad === 'alta' ? 'bg-red-500' : t.prioridad === 'media' ? 'bg-gold-500' : 'bg-stone-400';
-                return (
-                  <div key={t.id} className={`flex items-center gap-3 p-3 rounded-lg border-2 ${completado ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
-                    <div className={`w-1 h-10 rounded-full ${completado ? 'bg-emerald-500' : accentBar} flex-shrink-0`}></div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{t.tarea}</p>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-stone-600 flex-wrap">
-                        {persona && (
-                          <span className="flex items-center gap-1 font-medium">
-                            <span className="w-4 h-4 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center text-[8px] font-bold">{persona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}</span>
-                            {persona.nombre}
-                          </span>
-                        )}
-                        {t.deadline && t.deadline !== 'Sin fecha' && (
-                          <span className="text-navy-800 font-semibold bg-navy-50 px-1.5 py-0.5 rounded">{t.deadline}</span>
-                        )}
-                        <span className={`text-[10px] uppercase tracking-wider font-bold ${t.prioridad === 'alta' ? 'text-red-700' : t.prioridad === 'media' ? 'text-gold-700' : 'text-stone-500'}`}>
-                          {t.prioridad}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {tareasDelTaller.length > 8 && (
-                <p className="text-xs text-stone-500 italic text-center pt-2">+ {tareasDelTaller.length - 8} tareas más en el módulo de Tareas</p>
-              )}
-            </div>
+      {/* DASHBOARD: 2 columnas (KPIs + Tareas | Integrantes-organigrama + Docs + Resumen) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* COLUMNA IZQUIERDA */}
+        <div className="space-y-6 flex flex-col">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Metric label="Eventos" value={totalEventos} />
+            <Metric label="Tareas abiertas" value={tareasAbiertas} accent={tareasAbiertas > 0 ? 'amber' : undefined} />
+            <Metric label="Avances" value={conteoTipos.avance || 0} accent="emerald" />
+            <Metric label="Riesgos" value={(conteoTipos.riesgo || 0) + (conteoTipos.bloqueo || 0)} accent={(conteoTipos.riesgo || conteoTipos.bloqueo) ? 'amber' : undefined} />
           </div>
-        );
-      })()}
 
-      {/* DOCUMENTOS DEL TALLER */}
-      <div className="bg-white border border-stone-200/80 rounded-2xl p-6 mb-6">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
-            <FileText size={17} className="text-navy-700" />
-            Documentos
-            <span className="text-base text-stone-500 font-medium">· {documentos.length}</span>
-          </h3>
-          <div className="flex items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={(e) => subirDocumento(e.target.files?.[0])}
-              className="hidden"
-              disabled={subiendoDoc}
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={subiendoDoc}
-              className="flex items-center gap-1.5 px-3 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-sm font-semibold transition-colors"
-            >
-              {subiendoDoc ? <><Loader2 size={14} className="animate-spin" /> Subiendo...</> : <><Plus size={14} /> Subir documento</>}
-            </button>
-          </div>
+          {(() => {
+            const tareasDelTaller = ordenarTareasReciente(tareas.filter(t => t.tallerId === taller.id));
+            const pendientesT = tareasDelTaller.filter(t => t.estado === 'pendiente');
+            const completadasT = tareasDelTaller.filter(t => t.estado === 'completada');
+            return (
+              <div className="bg-white border border-stone-200/80 rounded-2xl p-6 flex flex-col" style={{ maxHeight: '50vh' }}>
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-3 flex-shrink-0">
+                  <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                    <CheckSquare size={17} className="text-navy-700" />
+                    Tareas del taller
+                    <span className="text-base text-stone-500 font-medium">· {tareasDelTaller.length}</span>
+                  </h3>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="flex items-center gap-1.5 text-gold-700 font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-gold-500"></span>
+                      {pendientesT.length} pend.
+                    </span>
+                    <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      {completadasT.length} compl.
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto space-y-2 -mr-2 pr-2 min-h-0">
+                  {tareasDelTaller.length === 0 ? (
+                    <p className="text-sm text-stone-500 italic">No hay tareas registradas en este taller.</p>
+                  ) : tareasDelTaller.map(t => {
+                    const persona = personaById[t.personaId];
+                    const completado = t.estado === 'completada';
+                    const accentBar = t.prioridad === 'alta' ? 'bg-red-500' : t.prioridad === 'media' ? 'bg-gold-500' : 'bg-stone-400';
+                    return (
+                      <div key={t.id} className={`flex items-center gap-3 p-3 rounded-lg border-2 ${completado ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+                        <div className={`w-1 h-10 rounded-full ${completado ? 'bg-emerald-500' : accentBar} flex-shrink-0`}></div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-semibold leading-tight ${completado ? 'text-stone-500 line-through' : 'text-navy-900'}`}>{t.tarea}</p>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-stone-600 flex-wrap">
+                            {persona && (
+                              <span className="flex items-center gap-1 font-medium">
+                                <span className="w-4 h-4 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center text-[8px] font-bold">{persona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}</span>
+                                {persona.nombre}
+                              </span>
+                            )}
+                            {t.deadline && t.deadline !== 'Sin fecha' && (
+                              <span className="text-navy-800 font-semibold bg-navy-50 px-1.5 py-0.5 rounded">{t.deadline}</span>
+                            )}
+                            <span className={`text-[10px] uppercase tracking-wider font-bold ${t.prioridad === 'alta' ? 'text-red-700' : t.prioridad === 'media' ? 'text-gold-700' : 'text-stone-500'}`}>
+                              {t.prioridad}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
-        {errorDoc && (
-          <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-3 flex items-center gap-2">
-            <AlertTriangle size={14} className="text-red-600" />
-            <p className="text-sm text-red-800 flex-1">{errorDoc}</p>
-            <button onClick={() => setErrorDoc(null)} className="text-red-500 hover:text-red-700"><X size={14} /></button>
-          </div>
-        )}
-
-        {documentos.length === 0 ? (
-          <p className="text-sm text-stone-500 italic">No hay documentos. Sube el primero — PDFs, hojas, presentaciones, imágenes, etc.</p>
-        ) : (
-          <div className="space-y-2">
-            {documentos.map(d => {
-              const icono = iconoDocumento(d.mimeType, d.nombre);
-              const persona = personas.find(p => p.id === d.subidoPor);
-              const fecha = d.subidoEn ? new Date(d.subidoEn) : null;
-              return (
-                <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 hover:border-navy-700 hover:shadow-sm transition-all bg-white">
-                  <div className={`w-10 h-10 rounded-lg ${icono.color} flex items-center justify-center font-bold text-[10px] flex-shrink-0`}>
-                    {icono.label}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-navy-900 hover:text-navy-700 truncate block" title={d.nombre}>
-                      {d.nombre}
-                    </a>
-                    <p className="text-xs text-stone-500 font-medium">
-                      {formatBytes(d.size)}
-                      {persona && <> · subido por <span className="text-navy-700">{persona.nombre}</span></>}
-                      {fecha && <> · {fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} {fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</>}
-                    </p>
-                  </div>
-                  <a
-                    href={d.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={d.nombre}
-                    className="text-xs font-semibold text-navy-700 hover:text-navy-900 px-3 py-1.5 border border-stone-300 hover:border-navy-700 rounded-md transition-colors"
-                  >
-                    Abrir
-                  </a>
+        {/* COLUMNA DERECHA */}
+        <div className="space-y-6 flex flex-col">
+          {(() => {
+            const integrantes = personas.filter(p => (p.talleres || []).includes(taller.id));
+            const responsable = integrantes.find(p => p.nombre === taller.lider) || integrantes.find(p => (getEquipo(p) || '').toLowerCase().includes('líder'));
+            const diaADiaPersona = taller.diaADia ? integrantes.find(p => p.nombre === taller.diaADia) : null;
+            const otros = integrantes.filter(p => p.id !== responsable?.id && p.id !== diaADiaPersona?.id);
+            return (
+              <div className="bg-white border border-stone-200/80 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                    <Users size={17} className="text-navy-700" />
+                    Integrantes del taller
+                    <span className="text-base text-stone-500 font-medium">· {integrantes.length}</span>
+                  </h3>
                   <button
-                    onClick={() => eliminarDocumento(d)}
-                    className="text-stone-400 hover:text-red-700 p-1 transition-colors"
-                    title="Eliminar"
+                    onClick={() => setGestionandoMiembros(!gestionandoMiembros)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-xs transition-colors"
                   >
-                    <X size={16} />
+                    {gestionandoMiembros ? <X size={12} /> : <Plus size={12} />}
+                    {gestionandoMiembros ? 'Cerrar' : 'Gestionar'}
                   </button>
                 </div>
-              );
-            })}
+
+                <div className="flex flex-col items-center gap-1 py-2">
+                  {responsable && (
+                    <>
+                      <div className="bg-navy-900 rounded-xl px-5 py-3 text-center shadow-sm min-w-[200px] max-w-full">
+                        <div className="relative inline-block mb-2">
+                          <div className="w-12 h-12 rounded-full bg-stone-50 text-navy-900 flex items-center justify-center font-bold text-base">
+                            {responsable.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                          </div>
+                          {getNivel(responsable, taller.id) && (
+                            <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-navy-900 flex items-center justify-center text-[9px] font-bold ${NIVELES[getNivel(responsable, taller.id)].color}`}>
+                              {getNivel(responsable, taller.id)}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[10px] uppercase tracking-wider text-stone-400">Responsable</p>
+                        <p className="text-sm font-semibold text-stone-50 leading-tight">{responsable.nombre}</p>
+                        <p className="text-[11px] text-stone-400 leading-tight">{getEquipo(responsable)}</p>
+                      </div>
+                      {(diaADiaPersona || otros.length > 0) && <div className="w-px h-6 bg-stone-300"></div>}
+                    </>
+                  )}
+
+                  {diaADiaPersona && (
+                    <>
+                      <div className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-2.5 text-center shadow-sm min-w-[180px] max-w-full">
+                        <div className="relative inline-block mb-2">
+                          <div className="w-10 h-10 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-bold text-sm">
+                            {diaADiaPersona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                          </div>
+                          {getNivel(diaADiaPersona, taller.id) && (
+                            <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-stone-100 flex items-center justify-center text-[9px] font-bold ${NIVELES[getNivel(diaADiaPersona, taller.id)].color}`}>
+                              {getNivel(diaADiaPersona, taller.id)}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[10px] uppercase tracking-wider text-stone-500">Día a día</p>
+                        <p className="text-sm font-semibold text-navy-900 leading-tight">{diaADiaPersona.nombre}</p>
+                        <p className="text-[11px] text-stone-600 leading-tight">{getEquipo(diaADiaPersona)}</p>
+                      </div>
+                      {otros.length > 0 && <div className="w-px h-6 bg-stone-300"></div>}
+                    </>
+                  )}
+
+                  {otros.length > 0 && (
+                    <div className="w-full">
+                      <p className="text-[10px] uppercase tracking-wider text-stone-500 text-center mb-2">Equipo · {otros.length}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {otros.map(p => {
+                          const tareasPersona = tareas.filter(t => t.personaId === p.id && t.tallerId === taller.id && t.estado === 'pendiente').length;
+                          const nivel = getNivel(p, taller.id);
+                          return (
+                            <div key={p.id} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5">
+                              <div className="relative flex-shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center font-medium text-[10px]">
+                                  {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                                </div>
+                                {nivel && (
+                                  <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-stone-50 flex items-center justify-center text-[8px] font-bold ${NIVELES[nivel].color}`}>
+                                    {nivel}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-stone-900 leading-tight truncate">{p.nombre}</p>
+                                <p className="text-[10px] text-stone-500 leading-tight truncate">{getEquipo(p)}</p>
+                              </div>
+                              {tareasPersona > 0 && (
+                                <span className="text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">{tareasPersona}</span>
+                              )}
+                              {gestionandoMiembros && (
+                                <div className="flex items-center gap-0.5">
+                                  <div className="flex items-center gap-0.5 bg-white rounded p-0.5 border border-stone-200">
+                                    {[1, 2, 3].map(n => (
+                                      <button
+                                        key={n}
+                                        onClick={() => setNivelEnTaller(p.id, n)}
+                                        title={`${NIVELES[n].label} · ${NIVELES[n].desc}`}
+                                        className={`w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center transition-all ${
+                                          nivel === n ? NIVELES[n].color : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+                                        }`}
+                                      >{n}</button>
+                                    ))}
+                                  </div>
+                                  <button
+                                    onClick={() => toggleMiembro(p.id)}
+                                    className="text-stone-400 hover:text-red-700 transition-colors"
+                                    title="Quitar del taller"
+                                  ><X size={11} /></button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {integrantes.length === 0 && !gestionandoMiembros && (
+                    <p className="text-xs text-stone-500 italic">No hay personas asignadas a este taller. Pulsa "Gestionar" para añadir.</p>
+                  )}
+                </div>
+
+                {gestionandoMiembros && (
+                  <div className="mt-4 pt-4 border-t border-stone-200">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-2">Añadir personas al taller</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {personas.filter(p => !(p.talleres || []).includes(taller.id)).map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => toggleMiembro(p.id)}
+                          className="flex items-center gap-1.5 bg-white border border-stone-200 hover:border-navy-900 hover:bg-navy-900 hover:text-stone-50 rounded-md px-2 py-1 text-xs transition-colors group"
+                        >
+                          <Plus size={10} />
+                          <span>{p.nombre}</span>
+                          <span className="text-stone-400 group-hover:text-stone-300">· {getEquipo(p)}</span>
+                        </button>
+                      ))}
+                      {personas.filter(p => !(p.talleres || []).includes(taller.id)).length === 0 && (
+                        <p className="text-xs text-stone-500 italic">Todas las personas registradas ya pertenecen a este taller.</p>
+                      )}
+                    </div>
+                    {integrantes.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-stone-200">
+                        <p className="text-[10px] uppercase tracking-wider text-stone-500 mb-1.5">Implicación en este taller</p>
+                        <div className="flex flex-wrap gap-2 text-[10px] text-stone-600">
+                          <span className="flex items-center gap-1"><span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${NIVELES[1].color}`}>1</span>Más implicado</span>
+                          <span className="flex items-center gap-1"><span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${NIVELES[2].color}`}>2</span>Operativo</span>
+                          <span className="flex items-center gap-1"><span className={`w-3 h-3 rounded-full flex items-center justify-center text-[7px] font-bold ${NIVELES[3].color}`}>3</span>Puntual</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          <div className="bg-white border border-stone-200/80 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                <FileText size={17} className="text-navy-700" />
+                Documentos
+                <span className="text-base text-stone-500 font-medium">· {documentos.length}</span>
+              </h3>
+              <div className="flex items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={(e) => subirDocumento(e.target.files?.[0])}
+                  className="hidden"
+                  disabled={subiendoDoc}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={subiendoDoc}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-xs font-semibold transition-colors"
+                >
+                  {subiendoDoc ? <><Loader2 size={12} className="animate-spin" /> Subiendo...</> : <><Plus size={12} /> Subir</>}
+                </button>
+              </div>
+            </div>
+
+            {errorDoc && (
+              <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-3 flex items-center gap-2">
+                <AlertTriangle size={14} className="text-red-600" />
+                <p className="text-sm text-red-800 flex-1">{errorDoc}</p>
+                <button onClick={() => setErrorDoc(null)} className="text-red-500 hover:text-red-700"><X size={14} /></button>
+              </div>
+            )}
+
+            {documentos.length === 0 ? (
+              <p className="text-sm text-stone-500 italic">No hay documentos. Sube el primero — PDFs, hojas, presentaciones, imágenes, etc.</p>
+            ) : (
+              <div className="space-y-2">
+                {documentos.map(d => {
+                  const icono = iconoDocumento(d.mimeType, d.nombre);
+                  const persona = personas.find(p => p.id === d.subidoPor);
+                  const fecha = d.subidoEn ? new Date(d.subidoEn) : null;
+                  return (
+                    <div key={d.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-stone-200 hover:border-navy-700 hover:shadow-sm transition-all bg-white">
+                      <div className={`w-9 h-9 rounded-lg ${icono.color} flex items-center justify-center font-bold text-[10px] flex-shrink-0`}>
+                        {icono.label}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-navy-900 hover:text-navy-700 truncate block" title={d.nombre}>
+                          {d.nombre}
+                        </a>
+                        <p className="text-[11px] text-stone-500 font-medium truncate">
+                          {formatBytes(d.size)}
+                          {persona && <> · <span className="text-navy-700">{persona.nombre}</span></>}
+                          {fecha && <> · {fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</>}
+                        </p>
+                      </div>
+                      <a
+                        href={d.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={d.nombre}
+                        className="text-[11px] font-semibold text-navy-700 hover:text-navy-900 px-2 py-1 border border-stone-300 hover:border-navy-700 rounded-md transition-colors"
+                      >
+                        Abrir
+                      </a>
+                      <button
+                        onClick={() => eliminarDocumento(d)}
+                        className="text-stone-400 hover:text-red-700 p-1 transition-colors"
+                        title="Eliminar"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {demoMode && documentos.length > 0 && (
+              <p className="text-[10px] text-stone-500 italic mt-3">⚠️ En modo demo los archivos se almacenan solo en tu navegador.</p>
+            )}
           </div>
-        )}
 
-        {demoMode && documentos.length > 0 && (
-          <p className="text-[10px] text-stone-500 italic mt-3">⚠️ En modo demo los archivos se almacenan solo en tu navegador y se pierden al recargar. Usa el modo real (login) para guardarlos en Supabase Storage.</p>
-        )}
-      </div>
-
-      <div className="bg-white border border-stone-200 rounded-xl p-5 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-stone-900 flex items-center gap-2">
-            <Sparkles size={15} />
-            Resumen ejecutivo para el comité
-          </h3>
-          <button
-            onClick={generarResumen}
-            disabled={generandoResumen}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-xs transition-colors"
-          >
-            {generandoResumen ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />}
-            {resumen ? 'Regenerar' : 'Generar resumen'}
-          </button>
+          <div className="bg-white border border-stone-200 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-stone-900 flex items-center gap-2">
+                <Sparkles size={15} />
+                Resumen ejecutivo para el comité
+              </h3>
+              <button
+                onClick={generarResumen}
+                disabled={generandoResumen}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-xs transition-colors"
+              >
+                {generandoResumen ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />}
+                {resumen ? 'Regenerar' : 'Generar'}
+              </button>
+            </div>
+            {resumen ? (
+              <div className="bg-stone-50 border border-stone-200 rounded-md p-4">
+                <p className="text-sm text-stone-800 whitespace-pre-wrap leading-relaxed">{resumen}</p>
+              </div>
+            ) : (
+              <p className="text-xs text-stone-500">Genera un resumen del estado actual a partir del histórico para llevar al próximo comité.</p>
+            )}
+          </div>
         </div>
-        {resumen ? (
-          <div className="bg-stone-50 border border-stone-200 rounded-md p-4">
-            <p className="text-sm text-stone-800 whitespace-pre-wrap leading-relaxed">{resumen}</p>
-          </div>
-        ) : (
-          <p className="text-xs text-stone-500">Genera un resumen del estado actual a partir del histórico para llevar al próximo comité.</p>
-        )}
       </div>
 
       <div className="flex items-center justify-between mb-4">
