@@ -11864,6 +11864,7 @@ Devuelve SOLO JSON válido, sin markdown:
       reuniones={reuniones}
       setReuniones={setReuniones}
       talleres={talleres}
+      setTalleres={setTalleres}
       personas={personas}
       historico={historico}
       setHistorico={setHistorico}
@@ -11970,17 +11971,44 @@ Devuelve SOLO JSON válido, sin markdown:
           })()}
 
           <p className="text-[11px] uppercase tracking-wider text-stone-500 mb-1.5">Asistentes</p>
-          <div className="flex flex-wrap gap-1 mb-3">
-            {personas.map(p => (
-              <button
-                key={p.id}
-                onClick={() => toggleAsistente(p.id)}
-                className={`text-[11px] px-2 py-0.5 rounded transition-colors ${
-                  asistentesSel.includes(p.id) ? 'bg-navy-900 text-stone-50' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                }`}
-              >{p.nombre}</button>
-            ))}
-          </div>
+          {(() => {
+            const tallerSelA = nuevoTallerId ? talleres.find(t => t.id === nuevoTallerId) : null;
+            const integrantesTallerA = tallerSelA ? personas.filter(p => (p.talleres || []).includes(tallerSelA.id)) : [];
+            const integrantesIdsA = new Set(integrantesTallerA.map(p => p.id));
+            const otrasPersonasA = personas.filter(p => !integrantesIdsA.has(p.id));
+            return (
+              <div className="mb-3">
+                {tallerSelA && integrantesTallerA.length > 0 && (
+                  <>
+                    <p className="text-[10px] text-stone-500 mb-1">Integrantes de {tallerSelA.nombre}</p>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {integrantesTallerA.map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => toggleAsistente(p.id)}
+                          className={`text-[11px] px-2 py-0.5 rounded transition-colors border ${
+                            asistentesSel.includes(p.id) ? 'bg-navy-900 text-stone-50 border-navy-900' : 'bg-white text-navy-800 border-navy-200 hover:bg-navy-50'
+                          }`}
+                        >{p.nombre}</button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                <p className="text-[10px] text-stone-500 mb-1">{tallerSelA && integrantesTallerA.length > 0 ? 'Otras personas' : 'Personas'}</p>
+                <div className="flex flex-wrap gap-1">
+                  {(tallerSelA && integrantesTallerA.length > 0 ? otrasPersonasA : personas).map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => toggleAsistente(p.id)}
+                      className={`text-[11px] px-2 py-0.5 rounded transition-colors ${
+                        asistentesSel.includes(p.id) ? 'bg-navy-900 text-stone-50' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >{p.nombre}</button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="flex items-center gap-2 mb-1.5">
             <p className="text-[11px] uppercase tracking-wider text-stone-500">Temas a tratar</p>
@@ -12343,24 +12371,47 @@ Devuelve SOLO JSON válido, sin markdown:
   );
 }
 
-function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, personas, historico, setHistorico, onBack, onProcesar, extrayendo }) {
+function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, setTalleres, personas, historico, setHistorico, onBack, onProcesar, extrayendo }) {
   const [editandoIdea, setEditandoIdea] = useState(null);
   const [editando, setEditando] = useState(false);
+
+  const findVinculo = (reunionId) => {
+    for (const t of talleres) {
+      for (const o of (t.objetivos || [])) {
+        if ((o.reunionIds || []).includes(reunionId)) {
+          const sub = (o.subobjetivos || []).find(s => (s.reunionIds || []).includes(reunionId));
+          return { tallerId: t.id, objetivoId: o.id, subobjetivoId: sub ? sub.id : '' };
+        }
+      }
+    }
+    return { tallerId: '', objetivoId: '', subobjetivoId: '' };
+  };
+
+  const initialVinculo = findVinculo(reunion.id);
+  const initialTaller = (reunion.tallerIds && reunion.tallerIds[0]) || initialVinculo.tallerId || '';
+
   const [editForm, setEditForm] = useState({
     titulo: reunion.titulo,
     fecha: reunion.fecha || '',
     asistentes: reunion.asistentes || [],
     agenda: (reunion.agenda || []).join('\n'),
     notas: reunion.notas || '',
+    tallerId: initialTaller,
+    objetivoId: initialVinculo.objetivoId,
+    subobjetivoId: initialVinculo.subobjetivoId,
   });
 
   useEffect(() => {
+    const v = findVinculo(reunion.id);
     setEditForm({
       titulo: reunion.titulo,
       fecha: reunion.fecha || '',
       asistentes: reunion.asistentes || [],
       agenda: (reunion.agenda || []).join('\n'),
       notas: reunion.notas || '',
+      tallerId: (reunion.tallerIds && reunion.tallerIds[0]) || v.tallerId || '',
+      objetivoId: v.objetivoId,
+      subobjetivoId: v.subobjetivoId,
     });
   }, [reunion.id]);
 
@@ -12379,8 +12430,42 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, personas, 
       asistentes: editForm.asistentes,
       agenda: agendaItems,
       notas: editForm.notas,
+      tallerIds: editForm.tallerId ? [editForm.tallerId] : [],
     } : r);
     await setReuniones(actualizadas);
+
+    if (setTalleres) {
+      const talleresActualizados = talleres.map(t => ({
+        ...t,
+        objetivos: (t.objetivos || []).map(o => ({
+          ...o,
+          reunionIds: (o.reunionIds || []).filter(id => id !== reunion.id),
+          subobjetivos: (o.subobjetivos || []).map(s => ({
+            ...s,
+            reunionIds: (s.reunionIds || []).filter(id => id !== reunion.id),
+          })),
+        })),
+      }));
+
+      const conVinculo = talleresActualizados.map(t => {
+        if (!editForm.tallerId || t.id !== editForm.tallerId || !editForm.objetivoId) return t;
+        return {
+          ...t,
+          objetivos: (t.objetivos || []).map(o => {
+            if (o.id !== editForm.objetivoId) return o;
+            const newReunionIds = [...(o.reunionIds || []), reunion.id];
+            const newSubs = (o.subobjetivos || []).map(s => {
+              if (!editForm.subobjetivoId || s.id !== editForm.subobjetivoId) return s;
+              return { ...s, reunionIds: [...(s.reunionIds || []), reunion.id] };
+            });
+            return { ...o, reunionIds: newReunionIds, subobjetivos: newSubs };
+          }),
+        };
+      });
+
+      await setTalleres(conVinculo);
+    }
+
     setEditando(false);
   };
 
@@ -12578,44 +12663,114 @@ function ReunionDetalle({ reunion, reuniones, setReuniones, talleres, personas, 
           </div>
         )}
 
-        {editando && (
-          <div className="space-y-3 mt-4 bg-stone-50 border border-stone-200 rounded-xl p-4">
-            <div>
-              <label className="eyebrow text-navy-800 mb-2 block" style={{ fontSize: '10px' }}>Asistentes</label>
-              <div className="flex flex-wrap gap-1.5">
-                {personas.map(p => {
-                  const sel = editForm.asistentes.includes(p.id);
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => toggleEditAsistente(p.id)}
-                      className={`text-sm px-2.5 py-1 rounded-md font-medium transition-colors ${sel ? 'bg-navy-900 text-stone-50' : 'bg-white border border-stone-200 text-stone-700 hover:border-navy-700'}`}
-                    >{p.nombre}</button>
-                  );
-                })}
+        {editando && (() => {
+          const tallerSel = editForm.tallerId ? talleres.find(t => t.id === editForm.tallerId) : null;
+          const objetivosTaller = tallerSel ? (tallerSel.objetivos || []) : [];
+          const objetivoSel = editForm.objetivoId ? objetivosTaller.find(o => o.id === editForm.objetivoId) : null;
+          const subobjetivosObj = objetivoSel ? (objetivoSel.subobjetivos || []) : [];
+          const integrantesTaller = tallerSel ? personas.filter(p => (p.talleres || []).includes(tallerSel.id)) : [];
+          const integrantesIds = new Set(integrantesTaller.map(p => p.id));
+          const otrasPersonas = personas.filter(p => !integrantesIds.has(p.id));
+          return (
+            <div className="space-y-3 mt-4 bg-stone-50 border border-stone-200 rounded-xl p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="eyebrow text-navy-800 mb-1.5 block" style={{ fontSize: '10px' }}>Vincular a taller</label>
+                  <select
+                    value={editForm.tallerId}
+                    onChange={e => setEditForm({ ...editForm, tallerId: e.target.value, objetivoId: '', subobjetivoId: '' })}
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+                  >
+                    <option value="">— Sin vincular —</option>
+                    {talleres.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="eyebrow text-navy-800 mb-1.5 block" style={{ fontSize: '10px' }}>Objetivo {tallerSel && <span className="normal-case text-stone-400 font-normal">· {objetivosTaller.length}</span>}</label>
+                  <select
+                    value={editForm.objetivoId}
+                    onChange={e => setEditForm({ ...editForm, objetivoId: e.target.value, subobjetivoId: '' })}
+                    disabled={!editForm.tallerId || objetivosTaller.length === 0}
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 disabled:opacity-50"
+                  >
+                    <option value="">— Sin objetivo —</option>
+                    {objetivosTaller.map(o => (
+                      <option key={o.id} value={o.id}>{o.estado === 'completado' ? '✓ ' : ''}{o.titulo}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="eyebrow text-navy-800 mb-1.5 block" style={{ fontSize: '10px' }}>Subobjetivo {objetivoSel && <span className="normal-case text-stone-400 font-normal">· {subobjetivosObj.length}</span>}</label>
+                  <select
+                    value={editForm.subobjetivoId}
+                    onChange={e => setEditForm({ ...editForm, subobjetivoId: e.target.value })}
+                    disabled={!editForm.objetivoId || subobjetivosObj.length === 0}
+                    className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 disabled:opacity-50"
+                  >
+                    <option value="">— Sin subobjetivo —</option>
+                    {subobjetivosObj.map(s => (
+                      <option key={s.id} value={s.id}>{s.completado ? '✓ ' : ''}{s.titulo} · {s.porcentaje}%</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="eyebrow text-navy-800 mb-2 block" style={{ fontSize: '10px' }}>Asistentes</label>
+                {tallerSel && integrantesTaller.length > 0 && (
+                  <>
+                    <p className="text-[10px] text-stone-500 mb-1.5">Integrantes de {tallerSel.nombre}</p>
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {integrantesTaller.map(p => {
+                        const sel = editForm.asistentes.includes(p.id);
+                        return (
+                          <button
+                            key={p.id}
+                            onClick={() => toggleEditAsistente(p.id)}
+                            className={`text-sm px-2.5 py-1 rounded-md font-medium transition-colors ${sel ? 'bg-navy-900 text-stone-50' : 'bg-white border border-navy-200 text-navy-800 hover:border-navy-700'}`}
+                          >{p.nombre}</button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+                <p className="text-[10px] text-stone-500 mb-1.5">{tallerSel && integrantesTaller.length > 0 ? 'Otras personas' : 'Personas'}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(tallerSel && integrantesTaller.length > 0 ? otrasPersonas : personas).map(p => {
+                    const sel = editForm.asistentes.includes(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => toggleEditAsistente(p.id)}
+                        className={`text-sm px-2.5 py-1 rounded-md font-medium transition-colors ${sel ? 'bg-navy-900 text-stone-50' : 'bg-white border border-stone-200 text-stone-700 hover:border-navy-700'}`}
+                      >{p.nombre}</button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="eyebrow text-navy-800 mb-2 block" style={{ fontSize: '10px' }}>Agenda · un tema por línea</label>
+                <textarea
+                  value={editForm.agenda}
+                  onChange={e => setEditForm({ ...editForm, agenda: e.target.value })}
+                  rows={4}
+                  className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none"
+                />
+              </div>
+              <div>
+                <label className="eyebrow text-navy-800 mb-2 block" style={{ fontSize: '10px' }}>Notas / minuta</label>
+                <textarea
+                  value={editForm.notas}
+                  onChange={e => setEditForm({ ...editForm, notas: e.target.value })}
+                  rows={6}
+                  className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none"
+                />
+                <p className="text-xs text-stone-500 mt-1.5 font-medium">Tras guardar, pulsa "Re-extraer ideas" para reprocesar las notas con la IA.</p>
               </div>
             </div>
-            <div>
-              <label className="eyebrow text-navy-800 mb-2 block" style={{ fontSize: '10px' }}>Agenda · un tema por línea</label>
-              <textarea
-                value={editForm.agenda}
-                onChange={e => setEditForm({ ...editForm, agenda: e.target.value })}
-                rows={4}
-                className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none"
-              />
-            </div>
-            <div>
-              <label className="eyebrow text-navy-800 mb-2 block" style={{ fontSize: '10px' }}>Notas / minuta</label>
-              <textarea
-                value={editForm.notas}
-                onChange={e => setEditForm({ ...editForm, notas: e.target.value })}
-                rows={6}
-                className="w-full bg-white border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none"
-              />
-              <p className="text-xs text-stone-500 mt-1.5 font-medium">Tras guardar, pulsa "Re-extraer ideas" para reprocesar las notas con la IA.</p>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </header>
 
       {(reunion.agenda || []).length > 0 && (
