@@ -10931,6 +10931,79 @@ function KanbanColumn({ titulo, color, count, tareas, talleres, personas, setTar
   );
 }
 
+function KanbanRow({ titulo, color, count, tareas, talleres, personas, setTareas, tareasAll, columnaKey, onDropTarea }) {
+  const [dragOver, setDragOver] = useState(false);
+
+  const headerColor = {
+    red: 'bg-red-50 text-red-900 border-red-200',
+    amber: 'bg-amber-50 text-amber-900 border-amber-200',
+    stone: 'bg-stone-100 text-stone-900 border-stone-200',
+    emerald: 'bg-emerald-50 text-emerald-900 border-emerald-200',
+  }[color];
+
+  const dotColor = {
+    red: 'bg-red-500',
+    amber: 'bg-amber-500',
+    stone: 'bg-stone-400',
+    emerald: 'bg-emerald-500',
+  }[color];
+
+  const dropBg = dragOver ? {
+    red: 'bg-red-100/60',
+    amber: 'bg-amber-100/60',
+    stone: 'bg-stone-100/80',
+    emerald: 'bg-emerald-100/60',
+  }[color] : '';
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (!dragOver) setDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    setDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const tareaId = e.dataTransfer.getData('text/plain');
+    if (tareaId && onDropTarea) onDropTarea(tareaId, columnaKey);
+  };
+
+  return (
+    <div className="bg-stone-50/60 border border-stone-200 rounded-2xl overflow-hidden">
+      <div className={`flex items-center gap-2 px-4 py-2.5 border-b ${headerColor}`}>
+        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${dotColor}`}></div>
+        <span className="text-sm font-bold uppercase tracking-wider">{titulo}</span>
+        <span className="text-xs font-bold bg-white px-2 py-0.5 rounded tabular-nums">{count}</span>
+        <span className="ml-auto text-[10px] text-stone-400 italic hidden sm:inline">Desplázate horizontalmente →</span>
+      </div>
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`overflow-x-auto transition-colors ${dropBg}`}
+      >
+        <div className="flex gap-2 p-2 min-h-[110px] min-w-min items-stretch">
+          {tareas.length === 0 && (
+            <p className={`text-xs italic font-medium px-4 py-6 self-center ${dragOver ? 'text-stone-700' : 'text-stone-400'}`}>
+              {dragOver ? 'Suelta aquí' : 'Vacío'}
+            </p>
+          )}
+          {tareas.map(t => (
+            <div key={t.id} className="flex-shrink-0 w-72">
+              <TaskCard tarea={t} talleres={talleres} personas={personas} setTareas={setTareas} tareas={tareasAll} compact draggable />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MisTareasView({ tareas, setTareas, talleres, personas, usuarioActualId, setActive }) {
   const [creando, setCreando] = useState(false);
   const [tabActiva, setTabActiva] = useState('asignadas');
@@ -11105,11 +11178,11 @@ function MisTareasView({ tareas, setTareas, talleres, personas, usuarioActualId,
           await setTareas(nuevas);
         };
         return (
-          <div className="grid grid-cols-4 gap-3">
-            <KanbanColumn titulo="Alta prioridad" color="red" count={tareasAltasM.length} tareas={tareasAltasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="alta" onDropTarea={moverTareaMis} />
-            <KanbanColumn titulo="Media" color="amber" count={tareasMediasM.length} tareas={tareasMediasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="media" onDropTarea={moverTareaMis} />
-            <KanbanColumn titulo="Baja" color="stone" count={tareasBajasM.length} tareas={tareasBajasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="baja" onDropTarea={moverTareaMis} />
-            <KanbanColumn titulo="Completadas" color="emerald" count={tareasCompletadasM.length} tareas={tareasCompletadasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="completadas" onDropTarea={moverTareaMis} />
+          <div className="space-y-3">
+            <KanbanRow titulo="Alta prioridad" color="red" count={tareasAltasM.length} tareas={tareasAltasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="alta" onDropTarea={moverTareaMis} />
+            <KanbanRow titulo="Media" color="amber" count={tareasMediasM.length} tareas={tareasMediasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="media" onDropTarea={moverTareaMis} />
+            <KanbanRow titulo="Baja" color="stone" count={tareasBajasM.length} tareas={tareasBajasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="baja" onDropTarea={moverTareaMis} />
+            <KanbanRow titulo="Completadas" color="emerald" count={tareasCompletadasM.length} tareas={tareasCompletadasM} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="completadas" onDropTarea={moverTareaMis} />
           </div>
         );
       })()}
