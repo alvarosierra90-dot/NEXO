@@ -6179,20 +6179,29 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
               const esResponsable = responsable && p.id === responsable.id;
               const esDiaADia = diaADiaPersona && p.id === diaADiaPersona.id;
               const tieneParent = !!orga[p.id] && integrantesIds.has(orga[p.id]);
-              const cardBase = esResponsable
-                ? 'bg-navy-900 text-stone-50 border-navy-900'
+              const childrenList = childrenOf[p.id] || [];
+
+              const cardWrapper = esResponsable
+                ? 'bg-navy-900 text-stone-50 shadow-sm'
                 : esDiaADia
-                  ? 'bg-stone-100 text-navy-900 border-stone-300'
-                  : 'bg-white text-navy-900 border-stone-200 hover:border-navy-400';
-              const subTextColor = esResponsable ? 'text-stone-300' : 'text-stone-500';
+                  ? 'bg-stone-100 border border-stone-300 text-navy-900 shadow-sm'
+                  : 'bg-white border border-stone-200 text-navy-900 hover:border-navy-400';
+              const cardSize = esResponsable
+                ? 'px-5 py-3 min-w-[200px]'
+                : esDiaADia
+                  ? 'px-4 py-2.5 min-w-[180px]'
+                  : 'px-3 py-2 min-w-[160px]';
+              const avatarSize = esResponsable ? 'w-12 h-12 text-base' : esDiaADia ? 'w-10 h-10 text-sm' : 'w-9 h-9 text-xs';
               const avatarBg = esResponsable
                 ? 'bg-stone-50 text-navy-900'
                 : esDiaADia
                   ? 'bg-navy-900 text-stone-50'
                   : 'bg-stone-200 text-stone-700';
-              const childrenList = childrenOf[p.id] || [];
+              const subColor = esResponsable ? 'text-stone-400' : 'text-stone-600';
+              const labelColor = esResponsable ? 'text-stone-400' : 'text-stone-500';
+
               return (
-                <div key={p.id} className="flex flex-col">
+                <div key={p.id} className="flex flex-col items-center">
                   <div
                     draggable
                     onDragStart={(e) => { e.dataTransfer.setData('text/persona', p.id); e.dataTransfer.effectAllowed = 'move'; }}
@@ -6204,37 +6213,35 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                       const droppedId = e.dataTransfer.getData('text/persona');
                       if (droppedId && droppedId !== p.id) setParentInOrganigrama(droppedId, p.id);
                     }}
-                    className={`flex items-center gap-2 border rounded-lg px-2.5 py-1.5 transition-colors cursor-grab active:cursor-grabbing ${cardBase}`}
-                    title="Arrastra a esta persona sobre otra para colocarla por debajo"
+                    className={`relative rounded-xl text-center cursor-grab active:cursor-grabbing transition-all ${cardWrapper} ${cardSize}`}
+                    title="Arrastra esta persona sobre otra para colocarla por debajo"
                   >
-                    <div className="relative flex-shrink-0">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-[11px] ${avatarBg}`}>
-                        {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                      </div>
-                      {nivel && (
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border ${esResponsable ? 'border-navy-900' : 'border-white'} flex items-center justify-center text-[8px] font-bold ${NIVELES[nivel].color}`}>{nivel}</div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="text-xs font-semibold leading-tight truncate">{p.nombre}</p>
-                        {esResponsable && <span className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gold-400 text-navy-900 font-bold">Resp.</span>}
-                        {esDiaADia && <span className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-navy-900 text-stone-50 font-bold">Día a día</span>}
-                      </div>
-                      <p className={`text-[10px] leading-tight truncate ${subTextColor}`}>{getEquipo(p)}</p>
-                    </div>
-                    {tareasPersona > 0 && (
-                      <span className="text-[9px] text-amber-800 bg-amber-100 px-1 py-0.5 rounded font-bold">{tareasPersona}</span>
-                    )}
                     {tieneParent && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setParentInOrganigrama(p.id, null); }}
-                        className={`text-[9px] font-bold px-1 hover:underline ${esResponsable ? 'text-stone-300 hover:text-stone-50' : 'text-stone-400 hover:text-navy-900'}`}
-                        title="Quitar del organigrama (volver a raíz)"
+                        className={`absolute top-1 right-1 text-[10px] font-bold px-1.5 py-0.5 rounded hover:underline ${esResponsable ? 'text-stone-400 hover:text-stone-50 hover:bg-navy-800' : 'text-stone-400 hover:text-navy-900 hover:bg-stone-100'}`}
+                        title="Volver a raíz del organigrama"
                       >↑</button>
                     )}
+                    <div className="relative inline-block mb-1.5">
+                      <div className={`rounded-full flex items-center justify-center font-bold ${avatarSize} ${avatarBg}`}>
+                        {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                      </div>
+                      {nivel && (
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 ${esResponsable ? 'border-navy-900' : esDiaADia ? 'border-stone-100' : 'border-white'} flex items-center justify-center text-[9px] font-bold ${NIVELES[nivel].color}`}>{nivel}</div>
+                      )}
+                    </div>
+                    {esResponsable && <p className={`text-[10px] uppercase tracking-wider ${labelColor}`}>Responsable</p>}
+                    {esDiaADia && <p className={`text-[10px] uppercase tracking-wider ${labelColor}`}>Día a día</p>}
+                    <p className={`${esResponsable ? 'text-sm' : 'text-xs'} font-semibold leading-tight`}>{p.nombre}</p>
+                    <p className={`text-[11px] leading-tight ${subColor}`}>{getEquipo(p)}</p>
+                    {tareasPersona > 0 && (
+                      <span className="inline-flex items-center gap-0.5 mt-1.5 text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded font-bold">
+                        <CheckSquare size={9} /> {tareasPersona}
+                      </span>
+                    )}
                     {gestionandoMiembros && (
-                      <div className="flex items-center gap-0.5">
+                      <div className="mt-2 pt-2 border-t border-stone-300/40 flex items-center justify-center gap-1">
                         <div className="flex items-center gap-0.5 bg-white rounded p-0.5 border border-stone-200">
                           {[1, 2, 3].map(n => (
                             <button
@@ -6254,9 +6261,23 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                     )}
                   </div>
                   {childrenList.length > 0 && (
-                    <div className="ml-5 mt-1.5 border-l-2 border-stone-300 pl-3 space-y-1.5">
-                      {childrenList.map(c => renderPersonNode(c, depth + 1))}
-                    </div>
+                    <>
+                      <div className="w-px h-5 bg-stone-300"></div>
+                      <div className="flex items-start">
+                        {childrenList.map((c, idx) => (
+                          <div key={c.id} className="flex flex-col items-center px-3 relative">
+                            {childrenList.length > 1 && (
+                              <>
+                                {idx > 0 && <div className="absolute top-0 left-0 right-1/2 h-px bg-stone-300"></div>}
+                                {idx < childrenList.length - 1 && <div className="absolute top-0 left-1/2 right-0 h-px bg-stone-300"></div>}
+                                <div className="w-px h-5 bg-stone-300"></div>
+                              </>
+                            )}
+                            {renderPersonNode(c, depth + 1)}
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               );
@@ -6280,13 +6301,15 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                 </div>
 
                 {integrantes.length > 0 && (
-                  <p className="text-[10px] text-stone-400 italic mb-2">Arrastra una persona sobre otra para colocarla a su cargo. Pulsa ↑ para devolverla a raíz.</p>
+                  <p className="text-[10px] text-stone-400 italic mb-3 text-center">Arrastra una persona sobre otra para colocarla a su cargo. Pulsa ↑ para devolverla a raíz.</p>
                 )}
 
-                <div className="space-y-2">
-                  {orderedRoots.map(p => renderPersonNode(p, 0))}
+                <div className="overflow-x-auto pb-2">
+                  <div className="flex items-start justify-center gap-6 py-2 min-w-min">
+                    {orderedRoots.map(p => renderPersonNode(p, 0))}
+                  </div>
                   {integrantes.length === 0 && !gestionandoMiembros && (
-                    <p className="text-xs text-stone-500 italic">No hay personas asignadas a este taller. Pulsa "Gestionar" para añadir.</p>
+                    <p className="text-xs text-stone-500 italic text-center">No hay personas asignadas a este taller. Pulsa "Gestionar" para añadir.</p>
                   )}
                 </div>
 
