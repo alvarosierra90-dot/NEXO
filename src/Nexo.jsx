@@ -8828,6 +8828,7 @@ function InnovacionView({ iniciativas, setIniciativas, personas, talleres }) {
   const [nuevaDesc, setNuevaDesc] = useState('');
   const [editandoId, setEditandoId] = useState(null);
   const [edicion, setEdicion] = useState(null);
+  const [mostrandoFormNueva, setMostrandoFormNueva] = useState(false);
 
   const abrirEdicion = (i) => {
     setEditandoId(i.id);
@@ -8959,16 +8960,97 @@ Estructura JSON requerida:
     };
     await setIniciativas([...iniciativas, nueva]);
     setNuevaTitulo(''); setNuevoAutorId(''); setNuevaDesc('');
+    setMostrandoFormNueva(false);
   };
 
   return (
     <div className="p-8 w-full">
-      <header className="mb-8">
-        <p className="eyebrow text-navy-800 mb-3">Foro de Innovación</p>
-        <h1 className="display-1 text-navy-900 mb-3">Iniciativas y comunicación</h1>
-        <hr className="savills-rule w-32 mb-4" />
-        <p className="text-base text-stone-600 leading-relaxed">Genera píldoras tipo revista corporativa con IA para comunicar las iniciativas internamente.</p>
+      <header className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="eyebrow text-navy-800 mb-3">Foro de Innovación</p>
+          <h1 className="display-1 text-navy-900 mb-3">Iniciativas y comunicación</h1>
+          <hr className="savills-rule w-32 mb-4" />
+          <p className="text-base text-stone-600 leading-relaxed">Genera píldoras tipo revista corporativa con IA para comunicar las iniciativas internamente.</p>
+        </div>
+        <button
+          onClick={() => setMostrandoFormNueva(!mostrandoFormNueva)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-navy-900 hover:bg-navy-800 text-stone-50 rounded-md text-sm font-semibold transition-colors flex-shrink-0"
+        >
+          {mostrandoFormNueva ? <X size={14} /> : <Plus size={14} />}
+          {mostrandoFormNueva ? 'Cancelar' : 'Nueva iniciativa'}
+        </button>
       </header>
+
+      {mostrandoFormNueva && (
+        <div className="bg-white border-2 border-navy-700 rounded-xl p-5 mb-6 shadow-sm">
+          <h3 className="text-sm font-bold text-navy-900 mb-3 flex items-center gap-2">
+            <Plus size={14} /> Añadir iniciativa
+          </h3>
+          <input
+            value={nuevaTitulo}
+            onChange={e => setNuevaTitulo(e.target.value)}
+            placeholder="Título de la iniciativa"
+            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 mb-2"
+            autoFocus
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div>
+              <label className="text-[11px] uppercase tracking-wider text-stone-500 mb-1 block">Taller</label>
+              <select
+                value={nuevoTallerId}
+                onChange={e => { setNuevoTallerId(e.target.value); setNuevoAutorId(''); }}
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+              >
+                {talleres.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-wider text-stone-500 mb-1 block">
+                Autor {personasDelTaller.length > 0 && <span className="text-stone-400 normal-case">· {personasDelTaller.length} miembros</span>}
+              </label>
+              <select
+                value={nuevoAutorId}
+                onChange={e => setNuevoAutorId(e.target.value)}
+                className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700"
+              >
+                <option value="">— Selecciona autor —</option>
+                {personasDelTaller.length > 0 && (
+                  <optgroup label={`Miembros de ${tallerById[nuevoTallerId]?.nombre || 'taller'}`}>
+                    {personasDelTaller.map(p => (
+                      <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label="Otras personas">
+                  {personas.filter(p => !(p.talleres || []).includes(nuevoTallerId)).map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+          </div>
+          <textarea
+            value={nuevaDesc}
+            onChange={e => setNuevaDesc(e.target.value)}
+            placeholder="Descripción de la iniciativa"
+            rows={3}
+            className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-navy-700 resize-none mb-3"
+          />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={añadirIniciativa}
+              disabled={!nuevaTitulo.trim()}
+              className="flex items-center gap-1.5 px-4 py-2 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-300 text-stone-50 rounded-md text-sm font-semibold transition-colors"
+            >
+              <Plus size={14} /> Añadir
+            </button>
+            <button
+              onClick={() => setMostrandoFormNueva(false)}
+              className="text-xs text-stone-600 hover:text-stone-900 px-3 py-2"
+            >Cancelar</button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
         {iniciativas.map(i => {
@@ -9073,13 +9155,45 @@ Estructura JSON requerida:
           }
 
           return (
-            <article key={i.id} className="group relative bg-white border border-stone-200/80 rounded-2xl overflow-hidden hover:border-navy-700 hover:shadow-md transition-all flex">
-              <div className={`w-1.5 ${yaTienePildora ? 'bg-gold-400' : 'bg-navy-700'} flex-shrink-0`}></div>
-              <div className="flex-1 p-5">
+            <article key={i.id} className="group relative bg-gradient-to-br from-white via-white to-navy-50/40 border border-stone-200/80 rounded-2xl overflow-hidden hover:border-gold-400 hover:shadow-lg transition-all flex">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.18] group-hover:opacity-30 transition-opacity" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id={`nn-line-${i.id}`} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#1e3a6f" />
+                    <stop offset="100%" stopColor="#d4a82c" />
+                  </linearGradient>
+                </defs>
+                <g stroke={`url(#nn-line-${i.id})`} strokeWidth="0.6" fill="none">
+                  <line x1="320" y1="30" x2="370" y2="60" />
+                  <line x1="320" y1="30" x2="370" y2="100" />
+                  <line x1="320" y1="30" x2="370" y2="160" />
+                  <line x1="370" y1="60" x2="320" y2="120" />
+                  <line x1="370" y1="100" x2="320" y2="120" />
+                  <line x1="370" y1="160" x2="320" y2="120" />
+                  <line x1="320" y1="120" x2="280" y2="180" />
+                  <line x1="280" y1="180" x2="240" y2="200" />
+                </g>
+                <g fill="#1e3a6f">
+                  <circle cx="320" cy="30" r="3" />
+                  <circle cx="320" cy="120" r="3" />
+                  <circle cx="280" cy="180" r="2.5" />
+                </g>
+                <g fill="#d4a82c">
+                  <circle cx="370" cy="60" r="2.5" />
+                  <circle cx="370" cy="100" r="2.5" />
+                  <circle cx="370" cy="160" r="2.5" />
+                  <circle cx="240" cy="200" r="2" />
+                </g>
+              </svg>
+              <div className={`relative w-1.5 ${yaTienePildora ? 'bg-gradient-to-b from-gold-400 to-gold-600' : 'bg-gradient-to-b from-navy-700 to-navy-900'} flex-shrink-0`}></div>
+              <div className="relative flex-1 p-5">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="eyebrow text-navy-800">{taller ? taller.area : (i.area || 'Transversal')}</span>
+                      <span className="eyebrow text-navy-800 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                        {taller ? taller.area : (i.area || 'Transversal')}
+                      </span>
                       <span className="text-stone-300">·</span>
                       <span className="eyebrow text-stone-500">{i.estado}</span>
                       {yaTienePildora && (
@@ -9100,7 +9214,7 @@ Estructura JSON requerida:
                   </button>
                 </div>
                 <p className="text-sm text-stone-700 leading-relaxed mb-4 line-clamp-3">{i.descripcion}</p>
-                <div className="flex items-center gap-2 pt-3 border-t border-stone-100">
+                <div className="flex items-center gap-2 pt-3 border-t border-stone-200/70">
                   {yaTienePildora && (
                     <button
                       onClick={() => abrirRevista(i.id)}
@@ -9131,66 +9245,6 @@ Estructura JSON requerida:
           <button onClick={() => setErrorPildora(null)} className="ml-auto text-red-500 hover:text-red-700"><X size={12} /></button>
         </div>
       )}
-
-      <div className="bg-white border border-stone-200 rounded-xl p-5">
-        <h3 className="text-sm font-medium text-stone-900 mb-3">Añadir iniciativa</h3>
-        <input
-          value={nuevaTitulo}
-          onChange={e => setNuevaTitulo(e.target.value)}
-          placeholder="Título de la iniciativa"
-          className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 mb-2"
-        />
-        <div className="grid grid-cols-2 gap-2 mb-2">
-          <div>
-            <label className="text-[11px] uppercase tracking-wider text-stone-500 mb-1 block">Taller</label>
-            <select
-              value={nuevoTallerId}
-              onChange={e => { setNuevoTallerId(e.target.value); setNuevoAutorId(''); }}
-              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-            >
-              {talleres.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-[11px] uppercase tracking-wider text-stone-500 mb-1 block">
-              Autor {personasDelTaller.length > 0 && <span className="text-stone-400 normal-case">· {personasDelTaller.length} miembros</span>}
-            </label>
-            <select
-              value={nuevoAutorId}
-              onChange={e => setNuevoAutorId(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400"
-            >
-              <option value="">— Selecciona autor —</option>
-              {personasDelTaller.length > 0 && (
-                <optgroup label={`Miembros de ${tallerById[nuevoTallerId]?.nombre || 'taller'}`}>
-                  {personasDelTaller.map(p => (
-                    <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>
-                  ))}
-                </optgroup>
-              )}
-              <optgroup label="Otras personas">
-                {personas.filter(p => !(p.talleres || []).includes(nuevoTallerId)).map(p => (
-                  <option key={p.id} value={p.id}>{p.nombre} · {getEquipo(p)}</option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-        </div>
-        <textarea
-          value={nuevaDesc}
-          onChange={e => setNuevaDesc(e.target.value)}
-          placeholder="Descripción de la iniciativa"
-          rows={2}
-          className="w-full bg-stone-50 border border-stone-200 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-400 resize-none mb-2"
-        />
-        <button
-          onClick={añadirIniciativa}
-          disabled={!nuevaTitulo.trim()}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-navy-900 hover:bg-navy-800 disabled:bg-stone-400 text-stone-50 rounded-md text-sm transition-colors"
-        >
-          <Plus size={14} /> Añadir
-        </button>
-      </div>
 
       {revistaAbierta && pildoras[revistaAbierta] && (() => {
         const i = iniciativas.find(it => it.id === revistaAbierta);
