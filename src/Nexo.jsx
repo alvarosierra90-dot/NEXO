@@ -6187,11 +6187,11 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                   ? 'bg-stone-100 border border-stone-300 text-navy-900 shadow-sm'
                   : 'bg-white border border-stone-200 text-navy-900 hover:border-navy-400';
               const cardSize = esResponsable
-                ? 'px-5 py-3 min-w-[200px]'
+                ? 'px-3 py-2 w-[140px]'
                 : esDiaADia
-                  ? 'px-4 py-2.5 min-w-[180px]'
-                  : 'px-3 py-2 min-w-[160px]';
-              const avatarSize = esResponsable ? 'w-12 h-12 text-base' : esDiaADia ? 'w-10 h-10 text-sm' : 'w-9 h-9 text-xs';
+                  ? 'px-3 py-2 w-[130px]'
+                  : 'px-2.5 py-1.5 w-[120px]';
+              const avatarSize = esResponsable ? 'w-9 h-9 text-xs' : esDiaADia ? 'w-8 h-8 text-[11px]' : 'w-7 h-7 text-[10px]';
               const avatarBg = esResponsable
                 ? 'bg-stone-50 text-navy-900'
                 : esDiaADia
@@ -6231,10 +6231,10 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                         <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 ${esResponsable ? 'border-navy-900' : esDiaADia ? 'border-stone-100' : 'border-white'} flex items-center justify-center text-[9px] font-bold ${NIVELES[nivel].color}`}>{nivel}</div>
                       )}
                     </div>
-                    {esResponsable && <p className={`text-[10px] uppercase tracking-wider ${labelColor}`}>Responsable</p>}
-                    {esDiaADia && <p className={`text-[10px] uppercase tracking-wider ${labelColor}`}>Día a día</p>}
-                    <p className={`${esResponsable ? 'text-sm' : 'text-xs'} font-semibold leading-tight`}>{p.nombre}</p>
-                    <p className={`text-[11px] leading-tight ${subColor}`}>{getEquipo(p)}</p>
+                    {esResponsable && <p className={`text-[9px] uppercase tracking-wider ${labelColor}`}>Responsable</p>}
+                    {esDiaADia && <p className={`text-[9px] uppercase tracking-wider ${labelColor}`}>Día a día</p>}
+                    <p className="text-[11px] font-semibold leading-tight truncate">{p.nombre}</p>
+                    <p className={`text-[10px] leading-tight truncate ${subColor}`}>{getEquipo(p)}</p>
                     {tareasPersona > 0 && (
                       <span className="inline-flex items-center gap-0.5 mt-1.5 text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded font-bold">
                         <CheckSquare size={9} /> {tareasPersona}
@@ -6262,15 +6262,15 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                   </div>
                   {childrenList.length > 0 && (
                     <>
-                      <div className="w-px h-5 bg-stone-300"></div>
+                      <div className="w-px h-3 bg-stone-300"></div>
                       <div className="flex items-start">
                         {childrenList.map((c, idx) => (
-                          <div key={c.id} className="flex flex-col items-center px-3 relative">
+                          <div key={c.id} className="flex flex-col items-center px-1 relative">
                             {childrenList.length > 1 && (
                               <>
                                 {idx > 0 && <div className="absolute top-0 left-0 right-1/2 h-px bg-stone-300"></div>}
                                 {idx < childrenList.length - 1 && <div className="absolute top-0 left-1/2 right-0 h-px bg-stone-300"></div>}
-                                <div className="w-px h-5 bg-stone-300"></div>
+                                <div className="w-px h-3 bg-stone-300"></div>
                               </>
                             )}
                             {renderPersonNode(c, depth + 1)}
@@ -6305,7 +6305,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                 )}
 
                 <div className="overflow-x-auto pb-2">
-                  <div className="flex items-start justify-center gap-6 py-2 min-w-min">
+                  <div className="flex items-start justify-center gap-3 py-2 min-w-min">
                     {orderedRoots.map(p => renderPersonNode(p, 0))}
                   </div>
                   {integrantes.length === 0 && !gestionandoMiembros && (
