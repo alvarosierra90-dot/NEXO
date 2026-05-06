@@ -10820,11 +10820,11 @@ function TareasView({ tareas, setTareas, talleres, personas, usuarioActualId }) 
           await setTareas(nuevas);
         };
         return (
-          <div className="grid grid-cols-4 gap-3">
-            <KanbanColumn titulo="Alta prioridad" color="red" count={tareasAltas.length} tareas={tareasAltas} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="alta" onDropTarea={moverTarea} />
-            <KanbanColumn titulo="Media" color="amber" count={tareasMedias.length} tareas={tareasMedias} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="media" onDropTarea={moverTarea} />
-            <KanbanColumn titulo="Baja" color="stone" count={tareasBajas.length} tareas={tareasBajas} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="baja" onDropTarea={moverTarea} />
-            <KanbanColumn titulo="Completadas" color="emerald" count={tareasCompletadas.length} tareas={tareasCompletadas} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="completadas" onDropTarea={moverTarea} />
+          <div className="space-y-3">
+            <KanbanRow titulo="Alta prioridad" color="red" count={tareasAltas.length} tareas={tareasAltas} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="alta" onDropTarea={moverTarea} />
+            <KanbanRow titulo="Media" color="amber" count={tareasMedias.length} tareas={tareasMedias} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="media" onDropTarea={moverTarea} />
+            <KanbanRow titulo="Baja" color="stone" count={tareasBajas.length} tareas={tareasBajas} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="baja" onDropTarea={moverTarea} />
+            <KanbanRow titulo="Completadas" color="emerald" count={tareasCompletadas.length} tareas={tareasCompletadas} talleres={talleres} personas={personas} setTareas={setTareas} tareasAll={tareas} columnaKey="completadas" onDropTarea={moverTarea} />
           </div>
         );
       })()}
