@@ -9163,7 +9163,7 @@ Estructura JSON requerida:
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="eyebrow text-navy-800 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
-                        {taller ? taller.area : (i.area || 'Transversal')}
+                        {taller?.nombre || 'Sin taller asignado'}
                       </span>
                       <span className="text-stone-300">·</span>
                       <span className="eyebrow text-stone-500">{i.estado}</span>
@@ -9174,7 +9174,6 @@ Estructura JSON requerida:
                     <h3 className="font-display text-2xl text-navy-900 leading-tight mb-1">{i.titulo}</h3>
                     <p className="text-sm text-stone-600 font-medium">
                       {autor?.nombre || i.autor || 'Sin asignar'}
-                      {taller && <> · <span className="text-navy-700">{taller.nombre}</span></>}
                     </p>
                   </div>
                   <button
