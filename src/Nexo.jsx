@@ -5,7 +5,7 @@ import {
   Calendar, Users, FileText, Search, ArrowRight, Zap, Mail,
   TrendingUp, Package, Settings, ChevronRight, FileSearch, User, Filter,
   Clock, Activity, Flag, GitBranch, Lightbulb, AlertOctagon, ArrowLeft, RadioTower,
-  Mic, Tag, CheckCircle2, LogOut
+  Mic, Tag, CheckCircle2, LogOut, Maximize2, Minimize2
 } from 'lucide-react';
 import { supabase, rowToCamel } from './lib/supabase.js';
 import { useAuth, useSupabaseTable } from './lib/supabaseHooks.js';
@@ -4382,6 +4382,7 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   const [generandoResumen, setGenerandoResumen] = useState(false);
   const [editandoEventoId, setEditandoEventoId] = useState(null);
   const [gestionandoMiembros, setGestionandoMiembros] = useState(false);
+  const [organigramaExpandido, setOrganigramaExpandido] = useState(false);
   const [editandoTaller, setEditandoTaller] = useState(false);
   const [editTallerForm, setEditTallerForm] = useState({
     nombre: taller.nombre || '',
@@ -6291,13 +6292,24 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                     Integrantes del taller
                     <span className="text-base text-stone-500 font-medium">· {integrantes.length}</span>
                   </h3>
-                  <button
-                    onClick={() => setGestionandoMiembros(!gestionandoMiembros)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-xs transition-colors"
-                  >
-                    {gestionandoMiembros ? <X size={12} /> : <Plus size={12} />}
-                    {gestionandoMiembros ? 'Cerrar' : 'Gestionar'}
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {integrantes.length > 0 && (
+                      <button
+                        onClick={() => setOrganigramaExpandido(true)}
+                        className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-xs transition-colors"
+                        title="Ver organigrama en grande"
+                      >
+                        <Maximize2 size={12} /> Expandir
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setGestionandoMiembros(!gestionandoMiembros)}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-xs transition-colors"
+                    >
+                      {gestionandoMiembros ? <X size={12} /> : <Plus size={12} />}
+                      {gestionandoMiembros ? 'Cerrar' : 'Gestionar'}
+                    </button>
+                  </div>
                 </div>
 
                 {integrantes.length > 0 && (
@@ -6342,6 +6354,32 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {organigramaExpandido && (
+                  <div className="fixed inset-0 bg-navy-900/60 z-50 flex items-center justify-center p-4" onClick={() => setOrganigramaExpandido(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 flex-shrink-0">
+                        <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
+                          <Users size={17} className="text-navy-700" />
+                          Organigrama · {taller.nombre}
+                          <span className="text-base text-stone-500 font-medium">· {integrantes.length} integrantes</span>
+                        </h3>
+                        <button
+                          onClick={() => setOrganigramaExpandido(false)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-sm font-medium transition-colors"
+                        >
+                          <Minimize2 size={14} /> Cerrar
+                        </button>
+                      </div>
+                      <div className="flex-1 overflow-auto p-8">
+                        <p className="text-xs text-stone-400 italic mb-4 text-center">Arrastra una persona sobre otra para colocarla a su cargo. Pulsa ↑ para devolverla a raíz.</p>
+                        <div className="flex items-start justify-center gap-6 py-4 min-w-min">
+                          {orderedRoots.map(p => renderPersonNode(p, 0))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
