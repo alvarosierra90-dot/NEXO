@@ -9156,35 +9156,6 @@ Estructura JSON requerida:
 
           return (
             <article key={i.id} className="group relative bg-gradient-to-br from-white via-white to-navy-50/40 border border-stone-200/80 rounded-2xl overflow-hidden hover:border-gold-400 hover:shadow-lg transition-all flex">
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.18] group-hover:opacity-30 transition-opacity" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
-                <defs>
-                  <linearGradient id={`nn-line-${i.id}`} x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#1e3a6f" />
-                    <stop offset="100%" stopColor="#d4a82c" />
-                  </linearGradient>
-                </defs>
-                <g stroke={`url(#nn-line-${i.id})`} strokeWidth="0.6" fill="none">
-                  <line x1="320" y1="30" x2="370" y2="60" />
-                  <line x1="320" y1="30" x2="370" y2="100" />
-                  <line x1="320" y1="30" x2="370" y2="160" />
-                  <line x1="370" y1="60" x2="320" y2="120" />
-                  <line x1="370" y1="100" x2="320" y2="120" />
-                  <line x1="370" y1="160" x2="320" y2="120" />
-                  <line x1="320" y1="120" x2="280" y2="180" />
-                  <line x1="280" y1="180" x2="240" y2="200" />
-                </g>
-                <g fill="#1e3a6f">
-                  <circle cx="320" cy="30" r="3" />
-                  <circle cx="320" cy="120" r="3" />
-                  <circle cx="280" cy="180" r="2.5" />
-                </g>
-                <g fill="#d4a82c">
-                  <circle cx="370" cy="60" r="2.5" />
-                  <circle cx="370" cy="100" r="2.5" />
-                  <circle cx="370" cy="160" r="2.5" />
-                  <circle cx="240" cy="200" r="2" />
-                </g>
-              </svg>
               <div className={`relative w-1.5 ${yaTienePildora ? 'bg-gradient-to-b from-gold-400 to-gold-600' : 'bg-gradient-to-b from-navy-700 to-navy-900'} flex-shrink-0`}></div>
               <div className="relative flex-1 p-5">
                 <div className="flex items-start justify-between gap-3 mb-3">
