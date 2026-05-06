@@ -4383,6 +4383,7 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
   const [editandoEventoId, setEditandoEventoId] = useState(null);
   const [gestionandoMiembros, setGestionandoMiembros] = useState(false);
   const [organigramaExpandido, setOrganigramaExpandido] = useState(false);
+  const [organigramaZoom, setOrganigramaZoom] = useState(1);
   const [editandoTaller, setEditandoTaller] = useState(false);
   const [editTallerForm, setEditTallerForm] = useState({
     nombre: taller.nombre || '',
@@ -6358,25 +6359,49 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                 )}
 
                 {organigramaExpandido && (
-                  <div className="fixed inset-0 bg-navy-900/60 z-50 flex items-center justify-center p-4" onClick={() => setOrganigramaExpandido(false)}>
+                  <div className="fixed inset-0 bg-navy-900/60 z-50 flex items-center justify-center p-4" onClick={() => { setOrganigramaExpandido(false); setOrganigramaZoom(1); }}>
                     <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 flex-shrink-0">
+                      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 flex-shrink-0 gap-3 flex-wrap">
                         <h3 className="text-lg font-bold text-navy-900 tracking-tight flex items-center gap-2">
                           <Users size={17} className="text-navy-700" />
                           Organigrama · {taller.nombre}
                           <span className="text-base text-stone-500 font-medium">· {integrantes.length} integrantes</span>
                         </h3>
-                        <button
-                          onClick={() => setOrganigramaExpandido(false)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-sm font-medium transition-colors"
-                        >
-                          <Minimize2 size={14} /> Cerrar
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-0.5 bg-stone-100 rounded-md p-0.5">
+                            <button
+                              onClick={() => setOrganigramaZoom(z => Math.max(0.4, z - 0.1))}
+                              disabled={organigramaZoom <= 0.4}
+                              className="w-7 h-7 flex items-center justify-center rounded text-stone-700 hover:bg-white hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                              title="Reducir zoom"
+                            ><Minimize2 size={12} /></button>
+                            <span className="text-xs font-bold text-stone-700 tabular-nums w-12 text-center">{Math.round(organigramaZoom * 100)}%</span>
+                            <button
+                              onClick={() => setOrganigramaZoom(z => Math.min(2, z + 0.1))}
+                              disabled={organigramaZoom >= 2}
+                              className="w-7 h-7 flex items-center justify-center rounded text-stone-700 hover:bg-white hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                              title="Ampliar zoom"
+                            ><Maximize2 size={12} /></button>
+                            <button
+                              onClick={() => setOrganigramaZoom(1)}
+                              className="px-2 h-7 text-[10px] font-semibold text-stone-700 hover:bg-white hover:shadow-sm rounded transition-all"
+                              title="Restaurar zoom 100%"
+                            >Reset</button>
+                          </div>
+                          <button
+                            onClick={() => { setOrganigramaExpandido(false); setOrganigramaZoom(1); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md text-sm font-medium transition-colors"
+                          >
+                            <X size={14} /> Cerrar
+                          </button>
+                        </div>
                       </div>
                       <div className="flex-1 overflow-auto p-8">
-                        <p className="text-xs text-stone-400 italic mb-4 text-center">Arrastra una persona sobre otra para colocarla a su cargo. Pulsa ↑ para devolverla a raíz.</p>
-                        <div className="flex items-start justify-center gap-6 py-4 min-w-min">
-                          {orderedRoots.map(p => renderPersonNode(p, 0))}
+                        <p className="text-xs text-stone-400 italic mb-4 text-center">Arrastra una persona sobre otra para colocarla a su cargo · Usa los botones de zoom para ajustar la vista.</p>
+                        <div className="flex items-start justify-center min-w-min" style={{ transform: `scale(${organigramaZoom})`, transformOrigin: 'top center', transition: 'transform 150ms ease-out' }}>
+                          <div className="flex items-start justify-center gap-6 py-4 min-w-min">
+                            {orderedRoots.map(p => renderPersonNode(p, 0))}
+                          </div>
                         </div>
                       </div>
                     </div>
