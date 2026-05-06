@@ -4828,6 +4828,34 @@ function TallerDetalle({ taller, talleres, setTalleres, historico, setHistorico,
     await setPersonas(nuevasPersonas);
   };
 
+  const setParentInOrganigrama = async (childId, parentId) => {
+    if (!setTalleres || !childId) return;
+    if (childId === parentId) return;
+    const orgaActual = taller.organigrama || {};
+    const integrantesIds = personas.filter(p => (p.talleres || []).includes(taller.id)).map(p => p.id);
+    const isDescendant = (ancestorId, descendantId) => {
+      const visited = new Set();
+      let queue = integrantesIds.filter(id => orgaActual[id] === ancestorId);
+      while (queue.length > 0) {
+        const next = [];
+        for (const id of queue) {
+          if (id === descendantId) return true;
+          if (visited.has(id)) continue;
+          visited.add(id);
+          integrantesIds.forEach(other => { if (orgaActual[other] === id) next.push(other); });
+        }
+        queue = next;
+      }
+      return false;
+    };
+    if (parentId && isDescendant(childId, parentId)) return;
+    const nuevaOrga = { ...orgaActual };
+    if (parentId) nuevaOrga[childId] = parentId;
+    else delete nuevaOrga[childId];
+    const actualizados = talleres.map(t => t.id === taller.id ? { ...t, organigrama: nuevaOrga } : t);
+    await setTalleres(actualizados);
+  };
+
   const generarResumen = async () => {
     setGenerandoResumen(true);
     setResumen(null);
@@ -6123,7 +6151,117 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
             const integrantes = personas.filter(p => (p.talleres || []).includes(taller.id));
             const responsable = integrantes.find(p => p.nombre === taller.lider) || integrantes.find(p => (getEquipo(p) || '').toLowerCase().includes('líder'));
             const diaADiaPersona = taller.diaADia ? integrantes.find(p => p.nombre === taller.diaADia) : null;
-            const otros = integrantes.filter(p => p.id !== responsable?.id && p.id !== diaADiaPersona?.id);
+            const orga = taller.organigrama || {};
+            const integrantesIds = new Set(integrantes.map(p => p.id));
+            const childrenOf = {};
+            integrantes.forEach(p => {
+              const pid = orga[p.id];
+              if (pid && integrantesIds.has(pid)) {
+                if (!childrenOf[pid]) childrenOf[pid] = [];
+                childrenOf[pid].push(p);
+              }
+            });
+            const roots = integrantes.filter(p => {
+              const pid = orga[p.id];
+              return !pid || !integrantesIds.has(pid);
+            });
+            const orderedRoots = roots.slice().sort((a, b) => {
+              if (responsable && a.id === responsable.id) return -1;
+              if (responsable && b.id === responsable.id) return 1;
+              if (diaADiaPersona && a.id === diaADiaPersona.id) return -1;
+              if (diaADiaPersona && b.id === diaADiaPersona.id) return 1;
+              return a.nombre.localeCompare(b.nombre);
+            });
+
+            const renderPersonNode = (p, depth) => {
+              const tareasPersona = tareas.filter(t => t.personaId === p.id && t.tallerId === taller.id && t.estado === 'pendiente').length;
+              const nivel = getNivel(p, taller.id);
+              const esResponsable = responsable && p.id === responsable.id;
+              const esDiaADia = diaADiaPersona && p.id === diaADiaPersona.id;
+              const tieneParent = !!orga[p.id] && integrantesIds.has(orga[p.id]);
+              const cardBase = esResponsable
+                ? 'bg-navy-900 text-stone-50 border-navy-900'
+                : esDiaADia
+                  ? 'bg-stone-100 text-navy-900 border-stone-300'
+                  : 'bg-white text-navy-900 border-stone-200 hover:border-navy-400';
+              const subTextColor = esResponsable ? 'text-stone-300' : 'text-stone-500';
+              const avatarBg = esResponsable
+                ? 'bg-stone-50 text-navy-900'
+                : esDiaADia
+                  ? 'bg-navy-900 text-stone-50'
+                  : 'bg-stone-200 text-stone-700';
+              const childrenList = childrenOf[p.id] || [];
+              return (
+                <div key={p.id} className="flex flex-col">
+                  <div
+                    draggable
+                    onDragStart={(e) => { e.dataTransfer.setData('text/persona', p.id); e.dataTransfer.effectAllowed = 'move'; }}
+                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('ring-2','ring-gold-500'); }}
+                    onDragLeave={(e) => { e.currentTarget.classList.remove('ring-2','ring-gold-500'); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove('ring-2','ring-gold-500');
+                      const droppedId = e.dataTransfer.getData('text/persona');
+                      if (droppedId && droppedId !== p.id) setParentInOrganigrama(droppedId, p.id);
+                    }}
+                    className={`flex items-center gap-2 border rounded-lg px-2.5 py-1.5 transition-colors cursor-grab active:cursor-grabbing ${cardBase}`}
+                    title="Arrastra a esta persona sobre otra para colocarla por debajo"
+                  >
+                    <div className="relative flex-shrink-0">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-[11px] ${avatarBg}`}>
+                        {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                      </div>
+                      {nivel && (
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border ${esResponsable ? 'border-navy-900' : 'border-white'} flex items-center justify-center text-[8px] font-bold ${NIVELES[nivel].color}`}>{nivel}</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-xs font-semibold leading-tight truncate">{p.nombre}</p>
+                        {esResponsable && <span className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-gold-400 text-navy-900 font-bold">Resp.</span>}
+                        {esDiaADia && <span className="text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-navy-900 text-stone-50 font-bold">Día a día</span>}
+                      </div>
+                      <p className={`text-[10px] leading-tight truncate ${subTextColor}`}>{getEquipo(p)}</p>
+                    </div>
+                    {tareasPersona > 0 && (
+                      <span className="text-[9px] text-amber-800 bg-amber-100 px-1 py-0.5 rounded font-bold">{tareasPersona}</span>
+                    )}
+                    {tieneParent && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setParentInOrganigrama(p.id, null); }}
+                        className={`text-[9px] font-bold px-1 hover:underline ${esResponsable ? 'text-stone-300 hover:text-stone-50' : 'text-stone-400 hover:text-navy-900'}`}
+                        title="Quitar del organigrama (volver a raíz)"
+                      >↑</button>
+                    )}
+                    {gestionandoMiembros && (
+                      <div className="flex items-center gap-0.5">
+                        <div className="flex items-center gap-0.5 bg-white rounded p-0.5 border border-stone-200">
+                          {[1, 2, 3].map(n => (
+                            <button
+                              key={n}
+                              onClick={(e) => { e.stopPropagation(); setNivelEnTaller(p.id, n); }}
+                              title={`${NIVELES[n].label} · ${NIVELES[n].desc}`}
+                              className={`w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center transition-all ${nivel === n ? NIVELES[n].color : 'bg-stone-100 text-stone-400 hover:bg-stone-200'}`}
+                            >{n}</button>
+                          ))}
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleMiembro(p.id); }}
+                          className={`${esResponsable ? 'text-stone-400 hover:text-red-300' : 'text-stone-400 hover:text-red-700'} transition-colors`}
+                          title="Quitar del taller"
+                        ><X size={11} /></button>
+                      </div>
+                    )}
+                  </div>
+                  {childrenList.length > 0 && (
+                    <div className="ml-5 mt-1.5 border-l-2 border-stone-300 pl-3 space-y-1.5">
+                      {childrenList.map(c => renderPersonNode(c, depth + 1))}
+                    </div>
+                  )}
+                </div>
+              );
+            };
+
             return (
               <div className="bg-white border border-stone-200/80 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -6141,103 +6279,12 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                   </button>
                 </div>
 
-                <div className="flex flex-col items-center gap-1 py-2">
-                  {responsable && (
-                    <>
-                      <div className="bg-navy-900 rounded-xl px-5 py-3 text-center shadow-sm min-w-[200px] max-w-full">
-                        <div className="relative inline-block mb-2">
-                          <div className="w-12 h-12 rounded-full bg-stone-50 text-navy-900 flex items-center justify-center font-bold text-base">
-                            {responsable.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                          </div>
-                          {getNivel(responsable, taller.id) && (
-                            <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-navy-900 flex items-center justify-center text-[9px] font-bold ${NIVELES[getNivel(responsable, taller.id)].color}`}>
-                              {getNivel(responsable, taller.id)}
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-[10px] uppercase tracking-wider text-stone-400">Responsable</p>
-                        <p className="text-sm font-semibold text-stone-50 leading-tight">{responsable.nombre}</p>
-                        <p className="text-[11px] text-stone-400 leading-tight">{getEquipo(responsable)}</p>
-                      </div>
-                      {(diaADiaPersona || otros.length > 0) && <div className="w-px h-6 bg-stone-300"></div>}
-                    </>
-                  )}
+                {integrantes.length > 0 && (
+                  <p className="text-[10px] text-stone-400 italic mb-2">Arrastra una persona sobre otra para colocarla a su cargo. Pulsa ↑ para devolverla a raíz.</p>
+                )}
 
-                  {diaADiaPersona && (
-                    <>
-                      <div className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-2.5 text-center shadow-sm min-w-[180px] max-w-full">
-                        <div className="relative inline-block mb-2">
-                          <div className="w-10 h-10 rounded-full bg-navy-900 text-stone-50 flex items-center justify-center font-bold text-sm">
-                            {diaADiaPersona.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                          </div>
-                          {getNivel(diaADiaPersona, taller.id) && (
-                            <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-stone-100 flex items-center justify-center text-[9px] font-bold ${NIVELES[getNivel(diaADiaPersona, taller.id)].color}`}>
-                              {getNivel(diaADiaPersona, taller.id)}
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-[10px] uppercase tracking-wider text-stone-500">Día a día</p>
-                        <p className="text-sm font-semibold text-navy-900 leading-tight">{diaADiaPersona.nombre}</p>
-                        <p className="text-[11px] text-stone-600 leading-tight">{getEquipo(diaADiaPersona)}</p>
-                      </div>
-                      {otros.length > 0 && <div className="w-px h-6 bg-stone-300"></div>}
-                    </>
-                  )}
-
-                  {otros.length > 0 && (
-                    <div className="w-full">
-                      <p className="text-[10px] uppercase tracking-wider text-stone-500 text-center mb-2">Equipo · {otros.length}</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {otros.map(p => {
-                          const tareasPersona = tareas.filter(t => t.personaId === p.id && t.tallerId === taller.id && t.estado === 'pendiente').length;
-                          const nivel = getNivel(p, taller.id);
-                          return (
-                            <div key={p.id} className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5">
-                              <div className="relative flex-shrink-0">
-                                <div className="w-7 h-7 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center font-medium text-[10px]">
-                                  {p.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                                </div>
-                                {nivel && (
-                                  <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-stone-50 flex items-center justify-center text-[8px] font-bold ${NIVELES[nivel].color}`}>
-                                    {nivel}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-stone-900 leading-tight truncate">{p.nombre}</p>
-                                <p className="text-[10px] text-stone-500 leading-tight truncate">{getEquipo(p)}</p>
-                              </div>
-                              {tareasPersona > 0 && (
-                                <span className="text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">{tareasPersona}</span>
-                              )}
-                              {gestionandoMiembros && (
-                                <div className="flex items-center gap-0.5">
-                                  <div className="flex items-center gap-0.5 bg-white rounded p-0.5 border border-stone-200">
-                                    {[1, 2, 3].map(n => (
-                                      <button
-                                        key={n}
-                                        onClick={() => setNivelEnTaller(p.id, n)}
-                                        title={`${NIVELES[n].label} · ${NIVELES[n].desc}`}
-                                        className={`w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center transition-all ${
-                                          nivel === n ? NIVELES[n].color : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
-                                        }`}
-                                      >{n}</button>
-                                    ))}
-                                  </div>
-                                  <button
-                                    onClick={() => toggleMiembro(p.id)}
-                                    className="text-stone-400 hover:text-red-700 transition-colors"
-                                    title="Quitar del taller"
-                                  ><X size={11} /></button>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
+                <div className="space-y-2">
+                  {orderedRoots.map(p => renderPersonNode(p, 0))}
                   {integrantes.length === 0 && !gestionandoMiembros && (
                     <p className="text-xs text-stone-500 italic">No hay personas asignadas a este taller. Pulsa "Gestionar" para añadir.</p>
                   )}
