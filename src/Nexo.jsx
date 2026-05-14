@@ -1597,7 +1597,7 @@ talleresAnalisis: incluye SOLO los talleres con actividad (los del top arriba). 
                 body { background: white !important; }
                 .print\\:break-before-page { break-before: page; }
               }
-              .magazine-serif { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+              .magazine-serif { font-family: "Playfair Display", Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
             `}</style>
 
             <div className="no-print sticky top-0 bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between z-10 shadow-sm">
@@ -5648,7 +5648,7 @@ TAREAS ABIERTAS: ${tareasAbiertas}`;
                   ></div>
                   <span
                     className="absolute top-1/2 -translate-y-1/2 text-[10px] font-bold text-white drop-shadow-sm whitespace-nowrap"
-                    style={{ left: porcentaje > 12 ? `${Math.min(porcentaje - 6, 92)}%` : `${porcentaje + 1}%`, color: porcentaje > 12 ? 'white' : '#0E1F3D' }}
+                    style={{ left: porcentaje > 12 ? `${Math.min(porcentaje - 6, 92)}%` : `${porcentaje + 1}%`, color: porcentaje > 12 ? 'white' : '#1a1a1a' }}
                   >
                     {porcentaje}%
                   </span>
@@ -9364,7 +9364,7 @@ Estructura JSON requerida:
                 .no-print { display: none !important; }
                 body { background: white !important; }
               }
-              .magazine-serif { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+              .magazine-serif { font-family: "Playfair Display", Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
             `}</style>
 
             <div className="no-print sticky top-0 bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between z-10 shadow-sm">
@@ -14797,12 +14797,12 @@ function LoginScreen({ onEnterDemo }) {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-sand-50 via-white to-navy-50 flex items-center justify-center p-6 overflow-y-auto" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
       <style>{`
-        .font-serif, .font-display { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.015em; }
-        .eyebrow { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+        .font-serif, .font-display { font-family: "Playfair Display", Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
+        .eyebrow { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; color: #b08d57; }
       `}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-navy-900 mb-5 shadow-2xl shadow-navy-900/20">
@@ -14940,13 +14940,13 @@ function OnboardingScreen({ talleres, profile, onComplete, onLogout }) {
   return (
     <div className="fixed inset-0 bg-sand-50 overflow-y-auto" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
       <style>{`
-        .font-serif, .font-display { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.015em; }
+        .font-serif, .font-display { font-family: "Playfair Display", Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .eyebrow { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+        .eyebrow { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; color: #b08d57; }
       `}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       <div className="max-w-5xl mx-auto px-6 py-8 pb-28">
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-3">
@@ -15224,19 +15224,19 @@ export default function Nexo() {
     <div className="flex h-screen bg-sand-50 relative overflow-hidden font-sans text-stone-900" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
       <style>{`
         html, body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        .font-serif, .font-display { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.015em; }
+        .font-serif, .font-display { font-family: "Playfair Display", Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .eyebrow { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: #1d3d6e; }
-        .display-1 { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; font-size: clamp(1.9rem, 3vw, 2.6rem); line-height: 1.1; letter-spacing: -0.02em; }
-        .display-2 { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; font-size: clamp(1.4rem, 2.2vw, 1.8rem); line-height: 1.15; letter-spacing: -0.015em; }
-        .kpi-number { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-feature-settings: 'tnum' 1, 'lnum' 1, 'cv11' 1; font-variant-numeric: tabular-nums lining-nums; font-weight: 600; letter-spacing: -0.03em; line-height: 0.95; }
-        .magazine-serif { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.02em; }
-        .savills-rule { background: linear-gradient(90deg, #142d56 0%, #142d56 30%, #ffcc1a 30%, #ffcc1a 38%, transparent 38%); height: 2px; border: 0; }
+        .eyebrow { font-family: Inter, "Segoe UI", system-ui, sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; color: #b08d57; }
+        .display-1 { font-family: "Playfair Display", Georgia, serif; font-weight: 500; font-size: clamp(1.9rem, 3vw, 2.6rem); line-height: 1.1; letter-spacing: -0.01em; }
+        .display-2 { font-family: "Playfair Display", Georgia, serif; font-weight: 500; font-size: clamp(1.4rem, 2.2vw, 1.8rem); line-height: 1.15; letter-spacing: -0.005em; }
+        .kpi-number { font-family: "Playfair Display", Georgia, serif; font-feature-settings: 'lnum' 1; font-variant-numeric: lining-nums; font-weight: 500; letter-spacing: -0.015em; line-height: 0.95; }
+        .magazine-serif { font-family: "Playfair Display", Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
+        .savills-rule { background: linear-gradient(90deg, #1a1a1a 0%, #1a1a1a 30%, #b08d57 30%, #b08d57 38%, transparent 38%); height: 2px; border: 0; }
       `}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
       <Sidebar
         active={active}
